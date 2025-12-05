@@ -6,22 +6,26 @@ import {
   Delete,
   Param,
   Body,
+  UseGuards,
+  Request
 } from '@nestjs/common';
 import { AvailabilitiesService } from './availabilities.service';
 import { CreateAvailabilityDto, UpdateAvailabilityDto } from 'src/dto/availabilities.dto';
+import { AuthGuard } from 'src/modules/auth/auth.guard';
 
+@UseGuards(AuthGuard)
 @Controller('availabilities')
 export class AvailabilitiesController {
   constructor(private readonly availabilitiesService: AvailabilitiesService) {}
 
   @Post()
-  create(@Body() dto: CreateAvailabilityDto) {
-    return this.availabilitiesService.create(dto);
+  create(@Body() dto: CreateAvailabilityDto, @Request() req) {
+    return this.availabilitiesService.create({...dto, ...{user_id: req.user.id}});
   }
 
   @Get()
-  findAll() {
-    return this.availabilitiesService.findAll();
+  findAll(@Request() req) {
+    return this.availabilitiesService.findByUser(req.user.id);
   }
 
   @Get('user/:user_id')

@@ -4,9 +4,9 @@ export class CreateUserDto {
   name?: string;
   picture?: string;
   google_account_id?: string;
-  access_token: string;
+  access_token?: string;
   refresh_token?: string;
-  token_expiry?: Date;
+  token_expiry?: Date | null;
 }
 
 export class UpdateUserDto {
@@ -17,5 +17,5 @@ export class UpdateUserDto {
   google_account_id?: string;
   access_token?: string;
   refresh_token?: string;
-  token_expiry?: Date;
+  token_expiry?: Date | null;
 }

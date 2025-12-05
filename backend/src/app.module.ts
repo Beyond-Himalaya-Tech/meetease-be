@@ -12,9 +12,19 @@ import { EventsService } from './modules/events/events.service';
 import { EventsModule } from './modules/events/events.module';
 import { AuthService } from './modules/auth/auth.service';
 import { AuthModule } from './modules/auth/auth.module';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
-  imports: [UsersModule, PrismaModule, AvailabilitiesModule, ContactsModule, EventTypesModule, EventsModule, AuthModule],
+  imports: [
+    JwtModule,
+    UsersModule,
+    PrismaModule,
+    AvailabilitiesModule,
+    ContactsModule,
+    EventTypesModule,
+    EventsModule,
+    AuthModule
+  ],
   providers: [PrismaService, AvailabilitiesService, ContactsService, EventTypesService, EventsService, AuthService],
 })
 export class AppModule {}
