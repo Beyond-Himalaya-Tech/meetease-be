@@ -11,8 +11,9 @@ import {
   NotFoundException
 } from '@nestjs/common';
 import { AvailabilitiesService } from './availabilities.service';
-import { UpdateAvailabilityDto } from 'src/dto/availabilities.dto';
+import { CreateAvailabilityDto, UpdateAvailabilityDto } from 'src/dto/availabilities.dto';
 import { AuthGuard } from 'src/modules/auth/auth.guard';
+import { dateToTimeString } from 'src/helpers/time.helper';
 
 @UseGuards(AuthGuard)
 @Controller('availabilities')
@@ -20,15 +21,8 @@ export class AvailabilitiesController {
   constructor(private readonly availabilitiesService: AvailabilitiesService) {}
 
   @Post()
-  async create(@Body() data, @Request() req) {
-    const userAvailabilities = {
-      user_id: req.user.id,
-      day_of_week: data.day_of_week,
-      start_time: data.start_time,
-      end_time: data.end_time,
-    };
-    console.log(userAvailabilities);
-    return await this.availabilitiesService.create(userAvailabilities);
+  async create(@Body() createUserDto: CreateAvailabilityDto, @Request() req) {
+    return await this.availabilitiesService.upsert({...createUserDto, ...{user_id: req.user.id}});
   }
 
   @Get()
@@ -36,12 +30,21 @@ export class AvailabilitiesController {
     const userAvailabilities = await this.availabilitiesService.findByUser(req.user.id);
     if(!userAvailabilities.length)
       throw new NotFoundException("No user availability");
-    return userAvailabilities;
+
+    const formattedAvailabilities = userAvailabilities.map(availabilities => {
+      return {
+        id: availabilities.id,
+        day_of_week: availabilities.day_of_week,
+        start_time: dateToTimeString(availabilities.start_time),
+        end_time: dateToTimeString(availabilities.end_time)
+      }
+    })
+    return {data: formattedAvailabilities};
   }
 
   @Get('user/:user_id')
   async findByUser(@Param('user_id') user_id: number) {
-    const userAvailabilities = await this.availabilitiesService.findByUser(user_id);
+    const userAvailabilities = await this.availabilitiesService.findByUser(Number(user_id));
     if(!userAvailabilities.length)
       throw new NotFoundException("No user availability");
 

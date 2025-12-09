@@ -10,7 +10,6 @@ export class CreateUserDto {
 
 export class UpdateUserDto {
   email?: string;
-  password_hash?: string;
   name?: string;
   picture?: string;
   google_account_id?: string;

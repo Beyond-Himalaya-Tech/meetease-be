@@ -35,14 +35,13 @@ export class AuthService {
   async handleCallback(code: string) {
     const { tokens } = await this.oauth2Client.getToken(code);
 
-    if (!tokens.access_token || !tokens.refresh_token || !tokens.id_token) {
-      if(tokens.id_token)
-        return { access_token: tokens.id_token }
+    const accessToken = tokens.access_token || tokens.refresh_token || tokens.id_token;
+    if (!accessToken) {
       throw new Error('Failed to get Google tokens');
     }
 
     const { data } = await axios.get(
-      `https://www.googleapis.com/oauth2/v3/userinfo?access_token=${tokens.access_token}`
+      `https://www.googleapis.com/oauth2/v3/userinfo?access_token=${accessToken}`
     );
 
     const { sub, given_name, family_name, picture, email } = data;
