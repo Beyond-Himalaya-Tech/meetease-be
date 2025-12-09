@@ -7,10 +7,11 @@ import {
   Param,
   Body,
   UseGuards,
-  Request
+  Request,
+  NotFoundException
 } from '@nestjs/common';
 import { AvailabilitiesService } from './availabilities.service';
-import { CreateAvailabilityDto, UpdateAvailabilityDto } from 'src/dto/availabilities.dto';
+import { UpdateAvailabilityDto } from 'src/dto/availabilities.dto';
 import { AuthGuard } from 'src/modules/auth/auth.guard';
 
 @UseGuards(AuthGuard)
@@ -19,32 +20,46 @@ export class AvailabilitiesController {
   constructor(private readonly availabilitiesService: AvailabilitiesService) {}
 
   @Post()
-  create(@Body() dto: CreateAvailabilityDto, @Request() req) {
-    return this.availabilitiesService.create({...dto, ...{user_id: req.user.id}});
+  async create(@Body() data, @Request() req) {
+    const userAvailabilities = {
+      user_id: req.user.id,
+      day_of_week: data.day_of_week,
+      start_time_minutes: data.start_time_minutes,
+      end_time_minutes: data.end_time_minutes,
+    };
+    console.log(userAvailabilities);
+    return await this.availabilitiesService.create(userAvailabilities);
   }
 
   @Get()
-  findAll(@Request() req) {
-    return this.availabilitiesService.findByUser(req.user.id);
+  async findAll(@Request() req) {
+    const userAvailabilities = await this.availabilitiesService.findByUser(req.user.id);
+    if(!userAvailabilities.length)
+      throw new NotFoundException("No user availability");
+    return userAvailabilities;
   }
 
   @Get('user/:user_id')
-  findByUser(@Param('user_id') user_id: string) {
-    return this.availabilitiesService.findByUser(user_id);
+  async findByUser(@Param('user_id') user_id: string) {
+    const userAvailabilities = await this.availabilitiesService.findByUser(user_id);
+    if(!userAvailabilities.length)
+      throw new NotFoundException("No user availability");
+
+    return userAvailabilities;
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.availabilitiesService.findOne(id);
+  async findOne(@Param('id') id: string) {
+    return await this.availabilitiesService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() dto: UpdateAvailabilityDto) {
-    return this.availabilitiesService.update(id, dto);
+  async update(@Param('id') id: string, @Body() dto: UpdateAvailabilityDto) {
+    return await this.availabilitiesService.update(id, dto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.availabilitiesService.remove(id);
+  async remove(@Param('id') id: string) {
+    return await this.availabilitiesService.remove(id);
   }
 }

@@ -15,12 +15,12 @@ export class AuthService {
     this.oauth2Client = new google.auth.OAuth2(
       process.env.CLIENT_ID,
       process.env.CLIENT_SECRET,
-      process.env.REDIRECT_URI
+      process.env.REDIRECT_URL
     );
   }
 
   async getAuthUrl() {
-    const authUrl = this.oauth2Client.generateAuthUrl({
+    const authUrl = await this.oauth2Client.generateAuthUrl({
       access_type: 'offline', // needed to get refresh token
       scope: [
         'openid',
@@ -35,7 +35,9 @@ export class AuthService {
   async handleCallback(code: string) {
     const { tokens } = await this.oauth2Client.getToken(code);
 
-    if (!tokens.access_token || !tokens.refresh_token) {
+    if (!tokens.access_token || !tokens.refresh_token || !tokens.id_token) {
+      if(tokens.id_token)
+        return { access_token: tokens.id_token }
       throw new Error('Failed to get Google tokens');
     }
 
@@ -86,7 +88,7 @@ export class AuthService {
     const client = new google.auth.OAuth2(
       process.env.CLIENT_ID,
       process.env.CLIENT_SECRET,
-      process.env.REDIRECT_URI
+      process.env.REDIRECT_URL
     );
 
     client.setCredentials({

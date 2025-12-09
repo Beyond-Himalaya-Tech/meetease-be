@@ -1,6 +1,5 @@
 import { Controller, Get, Query } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { google } from 'googleapis';
 
 @Controller('auth')
 export class AuthController {
@@ -8,7 +7,8 @@ export class AuthController {
 
   @Get('authorize')
   async getAuthUrl() {  
-    return this.authService.getAuthUrl();
+    const authUrl = await this.authService.getAuthUrl();
+    return authUrl;
   }
 
   @Get('callback')
