@@ -9,6 +9,7 @@ export enum EventStatus {
 }
 
 export class CreateEventDto {
+  @IsOptional()
   @IsInt()
   user_id: number;
 
@@ -16,14 +17,15 @@ export class CreateEventDto {
   event_type_id: number;
 
   @IsISO8601()
-  start_at: string;
+  start_at: Date;
 
   @IsISO8601()
-  end_at: string;
+  end_at: Date;
 
   @IsString()
   timezone: string;
 
+  @IsOptional()
   @IsString()
   location_link: string;
 
@@ -34,13 +36,11 @@ export class CreateEventDto {
   @IsString()
   calendar_event_id?: string;
 
-  @IsOptional()
   @IsString()
-  name?: string;
+  name: string;
 
-  @IsOptional()
   @IsEmail()
-  email?: string;
+  email: string;
 
   @IsOptional()
   @IsString()
@@ -49,6 +49,37 @@ export class CreateEventDto {
   @IsOptional()
   @IsInt()
   contact_id?: number;
+}
+
+export class CreateEventDataDto {
+  @IsInt()
+  user_id: number;
+
+  @IsInt()
+  event_type_id: number;
+
+  @IsString()
+  start_at: Date;
+
+  @IsString()
+  end_at: Date;
+
+  @IsString()
+  timezone: string;
+
+  @IsOptional()
+  @IsString()
+  location_link?: string;
+
+  @IsEnum(EventStatus)
+  status: EventStatus;
+
+  @IsOptional()
+  @IsString()
+  calendar_event_id?: string;
+
+  @IsInt()
+  contact_id: number;
 }
 
 export class UpdateEventDto {
@@ -64,15 +95,13 @@ export class UpdateEventDto {
   @IsString()
   timezone?: string;
 
-  @IsOptional()
   @IsString()
-  location_link?: string;
+  location_link: string;
 
   @IsOptional()
   @IsEnum(EventStatus)
   status?: EventStatus;
 
-  @IsOptional()
   @IsString()
-  calendar_event_id?: string;
+  calendar_event_id: string;
 }

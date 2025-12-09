@@ -1,33 +1,70 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, NotFoundException, Request } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, NotFoundException, BadRequestException, Request } from '@nestjs/common';
 import { EventsService } from './events.service';
-import { CreateEventDto, UpdateEventDto } from 'src/dto/events.dto';
+import { CreateEventDataDto, CreateEventDto, UpdateEventDto } from 'src/dto/events.dto';
 import { AuthGuard } from '../auth/auth.guard';
 import { EventTypesService } from '../event-types/event-types.service';
+import { ContactsService } from '../contacts/contacts.service';
+import { CreateContactDto } from 'src/dto/contacts.dto';
+import { GoogleOAuthService } from '../google-oauth/google-oauth.service';
 
 @UseGuards(AuthGuard)
 @Controller('events')
 export class EventsController {
   constructor(
     private readonly eventService: EventsService,
-    private readonly eventTypeService: EventTypesService
+    private readonly contactService: ContactsService,
+    private readonly eventTypeService: EventTypesService,
+    private readonly oAuthService: GoogleOAuthService
   ) {}
 
   @Post()
   async create(@Body() dto: CreateEventDto, @Request() req) {
     const eventTypes = await this.eventTypeService.findOne(dto.event_type_id);
-    const contact = {
+    const contactData: CreateContactDto = {
       user_id: req.user.id,
-      name: dto.name || null,
       email: dto.email,
-      phone: dto.phone || null,
-      tag: eventTypes ? eventTypes.client_tag : null
+      name: dto.name
     };
-    console.log(contact);
-    return dto;
-    // return this.eventService.create({...dto, ...{user_id: req.user.id}});
+
+    if(dto.phone)  contactData.phone = dto.phone;
+    if(eventTypes?.client_tag)  contactData.tag = eventTypes?.client_tag;
+
+    const contact = await this.contactService.upsert(contactData);
+    
+    const calendarEvent = await this.oAuthService.createGoogleCalendarEvent(req.user, {
+      summary: `Meeting with ${eventTypes?.client_tag ?? 'client'}`,
+      description: `Event for ${eventTypes?.title}`,
+      start: {
+        dateTime: new Date(dto.start_at).toISOString(),
+        timeZone: dto.timezone,
+      },
+      end: {
+        dateTime: new Date(dto.end_at).toISOString(),
+        timeZone: dto.timezone,
+      },
+      attendees: [{ email: dto.email }],
+      conferenceData: {
+        createRequest: {
+          requestId: Date.now().toString(),
+          conferenceSolutionKey: { type: 'hangoutsMeet' },
+        },
+      },
+    });
+    
+    const eventData: CreateEventDataDto = {
+      user_id: req.user.id,
+      event_type_id: dto.event_type_id,
+      start_at: new Date(dto.start_at),
+      end_at: new Date(dto.end_at),
+      timezone: dto.timezone,
+      location_link: calendarEvent.hangoutLink ?? 'https://meet.google.com',
+      status: dto.status ?? 'PENDING',
+      calendar_event_id: calendarEvent.id ?? '1',
+      contact_id: contact.id
+    };
+    return await this.eventService.create(eventData);
   }
 
-  // GET /events?user_id=123
   @Get()
   async findAll(@Query('user_id') user_id: number) {
     const userEvents = await this.eventService.findAllByUser(user_id);

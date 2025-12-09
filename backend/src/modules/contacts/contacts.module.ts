@@ -12,6 +12,7 @@ import { UsersModule } from '../users/users.module';
     UsersModule
   ],
   controllers: [ContactsController],
-  providers: [ContactsService]
+  providers: [ContactsService],
+  exports: [ContactsService]
 })
 export class ContactsModule {}

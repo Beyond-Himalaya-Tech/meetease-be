@@ -4,7 +4,6 @@ export class CreateContactDto {
   @IsInt()
   user_id: number;
 
-  @IsOptional()
   @IsString()
   name: string;
 
@@ -14,6 +13,10 @@ export class CreateContactDto {
   @IsOptional()
   @IsString()
   phone?: string;
+
+  @IsOptional()
+  @IsString()
+  tag?: string;
 }
 
 export class UpdateContactDto {

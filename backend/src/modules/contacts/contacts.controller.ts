@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, Request } from '@nestjs/common';
 import { ContactsService } from './contacts.service';
 import { CreateContactDto, UpdateContactDto } from 'src/dto/contacts.dto';
 import { AuthGuard } from '../auth/auth.guard';
@@ -9,8 +9,8 @@ export class ContactsController {
   constructor(private readonly contactsService: ContactsService) {}
 
   @Post()
-  create(@Body() dto: CreateContactDto) {
-    return this.contactsService.create(dto);
+  create(@Body() dto, @Request() req) {
+    return this.contactsService.create({...dto, ...{ user_id: req.user.id}});
   }
 
   // /contacts?user_id=123

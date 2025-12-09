@@ -7,8 +7,18 @@ export class ContactsService {
   constructor(private prisma: PrismaService) {}
 
   create(data: CreateContactDto) {
-    return this.prisma.contacts.create({
-      data
+    return this.prisma.contacts.create({data});
+  }
+
+  async upsert(data: CreateContactDto) {
+    return await this.prisma.contacts.upsert({
+      where: { email: data.email },
+      update: {
+        name: data.name,
+        phone: data.phone,
+        tag: data.tag
+      },
+      create: data
     });
   }
 
