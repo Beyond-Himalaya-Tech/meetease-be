@@ -6,15 +6,9 @@ import { PrismaService } from 'src/prisma/prisma.service';
 export class ContactsService {
   constructor(private prisma: PrismaService) {}
 
-  create(dto: CreateContactDto) {
+  create(data: CreateContactDto) {
     return this.prisma.contacts.create({
-      data: {
-        name: dto.name,
-        email: dto.email,
-        phone: dto.phone,
-        tag: dto.tag,
-        user_id: dto.user_id, // <-- FK
-      },
+      data
     });
   }
 

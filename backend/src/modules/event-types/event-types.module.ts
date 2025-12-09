@@ -12,6 +12,7 @@ import { AuthModule } from '../auth/auth.module';
     UsersModule
   ],
   controllers: [EventTypesController],
-  providers: [EventTypesService]
+  providers: [EventTypesService],
+  exports: [EventTypesService]
 })
 export class EventTypesModule {}

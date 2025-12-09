@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Request, UseGuards, NotFoundException } from '@nestjs/common';
 import { EventTypesService } from './event-types.service';
 import { CreateEventTypeDto, UpdateEventTypeDto } from 'src/dto/eventsType.dto';
 import { AuthGuard } from '../auth/auth.guard';
@@ -6,31 +6,34 @@ import { AuthGuard } from '../auth/auth.guard';
 @UseGuards(AuthGuard)
 @Controller('event-types')
 export class EventTypesController {
-  constructor(private readonly service: EventTypesService) {}
+  constructor(private readonly eventTypeService: EventTypesService) {}
 
   @Post()
-  create(@Body() dto: CreateEventTypeDto) {
-    return this.service.create(dto);
+  create(@Body() dto: CreateEventTypeDto, @Request() req) {
+    return this.eventTypeService.create({...dto, ...{ user_id: req.user.id }});
   }
 
-  // GET /event-types?user_id=123
   @Get()
-  findAll(@Query('user_id') user_id: number) {
-    return this.service.findAllByUser(user_id);
+  async findAll(@Request() req) {
+    const userEventTypes = await this.eventTypeService.findAllByUser(req.user.id);
+    if(!userEventTypes.length) {
+      throw new NotFoundException("No user event types");
+    }
+    return userEventTypes;
   }
 
   @Get(':id')
   findOne(@Param('id') id: number) {
-    return this.service.findOne(id);
+    return this.eventTypeService.findOne(id);
   }
 
   @Patch(':id')
   update(@Param('id') id: number, @Body() dto: UpdateEventTypeDto) {
-    return this.service.update(id, dto);
+    return this.eventTypeService.update(id, dto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: number) {
-    return this.service.remove(id);
+    return this.eventTypeService.remove(id);
   }
 }

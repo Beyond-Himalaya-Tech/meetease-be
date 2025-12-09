@@ -14,7 +14,7 @@ export class EventTypesService {
         duration_minutes: dto.duration_minutes,
         is_active: dto.is_active ?? true,
         client_tag: dto.client_tag,
-        user_id: dto.user_id, // FK mapped correctly
+        user_id: dto.user_id
       },
     });
   }

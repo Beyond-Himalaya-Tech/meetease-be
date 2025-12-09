@@ -13,6 +13,7 @@ import { EventsModule } from './modules/events/events.module';
 import { AuthService } from './modules/auth/auth.service';
 import { AuthModule } from './modules/auth/auth.module';
 import { JwtModule } from '@nestjs/jwt';
+import { GoogleOauthModule } from './modules/google-oauth/google-oauth.module';
 
 @Module({
   imports: [
@@ -23,7 +24,8 @@ import { JwtModule } from '@nestjs/jwt';
     ContactsModule,
     EventTypesModule,
     EventsModule,
-    AuthModule
+    AuthModule,
+    GoogleOauthModule
   ],
   providers: [PrismaService, AvailabilitiesService, ContactsService, EventTypesService, EventsService, AuthService],
 })

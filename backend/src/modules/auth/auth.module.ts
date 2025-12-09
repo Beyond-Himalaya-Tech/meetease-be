@@ -5,6 +5,7 @@ import { AuthService } from './auth.service';
 import { JwtModule } from '@nestjs/jwt';
 import { UsersModule } from '../users/users.module';
 import { AuthGuard } from './auth.guard';
+import { GoogleOauthModule } from '../google-oauth/google-oauth.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { AuthGuard } from './auth.guard';
       signOptions: { expiresIn: '7d' },
     }),
     forwardRef(() => UsersModule),
+    GoogleOauthModule
   ],
   controllers: [AuthController],
   providers: [AuthService, AuthGuard],

@@ -13,7 +13,7 @@ export class EventsService {
         end_at: new Date(dto.end_at),
         timezone: dto.timezone,
         location_link: dto.location_link,
-        status: dto.status,
+        status: dto.status || "PENDING",
         calendar_event_id: dto.calendar_event_id,
         event_type_id: dto.event_type_id,
         user_id: dto.user_id,
@@ -50,8 +50,7 @@ export class EventsService {
       data: {
         ...dto,
         start_at: dto.start_at ? new Date(dto.start_at) : undefined,
-        end_at: dto.end_at ? new Date(dto.end_at) : undefined,
-        contact_id: dto.contact_id,
+        end_at: dto.end_at ? new Date(dto.end_at) : undefined
       },
     });
   }
