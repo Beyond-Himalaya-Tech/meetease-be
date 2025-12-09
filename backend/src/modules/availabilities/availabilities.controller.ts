@@ -24,8 +24,8 @@ export class AvailabilitiesController {
     const userAvailabilities = {
       user_id: req.user.id,
       day_of_week: data.day_of_week,
-      start_time_minutes: data.start_time_minutes,
-      end_time_minutes: data.end_time_minutes,
+      start_time: data.start_time,
+      end_time: data.end_time,
     };
     console.log(userAvailabilities);
     return await this.availabilitiesService.create(userAvailabilities);
@@ -40,7 +40,7 @@ export class AvailabilitiesController {
   }
 
   @Get('user/:user_id')
-  async findByUser(@Param('user_id') user_id: string) {
+  async findByUser(@Param('user_id') user_id: number) {
     const userAvailabilities = await this.availabilitiesService.findByUser(user_id);
     if(!userAvailabilities.length)
       throw new NotFoundException("No user availability");
@@ -49,17 +49,17 @@ export class AvailabilitiesController {
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string) {
+  async findOne(@Param('id') id: number) {
     return await this.availabilitiesService.findOne(id);
   }
 
   @Patch(':id')
-  async update(@Param('id') id: string, @Body() dto: UpdateAvailabilityDto) {
+  async update(@Param('id') id: number, @Body() dto: UpdateAvailabilityDto) {
     return await this.availabilitiesService.update(id, dto);
   }
 
   @Delete(':id')
-  async remove(@Param('id') id: string) {
+  async remove(@Param('id') id: number) {
     return await this.availabilitiesService.remove(id);
   }
 }

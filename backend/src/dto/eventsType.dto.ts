@@ -1,5 +1,5 @@
 export class CreateEventTypeDto {
-  user_id: string;
+  user_id: number;
   title: string;
   description?: string;
   duration_minutes: number;

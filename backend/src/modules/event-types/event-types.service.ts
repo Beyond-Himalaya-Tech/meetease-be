@@ -19,18 +19,18 @@ export class EventTypesService {
     });
   }
 
-  findAllByUser(user_id: string) {
+  findAllByUser(user_id: number) {
     return this.prisma.event_types.findMany({
       where: { user_id },
       orderBy: { created_at: 'desc' },
     });
   }
 
-  findOne(id: string) {
+  findOne(id: number) {
     return this.prisma.event_types.findUnique({ where: { id } });
   }
 
-  update(id: string, dto: UpdateEventTypeDto) {
+  update(id: number, dto: UpdateEventTypeDto) {
     return this.prisma.event_types.update({
       where: { id },
       data: {
@@ -39,7 +39,7 @@ export class EventTypesService {
     });
   }
 
-  remove(id: string) {
+  remove(id: number) {
     return this.prisma.event_types.delete({ where: { id } });
   }
 }

@@ -1,8 +1,7 @@
 -- Users table
 CREATE TABLE "users" (
-    "id" VARCHAR PRIMARY KEY,
+    "id" SERIAL PRIMARY KEY,
     "email" VARCHAR NOT NULL UNIQUE,
-    "password_hash" VARCHAR,
     "name" VARCHAR,
     "picture" VARCHAR,
     "google_account_id" VARCHAR,
@@ -15,8 +14,8 @@ CREATE TABLE "users" (
 
 -- Event types table
 CREATE TABLE "event_types" (
-    "id" VARCHAR PRIMARY KEY,
-    "user_id" VARCHAR NOT NULL REFERENCES "users"("id"),
+    "id" SERIAL PRIMARY KEY,
+    "user_id" INT NOT NULL REFERENCES "users"("id"),
     "title" VARCHAR NOT NULL,
     "description" TEXT,
     "duration_minutes" INT NOT NULL,
@@ -28,19 +27,19 @@ CREATE TABLE "event_types" (
 
 -- Availabilities table
 CREATE TABLE "availabilities" (
-    "id" VARCHAR PRIMARY KEY,
-    "user_id" VARCHAR NOT NULL REFERENCES "users"("id"),
-    "day_of_week" INT NOT NULL,
-    "start_time_minutes" INT NOT NULL,
-    "end_time_minutes" INT NOT NULL,
+    "id" SERIAL PRIMARY KEY,
+    "user_id" INT NOT NULL REFERENCES "users"("id"),
+    "day_of_week" INT NOT NULL, -- 0 = Sunday ... 6 = Saturday
+    "start_time" TIME NOT NULL,
+    "end_time" TIME NOT NULL,
     "created_at" TIMESTAMP DEFAULT now(),
     "updated_at" TIMESTAMP DEFAULT now()
 );
 
 -- Contacts table
 CREATE TABLE "contacts" (
-    "id" VARCHAR PRIMARY KEY,
-    "user_id" VARCHAR NOT NULL REFERENCES "users"("id"),
+    "id" SERIAL PRIMARY KEY,
+    "user_id" INT NOT NULL REFERENCES "users"("id"),
     "name" VARCHAR NOT NULL,
     "email" VARCHAR NOT NULL UNIQUE,
     "phone" VARCHAR,
@@ -51,10 +50,10 @@ CREATE TABLE "contacts" (
 
 -- Events table
 CREATE TABLE "events" (
-    "id" VARCHAR PRIMARY KEY,
-    "user_id" VARCHAR NOT NULL REFERENCES "users"("id"),
-    "event_type_id" VARCHAR NOT NULL REFERENCES "event_types"("id"),
-    "contact_id" VARCHAR REFERENCES "contacts"("id"),
+    "id" SERIAL PRIMARY KEY,
+    "user_id" INT NOT NULL REFERENCES "users"("id"),
+    "event_type_id" INT NOT NULL REFERENCES "event_types"("id"),
+    "contact_id" INT REFERENCES "contacts"("id"), -- optional contact
     "start_at" TIMESTAMP NOT NULL,
     "end_at" TIMESTAMP NOT NULL,
     "timezone" VARCHAR NOT NULL,

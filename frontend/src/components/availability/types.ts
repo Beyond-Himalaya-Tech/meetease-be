@@ -7,7 +7,7 @@ export type WeeklyRow = {
 };
 
 export type EventType = {
-  id: string;
+  id: number;
   name: string;
   duration: string;
   location: string;

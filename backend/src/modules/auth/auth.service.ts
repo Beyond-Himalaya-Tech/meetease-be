@@ -78,7 +78,7 @@ export class AuthService {
     return { access_token };
   }
 
-  async getOAuthClientForUser(userId: string) {
+  async getOAuthClientForUser(userId: number) {
     const user = await this.usersService.findOne(userId);
 
     if (!user || !user.access_token) {

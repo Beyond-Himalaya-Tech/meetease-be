@@ -26,7 +26,7 @@ const EventTypesModal = ({
   const updateAll = (selected: boolean) =>
     onSetEventTypes((prev) => prev.map((et) => ({ ...et, selected })));
 
-  const toggleOne = (id: string, selected: boolean) =>
+  const toggleOne = (id: number, selected: boolean) =>
     onSetEventTypes((prev) =>
       prev.map((et) => (et.id === id ? { ...et, selected } : et)),
     );

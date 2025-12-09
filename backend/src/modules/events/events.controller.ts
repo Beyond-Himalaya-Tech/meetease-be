@@ -15,22 +15,22 @@ export class EventsController {
 
   // GET /events?user_id=123
   @Get()
-  findAll(@Query('user_id') user_id: string) {
+  findAll(@Query('user_id') user_id: number) {
     return this.service.findAllByUser(user_id);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id') id: number) {
     return this.service.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() dto: UpdateEventDto) {
+  update(@Param('id') id: number, @Body() dto: UpdateEventDto) {
     return this.service.update(id, dto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  remove(@Param('id') id: number) {
     return this.service.remove(id);
   }
 }

@@ -22,7 +22,7 @@ export class EventsService {
     });
   }
 
-  findAllByUser(user_id: string) {
+  findAllByUser(user_id: number) {
     return this.prisma.events.findMany({
       where: { user_id: user_id },
       orderBy: { created_at: 'desc' },
@@ -33,7 +33,7 @@ export class EventsService {
     });
   }
 
-  findOne(id: string) {
+  findOne(id: number) {
     return this.prisma.events.findUnique({
       where: { id },
       include: {
@@ -44,7 +44,7 @@ export class EventsService {
     });
   }
 
-  update(id: string, dto: UpdateEventDto) {
+  update(id: number, dto: UpdateEventDto) {
     return this.prisma.events.update({
       where: { id },
       data: {
@@ -56,7 +56,7 @@ export class EventsService {
     });
   }
 
-  remove(id: string) {
+  remove(id: number) {
     return this.prisma.events.delete({ where: { id } });
   }
 }

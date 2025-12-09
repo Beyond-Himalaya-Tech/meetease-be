@@ -1,7 +1,7 @@
 export class CreateEventDto {
-  user_id: string;
-  event_type_id: string;
-  contact_id?: string;
+  user_id: number;
+  event_type_id: number;
+  contact_id?: number;
   start_at: string;
   end_at: string;
   timezone: string;
@@ -11,7 +11,7 @@ export class CreateEventDto {
 }
 
 export class UpdateEventDto {
-  contact_id?: string;
+  contact_id?: number;
   start_at: string;
   end_at: string;
   timezone: string;

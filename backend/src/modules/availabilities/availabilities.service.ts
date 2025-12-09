@@ -8,7 +8,7 @@ export class AvailabilitiesService {
 
   create(data: CreateAvailabilityDto) {
     return this.prisma.availabilities.create({
-      data,
+      data
     });
   }
 
@@ -16,26 +16,26 @@ export class AvailabilitiesService {
     return this.prisma.availabilities.findMany();
   }
 
-  findByUser(user_id: string) {
+  findByUser(user_id: number) {
     return this.prisma.availabilities.findMany({
       where: { user_id },
     });
   }
 
-  findOne(id: string) {
+  findOne(id: number) {
     return this.prisma.availabilities.findUnique({
       where: { id },
     });
   }
 
-  update(id: string, data: UpdateAvailabilityDto) {
+  update(id: number, data: UpdateAvailabilityDto) {
     return this.prisma.availabilities.update({
       where: { id },
       data,
     });
   }
 
-  remove(id: string) {
+  remove(id: number) {
     return this.prisma.availabilities.delete({
       where: { id },
     });

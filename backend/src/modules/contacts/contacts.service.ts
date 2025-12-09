@@ -18,18 +18,18 @@ export class ContactsService {
     });
   }
 
-  findAllByUser(user_id: string) {
+  findAllByUser(user_id: number) {
     return this.prisma.contacts.findMany({
       where: { user_id },
       orderBy: { created_at: 'desc' },
     });
   }
 
-  findOne(id: string) {
+  findOne(id: number) {
     return this.prisma.contacts.findUnique({ where: { id } });
   }
 
-  update(id: string, dto: UpdateContactDto) {
+  update(id: number, dto: UpdateContactDto) {
     return this.prisma.contacts.update({
       where: { id },
       data: {
@@ -38,7 +38,7 @@ export class ContactsService {
     });
   }
 
-  remove(id: string) {
+  remove(id: number) {
     return this.prisma.contacts.delete({ where: { id } });
   }
 }

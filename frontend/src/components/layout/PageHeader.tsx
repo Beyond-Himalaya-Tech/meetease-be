@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 
 type Tab = {
-  id: string;
+  id: number;
   label: string;
 };
 
@@ -10,7 +10,7 @@ type PageHeaderProps = {
   subtitle?: string;
   tabs?: Tab[];
   activeTabId?: string;
-  onTabChange?: (id: string) => void;
+  onTabChange?: (id: number) => void;
   rightSlot?: ReactNode;
 };
 
