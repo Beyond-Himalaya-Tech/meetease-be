@@ -1,5 +1,6 @@
 import { Controller, Get, Query } from '@nestjs/common';
 import { AuthService } from './auth.service';
+import { responseFormatter } from 'src/helpers/response.helper';
 
 @Controller('auth')
 export class AuthController {
@@ -17,7 +18,7 @@ export class AuthController {
       const url = await this.authService.handleCallback(code);
       return url;
     } catch (err) {
-      return {error: err.message};
+      throw responseFormatter(err, "error");
     }
   }
 }

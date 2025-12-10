@@ -3,37 +3,58 @@ import { Controller, Get, Post, Patch, Delete, Param, Body, UseGuards, Request }
 import { UsersService } from './users.service';
 import { CreateUserDto, UpdateUserDto } from 'src/dto/users.dto';
 import { AuthGuard } from 'src/modules/auth/auth.guard';
+import { responseFormatter } from 'src/helpers/response.helper';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
+  async create(@Body() createUserDto: CreateUserDto) {
+    try {
+      return responseFormatter(await this.usersService.create(createUserDto));
+    } catch (err) {
+      throw responseFormatter(err, "error");
+    }
   }
 
   @UseGuards(AuthGuard)
   @Get()
-  findUser(@Request() req) {
-    return this.usersService.findOne(req.user.id);
+  async findUser(@Request() req) {
+    try {
+      return responseFormatter(await this.usersService.findOne(req.user.id));
+    } catch (err) {
+      throw responseFormatter(err, "error");
+    }
   }
 
   @UseGuards(AuthGuard)
   @Get(':id')
-  findOne(@Param('id') id: number) {
-    return this.usersService.findOne(id);
+  async findOne(@Param('id') id: number) {
+    try {
+      return responseFormatter(await this.usersService.findOne(id));
+    } catch (err) {
+      throw responseFormatter(err, "error");
+    }
   }
 
   @UseGuards(AuthGuard)
   @Patch(':id')
-  update(@Param('id') id: number, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(id, updateUserDto);
+  async update(@Param('id') id: number, @Body() updateUserDto: UpdateUserDto) {
+    try {
+      return responseFormatter(await this.usersService.update(id, updateUserDto));
+    } catch (err) {
+      throw responseFormatter(err, "error");
+    }
   }
 
   @UseGuards(AuthGuard)
   @Delete(':id')
-  remove(@Param('id') id: number) {
-    return this.usersService.remove(id);
+  async remove(@Param('id') id: number) {
+    try {
+      return responseFormatter(await this.usersService.remove(id));
+    } catch (err) {
+      throw responseFormatter(err, "error");
+    }
   }
 }

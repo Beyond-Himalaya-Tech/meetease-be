@@ -6,8 +6,8 @@ import { PrismaService } from 'src/prisma/prisma.service';
 export class ContactsService {
   constructor(private prisma: PrismaService) {}
 
-  create(data: CreateContactDto) {
-    return this.prisma.contacts.create({data});
+  async create(data: CreateContactDto) {
+    return await this.prisma.contacts.create({data});
   }
 
   async upsert(data: CreateContactDto) {
@@ -22,19 +22,19 @@ export class ContactsService {
     });
   }
 
-  findAllByUser(user_id: number) {
-    return this.prisma.contacts.findMany({
+  async findAllByUser(user_id: number) {
+    return await this.prisma.contacts.findMany({
       where: { user_id },
       orderBy: { created_at: 'desc' },
     });
   }
 
-  findOne(id: number) {
-    return this.prisma.contacts.findUnique({ where: { id } });
+  async findOne(id: number) {
+    return await this.prisma.contacts.findUnique({ where: { id } });
   }
 
-  update(id: number, dto: UpdateContactDto) {
-    return this.prisma.contacts.update({
+  async update(id: number, dto: UpdateContactDto) {
+    return await this.prisma.contacts.update({
       where: { id },
       data: {
         ...dto
@@ -42,7 +42,7 @@ export class ContactsService {
     });
   }
 
-  remove(id: number) {
-    return this.prisma.contacts.delete({ where: { id } });
+  async remove(id: number) {
+    return await this.prisma.contacts.delete({ where: { id } });
   }
 }

@@ -8,8 +8,8 @@ import { timeStringToDate } from 'src/helpers/time.helper';
 export class AvailabilitiesService {
   constructor(private prisma: PrismaService) {}
 
-  create(data: CreateAvailabilityDto) {
-    return this.prisma.availabilities.create({
+  async create(data: CreateAvailabilityDto) {
+    return await this.prisma.availabilities.create({
       data: {
         user_id: data.user_id,
         day_of_week: data.day_of_week,
@@ -20,7 +20,7 @@ export class AvailabilitiesService {
   }
 
   async upsert(data: CreateAvailabilityDto) {
-    return this.prisma.availabilities.upsert({
+    return await this.prisma.availabilities.upsert({
       where: {
         user_id_day_of_week: {
           user_id: data.user_id,
@@ -41,36 +41,36 @@ export class AvailabilitiesService {
     });
   }
 
-  findAll() {
-    return this.prisma.availabilities.findMany();
+  async findAll() {
+    return await this.prisma.availabilities.findMany();
   }
 
-  findByUser(where) {
-    return this.prisma.availabilities.findMany({
+  async findByUser(where) {
+    return await this.prisma.availabilities.findMany({
       where,
     });
   }
 
-  findOne(id: number) {
-    return this.prisma.availabilities.findUnique({
+  async findOne(id: number) {
+    return await this.prisma.availabilities.findUnique({
       where: { id },
     });
   }
 
-  update(id: number, data: UpdateAvailabilityDto) {
+  async update(id: number, data: UpdateAvailabilityDto) {
     const updateData: Prisma.availabilitiesUpdateInput = {};
     if (data.start_time)  updateData.start_time = timeStringToDate(data.start_time);
     
     if (data.end_time)  updateData.end_time = timeStringToDate(data.end_time);
 
-    return this.prisma.availabilities.update({
+    return await this.prisma.availabilities.update({
       where: { id },
       data: updateData,
     });
   }
 
-  remove(id: number) {
-    return this.prisma.availabilities.delete({
+  async remove(id: number) {
+    return await this.prisma.availabilities.delete({
       where: { id },
     });
   }

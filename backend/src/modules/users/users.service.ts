@@ -7,28 +7,28 @@ import { PrismaService } from 'src/prisma/prisma.service';
 export class UsersService {
   constructor(private prisma: PrismaService) {}
 
-  create(data: CreateUserDto) {
-    return this.prisma.users.create({ data });
+  async create(data: CreateUserDto) {
+    return await this.prisma.users.create({ data });
   }
 
-  findAll() {
-    return this.prisma.users.findMany();
+  async findAll() {
+    return await this.prisma.users.findMany();
   }
 
-  findOne(id: number) {
-    return this.prisma.users.findUnique({ where: { id } });
+  async findOne(id: number) {
+    return await this.prisma.users.findUnique({ where: { id } });
   }
 
-  findByEmail(email: string) {
-    return this.prisma.users.findUnique({ where: { email } });
+  async findByEmail(email: string) {
+    return await this.prisma.users.findUnique({ where: { email } });
   }
 
-  update(id: number, data: UpdateUserDto) {
-    return this.prisma.users.update({ where: { id }, data });
+  async update(id: number, data: UpdateUserDto) {
+    return await this.prisma.users.update({ where: { id }, data });
   }
 
-  remove(id: number) {
-    return this.prisma.users.delete({ where: { id } });
+  async remove(id: number) {
+    return await this.prisma.users.delete({ where: { id } });
   }
 }
 

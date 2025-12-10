@@ -1,7 +1,8 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, Request } from '@nestjs/common';
 import { ContactsService } from './contacts.service';
-import { CreateContactDto, UpdateContactDto } from 'src/dto/contacts.dto';
+import { UpdateContactDto } from 'src/dto/contacts.dto';
 import { AuthGuard } from '../auth/auth.guard';
+import { responseFormatter } from 'src/helpers/response.helper';
 
 @UseGuards(AuthGuard)
 @Controller('contacts')
@@ -9,28 +10,47 @@ export class ContactsController {
   constructor(private readonly contactsService: ContactsService) {}
 
   @Post()
-  create(@Body() dto, @Request() req) {
-    return this.contactsService.create({...dto, ...{ user_id: req.user.id}});
+  async create(@Body() dto, @Request() req) {
+    try {
+     return responseFormatter(await this.contactsService.create({...dto, ...{ user_id: req.user.id}}));
+    } catch (err) {
+      throw responseFormatter(err, "error");
+    }
   }
 
-  // /contacts?user_id=123
   @Get()
-  findAll(@Query('user_id') user_id: number) {
-    return this.contactsService.findAllByUser(user_id);
+  async findAll(@Query('user_id') user_id: number) {
+    try {
+     return responseFormatter(await this.contactsService.findAllByUser(user_id));
+    } catch (err) {
+      throw responseFormatter(err, "error");
+    }
   }
 
   @Get(':id')
-  findOne(@Param('id') id: number) {
-    return this.contactsService.findOne(id);
+  async findOne(@Param('id') id: number) {
+    try {
+     return responseFormatter(await this.contactsService.findOne(id));
+    } catch (err) {
+      throw responseFormatter(err, "error");
+    }
   }
 
   @Patch(':id')
-  update(@Param('id') id: number, @Body() dto: UpdateContactDto) {
-    return this.contactsService.update(id, dto);
+  async update(@Param('id') id: number, @Body() dto: UpdateContactDto) {
+    try {
+     return responseFormatter(await this.contactsService.update(id, dto));
+    } catch (err) {
+      throw responseFormatter(err, "error");
+    }
   }
 
   @Delete(':id')
-  remove(@Param('id') id: number) {
-    return this.contactsService.remove(id);
+  async remove(@Param('id') id: number) {
+    try {
+     return responseFormatter(await this.contactsService.remove(id));
+    } catch (err) {
+      throw responseFormatter(err, "error");
+    }
   }
 }
