@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, NotFoundException, BadRequestException, Request } from '@nestjs/common';
 import { EventsService } from './events.service';
-import { CreateEventDataDto, CreateEventDto, UpdateEventDto } from 'src/dto/events.dto';
+import { CreateEventDataDto, CreateEventDto, EventStatus, UpdateEventDto } from 'src/dto/events.dto';
 import { AuthGuard } from '../auth/auth.guard';
 import { EventTypesService } from '../event-types/event-types.service';
 import { ContactsService } from '../contacts/contacts.service';
@@ -62,13 +62,25 @@ export class EventsController {
       calendar_event_id: calendarEvent.id ?? '1',
       contact_id: contact.id
     };
+
     return await this.eventService.create(eventData);
   }
 
   @Get()
-  async findAll(@Query('user_id') user_id: number) {
-    const userEvents = await this.eventService.findAllByUser(user_id);
-    if(userEvents) {
+  async findAll(@Query('event') event: string, @Request() req) {
+    let where: any = {
+      user_id: req.user.id,
+    };
+    if(event == 'upcoming')
+      where.start_at = {
+        gte: new Date()
+      }
+    if(event == 'past')
+      where.start_at = {
+        lte: new Date()
+      }
+    const userEvents = await this.eventService.findFilteredByUser(where);
+    if(!userEvents.length) {
       throw new NotFoundException("No user events");
     }
     return userEvents;
@@ -82,6 +94,15 @@ export class EventsController {
   @Patch(':id')
   update(@Param('id') id: number, @Body() dto: UpdateEventDto) {
     return this.eventService.update(id, dto);
+  }
+
+  @Patch('cancel/:id')
+  async cancelEvent(@Param('id') id: number, @Request() req) {
+    const updateEvent: UpdateEventDto = { status: EventStatus.CANCELLED };
+    const event = await this.eventService.update(id, updateEvent);
+    if(event?.calendar_event_id)
+      await this.oAuthService.cancelGoogleCalendarEvent(req.user, event.calendar_event_id);
+    return event;
   }
 
   @Delete(':id')

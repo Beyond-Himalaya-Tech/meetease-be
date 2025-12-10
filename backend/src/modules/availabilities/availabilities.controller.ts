@@ -44,7 +44,7 @@ export class AvailabilitiesController {
 
   @Get('user/:user_id')
   async findByUser(@Param('user_id') user_id: number) {
-    const userAvailabilities = await this.availabilitiesService.findByUser(Number(user_id));
+    const userAvailabilities = await this.availabilitiesService.findByUser(user_id);
     if(!userAvailabilities.length)
       throw new NotFoundException("No user availability");
 

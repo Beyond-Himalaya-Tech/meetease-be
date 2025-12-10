@@ -13,5 +13,6 @@ import { UsersModule } from '../users/users.module'; // ← add this
   ],
   controllers: [AvailabilitiesController],
   providers: [AvailabilitiesService],
+  exports: [AvailabilitiesService]
 })
 export class AvailabilitiesModule {}

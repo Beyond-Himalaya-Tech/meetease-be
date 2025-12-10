@@ -4,12 +4,14 @@ import { EventTypesController } from './event-types.controller';
 import { EventTypesService } from './event-types.service';
 import { UsersModule } from '../users/users.module';
 import { AuthModule } from '../auth/auth.module';
+import { AvailabilitiesModule } from '../availabilities/availabilities.module';
 
 @Module({
   imports: [
     PrismaModule,
     forwardRef(() => AuthModule),
-    UsersModule
+    UsersModule,
+    AvailabilitiesModule
   ],
   controllers: [EventTypesController],
   providers: [EventTypesService],

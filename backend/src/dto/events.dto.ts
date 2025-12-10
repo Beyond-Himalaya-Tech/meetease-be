@@ -95,13 +95,15 @@ export class UpdateEventDto {
   @IsString()
   timezone?: string;
 
+  @IsOptional()
   @IsString()
-  location_link: string;
+  location_link?: string;
 
   @IsOptional()
   @IsEnum(EventStatus)
   status?: EventStatus;
 
+  @IsOptional()
   @IsString()
-  calendar_event_id: string;
+  calendar_event_id?: string;
 }

@@ -10,3 +10,14 @@ export function dateToTimeString(date: Date): string {
   const minutes = date.getMinutes().toString().padStart(2, '0');
   return `${hours}:${minutes}`;
 }
+
+export function msToHour(time: number): string {
+  const totalMinutes = Math.floor(time / 60000);
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+
+  const hh = hours.toString().padStart(2, '0');
+  const mm = minutes.toString().padStart(2, '0');
+
+  return `${hh}:${mm}`;
+}

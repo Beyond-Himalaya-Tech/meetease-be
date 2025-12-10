@@ -24,7 +24,18 @@ export class EventsService {
 
   findAllByUser(user_id: number) {
     return this.prisma.events.findMany({
-      where: { user_id: user_id },
+      where: { user_id },
+      orderBy: { created_at: 'desc' },
+      include: {
+        event_types: true,
+        contacts: true,
+      },
+    });
+  }
+
+  findFilteredByUser(where) {
+    return this.prisma.events.findMany({
+      where,
       orderBy: { created_at: 'desc' },
       include: {
         event_types: true,
@@ -47,11 +58,7 @@ export class EventsService {
   update(id: number, dto: UpdateEventDto) {
     return this.prisma.events.update({
       where: { id },
-      data: {
-        ...dto,
-        start_at: dto.start_at ? new Date(dto.start_at) : undefined,
-        end_at: dto.end_at ? new Date(dto.end_at) : undefined
-      },
+      data: dto
     });
   }
 

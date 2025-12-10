@@ -45,9 +45,9 @@ export class AvailabilitiesService {
     return this.prisma.availabilities.findMany();
   }
 
-  findByUser(user_id: number) {
+  findByUser(where) {
     return this.prisma.availabilities.findMany({
-      where: { user_id },
+      where,
     });
   }
 
