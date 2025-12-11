@@ -108,6 +108,33 @@ export class GoogleOAuthService {
     return response.data.items || [];
   }
 
+  async updateGoogleCalendarEvent(user: any, eventId: string, eventData: calendar_v3.Schema$Event) {
+    const oAuth2Client = await this.getClientWithUser(user);
+    const calendar = google.calendar({ version: 'v3', auth: oAuth2Client });
+
+    const response = await calendar.events.update({
+      calendarId: 'primary',
+      eventId: eventId,
+      requestBody: eventData
+    });
+
+    return response.data;
+  }
+
+  async rescheduleGoogleCalendarEvent(user: any, eventId: string, eventData: calendar_v3.Schema$Event) {
+    const oAuth2Client = await this.getClientWithUser(user);
+    const calendar = google.calendar({ version: 'v3', auth: oAuth2Client });
+
+    const response = await calendar.events.update({
+      calendarId: 'primary',
+      eventId: eventId,
+      requestBody: eventData,
+      conferenceDataVersion: 1,
+    });
+
+    return response.data;
+  }
+
   async cancelGoogleCalendarEvent(user: any, eventId: string) {
     const oAuth2Client = await this.getClientWithUser(user);
     const calendar = google.calendar({ version: 'v3', auth: oAuth2Client });

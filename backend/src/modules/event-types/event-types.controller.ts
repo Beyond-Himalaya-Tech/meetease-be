@@ -64,6 +64,7 @@ export class EventTypesController {
       const allSlots: number[] = [];
       
       const availableEvents = await this.oauthService.getGoogleCalendarEvent(req.user, givenDate, startTime.getTime(), endTime.getTime());
+      console.log("availableEvents ", availableEvents);
       const eventTimes = availableEvents.map((events) => {
         const start = events?.start?.dateTime && events?.start?.timeZone ? toTimezoneDate(new Date(events?.start?.dateTime), events?.start?.timeZone) : new Date(givenDate);
         const end = events?.end?.dateTime && events?.end?.timeZone ? toTimezoneDate(new Date(events?.end?.dateTime), events?.end?.timeZone) : new Date(givenDate);

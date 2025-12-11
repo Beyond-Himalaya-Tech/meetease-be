@@ -78,6 +78,8 @@ model events {
   location_link    String
   status           String
   calendar_event_id String  @unique
+  description      String?
+  is_rescheduled   Boolean  @default(false)
   created_at       DateTime @default(now())
   updated_at       DateTime @default(now())
 

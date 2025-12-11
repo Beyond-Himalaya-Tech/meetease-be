@@ -55,7 +55,7 @@ export class EventsService {
     });
   }
 
-  async update(id: number, dto: UpdateEventDto) {
+  async update(id: number, dto) {
     return await this.prisma.events.update({
       where: { id },
       data: dto

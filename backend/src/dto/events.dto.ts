@@ -1,11 +1,10 @@
-import { IsInt, IsOptional, IsString, IsEmail, IsEnum, IsISO8601 } from 'class-validator';
+import { IsInt, IsOptional, IsString, IsEmail, IsEnum, IsISO8601, IsBoolean } from 'class-validator';
 
 export enum EventStatus {
   PENDING = 'PENDING',
   CONFIRMED = 'CONFIRMED',
   COMPLETED = 'COMPLETED',
-  CANCELLED = 'CANCELLED',
-  RESCHEDULE = 'RESCHEDULE',
+  CANCELLED = 'CANCELLED'
 }
 
 export class CreateEventDto {
@@ -50,6 +49,10 @@ export class CreateEventDto {
   @IsOptional()
   @IsInt()
   contact_id?: number;
+
+  @IsOptional()
+  @IsString()
+  description?: string;
 }
 
 export class CreateEventDataDto {
@@ -81,24 +84,16 @@ export class CreateEventDataDto {
 
   @IsInt()
   contact_id: number;
+
+  @IsOptional()
+  @IsString()
+  description?: string;
 }
 
 export class UpdateEventDto {
   @IsOptional()
-  @IsISO8601()
-  start_at?: string;
-
-  @IsOptional()
-  @IsISO8601()
-  end_at?: string;
-
-  @IsOptional()
   @IsString()
   timezone?: string;
-
-  @IsOptional()
-  @IsString()
-  location_link?: string;
 
   @IsOptional()
   @IsEnum(EventStatus)
@@ -106,5 +101,17 @@ export class UpdateEventDto {
 
   @IsOptional()
   @IsString()
-  calendar_event_id?: string;
+  description?: string;
+}
+
+export class RescheduleEventDto {
+  @IsISO8601()
+  start_at: Date;
+
+  @IsOptional()
+  @IsISO8601()
+  end_at?: Date;
+
+  @IsString()
+  timezone: string;
 }

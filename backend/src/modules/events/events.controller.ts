@@ -1,12 +1,13 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, Request } from '@nestjs/common';
 import { EventsService } from './events.service';
-import { CreateEventDataDto, CreateEventDto, EventStatus, UpdateEventDto } from 'src/dto/events.dto';
+import { CreateEventDataDto, CreateEventDto, EventStatus, RescheduleEventDto, UpdateEventDto } from 'src/dto/events.dto';
 import { AuthGuard } from '../auth/auth.guard';
 import { EventTypesService } from '../event-types/event-types.service';
 import { ContactsService } from '../contacts/contacts.service';
 import { CreateContactDto } from 'src/dto/contacts.dto';
 import { GoogleOAuthService } from '../google-oauth/google-oauth.service';
 import { responseFormatter, notFoundResponse } from 'src/helpers/response.helper';
+import { toUTCDate } from 'src/helpers/time.helper';
 
 @UseGuards(AuthGuard)
 @Controller('events')
@@ -38,14 +39,14 @@ export class EventsController {
         : new Date(start_at.getTime() + ((eventTypes?.duration_minutes ?? 30) * 60000));
 
       const calendarEvent = await this.oAuthService.createGoogleCalendarEvent(req.user, {
-        summary: `Meeting with ${eventTypes?.client_tag ?? 'client'}`,
-        description: `Event for ${eventTypes?.title}`,
+        summary: `Meeting by ${req.user.email} with ${dto.name}`,
+        description: dto.description,
         start: {
-          dateTime: start_at.toISOString(),
+          dateTime: toUTCDate(start_at, dto.timezone).toISOString(),
           timeZone: dto.timezone,
         },
         end: {
-          dateTime: end_at.toISOString(),
+          dateTime: toUTCDate(end_at, dto.timezone).toISOString(),
           timeZone: dto.timezone,
         },
         attendees: [{ email: dto.email }],
@@ -65,8 +66,9 @@ export class EventsController {
         timezone: dto.timezone,
         location_link: calendarEvent.hangoutLink ?? 'https://meet.google.com',
         status: dto.status ?? 'PENDING',
-        calendar_event_id: calendarEvent.id ?? '1',
-        contact_id: contact.id
+        calendar_event_id: calendarEvent.id ?? '',
+        contact_id: contact.id,
+        description: dto.description ? dto.description : '',
       };
       return responseFormatter(await this.eventService.create(eventData));
     } catch (err) {
@@ -108,9 +110,63 @@ export class EventsController {
   }
 
   @Patch(':id')
-  async update(@Param('id') id: number, @Body() dto: UpdateEventDto) {
+  async update(@Param('id') id: number, @Body() dto: UpdateEventDto, @Request() req) {
     try {
+      if(dto?.description) {
+        const event = await this.eventService.findOne(id);
+        if(event?.calendar_event_id)
+          await this.oAuthService.updateGoogleCalendarEvent(req.user, event.calendar_event_id, {
+            description: dto.description
+          });
+      }
       return responseFormatter(await this.eventService.update(id, dto));
+    } catch (err) {
+      throw responseFormatter(err, "error");
+    }
+  }
+
+  @Patch('reschedule/:id')
+  async rescheduleEvent(@Param('id') id: number, @Body() dto: RescheduleEventDto, @Request() req) {
+    try {
+      const event = await this.eventService.findOne(id);
+
+      const start_at: Date = new Date(dto.start_at);
+      let end_at: Date;
+      if(!(dto?.end_at)) {
+        if(event?.event_type_id) {
+          const eventTypes = await this.eventTypeService.findOne(event.event_type_id);
+          end_at = new Date(start_at.getTime() + ((eventTypes?.duration_minutes ?? 30) * 60000));
+        } else end_at = new Date(start_at.getTime() + (30 * 60000));
+      } else  end_at = new Date(dto.end_at);
+
+
+      if(event?.calendar_event_id) {
+        const calendarEvent = await this.oAuthService.rescheduleGoogleCalendarEvent(req.user, event.calendar_event_id, {
+          start: {
+            dateTime: toUTCDate(start_at, dto.timezone).toISOString(),
+            timeZone: dto.timezone
+          },
+          end: {
+            dateTime: toUTCDate(end_at, dto.timezone).toISOString(),
+            timeZone: dto.timezone
+          },
+          conferenceData: {
+            createRequest: {
+              requestId: Date.now().toString(),
+              conferenceSolutionKey: { type: "hangoutsMeet" }
+            }
+          }
+        });
+
+        const eventData = {
+          start_at: start_at.toISOString(),
+          end_at: end_at.toISOString(),
+          location_link: calendarEvent.hangoutLink ?? 'https://meet.google.com',
+          is_rescheduled: true,
+          calendar_event_id: calendarEvent.id ?? '1'
+        };
+        return responseFormatter(await this.eventService.update(id, eventData));
+      }
     } catch (err) {
       throw responseFormatter(err, "error");
     }
