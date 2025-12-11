@@ -39,7 +39,7 @@ export class EventsController {
         : new Date(start_at.getTime() + ((eventTypes?.duration_minutes ?? 30) * 60000));
 
       const calendarEvent = await this.oAuthService.createGoogleCalendarEvent(req.user, {
-        summary: `Meeting by ${req.user.email} with ${dto.name}`,
+        summary: `Meeting by ${req.user.name} with ${dto.name}`,
         description: dto.description,
         start: {
           dateTime: toUTCDate(start_at, dto.timezone).toISOString(),
