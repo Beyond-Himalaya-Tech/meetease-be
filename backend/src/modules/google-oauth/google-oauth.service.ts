@@ -77,6 +77,7 @@ export class GoogleOAuthService {
       calendarId: 'primary',
       requestBody: eventData,
       conferenceDataVersion: 1,
+      sendUpdates: 'all'
     });
 
     return response.data;

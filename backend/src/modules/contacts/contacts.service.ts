@@ -12,7 +12,7 @@ export class ContactsService {
 
   async upsert(data: CreateContactDto) {
     return await this.prisma.contacts.upsert({
-      where: { 
+      where: {
         contacts_user_id_email_unique: {
           user_id: data.user_id,
           email: data.email,
@@ -21,9 +21,9 @@ export class ContactsService {
       update: {
         name: data.name,
         phone: data.phone,
-        tag: data.tag
+        tag: data.tag,
       },
-      create: data
+      create: data,
     });
   }
 

@@ -57,7 +57,7 @@ model contacts {
   id         Int      @id @default(autoincrement())
   user_id    Int
   name       String
-  email      String   @unique
+  email      String
   phone      String?
   tag        String?
   created_at DateTime @default(now())
