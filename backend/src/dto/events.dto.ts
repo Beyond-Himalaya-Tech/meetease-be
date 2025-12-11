@@ -2,7 +2,6 @@ import { IsInt, IsOptional, IsString, IsEmail, IsEnum, IsISO8601, IsBoolean } fr
 
 export enum EventStatus {
   CREATED = 'CREATED',
-  CONFIRMED = 'CONFIRMED',
   COMPLETED = 'COMPLETED',
   CANCELLED = 'CANCELLED'
 }
