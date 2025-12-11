@@ -1,3 +1,5 @@
+import { fromZonedTime, toZonedTime } from 'date-fns-tz';
+
 export function timeStringToDate(time: string) {
   const [hours, minutes] = time.split(":").map(Number);
   const date = new Date(0);
@@ -21,3 +23,12 @@ export function msToHour(time: number): string {
 
   return `${hh}:${mm}`;
 }
+
+export function toUTCDate(date: Date, timezone: string) {
+  return fromZonedTime(date, timezone);
+}
+
+export function toTimezoneDate(date: Date, timezone: string) {
+  return toZonedTime(date, timezone);
+}
+

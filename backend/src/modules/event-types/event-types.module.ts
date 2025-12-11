@@ -5,13 +5,15 @@ import { EventTypesService } from './event-types.service';
 import { UsersModule } from '../users/users.module';
 import { AuthModule } from '../auth/auth.module';
 import { AvailabilitiesModule } from '../availabilities/availabilities.module';
+import { GoogleOauthModule } from '../google-oauth/google-oauth.module';
 
 @Module({
   imports: [
     PrismaModule,
     forwardRef(() => AuthModule),
     UsersModule,
-    AvailabilitiesModule
+    AvailabilitiesModule,
+    GoogleOauthModule
   ],
   controllers: [EventTypesController],
   providers: [EventTypesService],

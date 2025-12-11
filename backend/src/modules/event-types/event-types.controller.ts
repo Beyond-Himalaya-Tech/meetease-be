@@ -3,13 +3,15 @@ import { EventTypesService } from './event-types.service';
 import { CreateEventTypeDto, UpdateEventTypeDto } from 'src/dto/eventsType.dto';
 import { AuthGuard } from '../auth/auth.guard';
 import { AvailabilitiesService } from '../availabilities/availabilities.service';
-import { msToHour } from 'src/helpers/time.helper';
+import { dateToTimeString, msToHour, timeStringToDate, toTimezoneDate } from 'src/helpers/time.helper';
 import { responseFormatter, notFoundResponse } from 'src/helpers/response.helper';
+import { GoogleOAuthService } from '../google-oauth/google-oauth.service';
 
 @UseGuards(AuthGuard)
 @Controller('event-types')
 export class EventTypesController {
   constructor(
+    private readonly oauthService: GoogleOAuthService,
     private readonly eventTypeService: EventTypesService,
     private readonly availabilitiesService: AvailabilitiesService
   ) {}
@@ -52,16 +54,34 @@ export class EventTypesController {
       const givenDate = new Date(date);
       const day = givenDate.getDay();
       const userAvailabilities = await this.availabilitiesService.findByUser({ user_id: req.user.id, day_of_week: day });
-
+      
+      if(userAvailabilities.length == 0) {
+        return responseFormatter({});
+      }
       const startTime = new Date(userAvailabilities[0].start_time);
       const endTime = new Date(userAvailabilities[0].end_time);
       const intervalMs = eventType?.duration_minutes ? eventType.duration_minutes * 60 * 1000 : 30 * 60 * 1000;
-      const availableTime: string[] = [];
+      const allSlots: number[] = [];
+      
+      const availableEvents = await this.oauthService.getGoogleCalendarEvent(req.user, givenDate, startTime.getTime(), endTime.getTime());
+      const eventTimes = availableEvents.map((events) => {
+        const start = events?.start?.dateTime && events?.start?.timeZone ? toTimezoneDate(new Date(events?.start?.dateTime), events?.start?.timeZone) : new Date(givenDate);
+        const end = events?.end?.dateTime && events?.end?.timeZone ? toTimezoneDate(new Date(events?.end?.dateTime), events?.end?.timeZone) : new Date(givenDate);
+        return {
+          start: timeStringToDate(dateToTimeString(start)).getTime(),
+          end: timeStringToDate(dateToTimeString(end)).getTime()
+        }
+      })
 
       for (let currentTime = startTime.getTime(); currentTime < endTime.getTime(); currentTime += intervalMs) {
-        availableTime.push(msToHour(currentTime));
+        allSlots.push(currentTime);
       }
-      return responseFormatter(availableTime);
+      const filteredSlots = allSlots.filter(time => {
+        return !eventTimes.some(event => time >= event.start && time < event.end);
+      });
+      const availableSlots = filteredSlots.map(msToHour);
+
+      return responseFormatter(availableSlots);
     } catch (err) {
       throw responseFormatter(err, "error");
     }
