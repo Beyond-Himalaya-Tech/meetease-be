@@ -7,7 +7,7 @@ export function notFoundResponse(message: string) {
 export function responseFormatter(data, level = "info") {
     if(level == "error") {
         console.log("error ", data);
-        return new InternalServerErrorException(data.m || data);;
+        return new InternalServerErrorException(data.message || data);;
         // return new InternalServerErrorException('Something went wrong');;
     }
     return { data };
