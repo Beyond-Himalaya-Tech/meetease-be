@@ -19,8 +19,9 @@ export class CreateEventDto {
   @IsISO8601()
   start_at: Date;
 
+  @IsOptional()
   @IsISO8601()
-  end_at: Date;
+  end_at?: Date;
 
   @IsString()
   timezone: string;

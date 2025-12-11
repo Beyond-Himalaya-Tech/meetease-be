@@ -32,16 +32,20 @@ export class EventsController {
       if(eventTypes?.client_tag)  contactData.tag = eventTypes?.client_tag;
 
       const contact = await this.contactService.upsert(contactData);
-      
+      const start_at = new Date(dto.start_at);
+      const end_at = dto?.end_at
+        ? new Date(dto.end_at)
+        : new Date(start_at.getTime() + ((eventTypes?.duration_minutes ?? 30) * 60000));
+
       const calendarEvent = await this.oAuthService.createGoogleCalendarEvent(req.user, {
         summary: `Meeting with ${eventTypes?.client_tag ?? 'client'}`,
         description: `Event for ${eventTypes?.title}`,
         start: {
-          dateTime: new Date(dto.start_at).toISOString(),
+          dateTime: start_at.toISOString(),
           timeZone: dto.timezone,
         },
         end: {
-          dateTime: new Date(dto.end_at).toISOString(),
+          dateTime: end_at.toISOString(),
           timeZone: dto.timezone,
         },
         attendees: [{ email: dto.email }],
@@ -56,8 +60,8 @@ export class EventsController {
       const eventData: CreateEventDataDto = {
         user_id: req.user.id,
         event_type_id: dto.event_type_id,
-        start_at: new Date(dto.start_at),
-        end_at: new Date(dto.end_at),
+        start_at: start_at,
+        end_at: end_at,
         timezone: dto.timezone,
         location_link: calendarEvent.hangoutLink ?? 'https://meet.google.com',
         status: dto.status ?? 'PENDING',
