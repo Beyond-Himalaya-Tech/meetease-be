@@ -19,7 +19,6 @@ model users {
   token_expiry     DateTime?
   created_at       DateTime   @default(now())
   updated_at       DateTime   @default(now())
-
   event_types      event_types[]
   availabilities   availabilities[]
   contactss         contacts[]

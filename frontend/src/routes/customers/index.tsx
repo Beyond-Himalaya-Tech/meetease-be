@@ -1,3 +1,4 @@
+import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import CustomerFormModal from "../../components/customers/CustomerFormModal";
 import CustomersList from "../../components/customers/CustomersList";
@@ -5,17 +6,18 @@ import { initialCustomers, type Customer } from "../../components/customers/type
 import PageHeader from "../../components/layout/PageHeader";
 import DefaultLayout from "../../layouts/DefaultLayout";
 
-const CustomersPage = () => {
-  const [customers, setCustomers] = useState<Customer[]>(initialCustomers);
-  const [isAddOpen, setIsAddOpen] = useState(false);
+export const Route = createFileRoute("/customers/")({
+  component: CustomersRoute,
+});
 
-  const handleAddCustomer = (data: Omit<Customer, "id">) => {
+function CustomersRoute() {
+  const [customers, setCustomers] = useState<Customer[]>(initialCustomers);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  const handleAdd = (data: Omit<Customer, "id">) => {
     setCustomers((prev) => [
       ...prev,
-      {
-        id: prev.length ? prev[prev.length - 1].id + 1 : 1,
-        ...data,
-      },
+      { id: prev.length ? prev[prev.length - 1].id + 1 : 1, ...data },
     ]);
   };
 
@@ -29,7 +31,7 @@ const CustomersPage = () => {
             <button
               type="button"
               className="rounded-full bg-blue-600 px-4 py-1.5 text-xs font-semibold text-white hover:bg-blue-700"
-              onClick={() => setIsAddOpen(true)}
+              onClick={() => setIsDialogOpen(true)}
             >
               + New customer
             </button>
@@ -39,9 +41,9 @@ const CustomersPage = () => {
       </section>
 
       <CustomerFormModal
-        isOpen={isAddOpen}
-        onClose={() => setIsAddOpen(false)}
-        onSubmit={handleAddCustomer}
+        isOpen={isDialogOpen}
+        onClose={() => setIsDialogOpen(false)}
+        onSubmit={handleAdd}
         availableTags={[...new Set(customers.map((c) => c.tag))].filter(Boolean)}
         availableEventTypes={[
           ...new Set(customers.map((c) => c.eventType)),
@@ -52,6 +54,5 @@ const CustomersPage = () => {
       />
     </DefaultLayout>
   );
-};
+}
 
-export default CustomersPage;

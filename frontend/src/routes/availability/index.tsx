@@ -1,3 +1,4 @@
+import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import AvailabilityHeader from "../../components/availability/AvailabilityHeader";
 import CalendarSettings from "../../components/availability/CalendarSettings";
@@ -6,27 +7,31 @@ import type { EventType, WeeklyRow } from "../../components/availability/types";
 import WeeklyHoursCard from "../../components/availability/WeeklyHoursCard";
 import DefaultLayout from "../../layouts/DefaultLayout";
 
-const initialWeeklyRows: WeeklyRow[] = [
-  { short: "S", label: "Sunday", unavailable: true },
-  { short: "M", label: "Monday", from: "14:15", to: "18:00" },
-  { short: "T", label: "Tuesday", from: "14:15", to: "18:00" },
-  { short: "W", label: "Wednesday", from: "14:15", to: "18:00" },
-  { short: "T", label: "Thursday", from: "14:15", to: "18:00" },
-  { short: "F", label: "Friday", unavailable: true },
-  { short: "S", label: "Saturday", unavailable: true },
-];
+export const Route = createFileRoute("/availability/")({
+  component: AvailabilityRoute,
+});
 
-const AvailabilityPage = () => {
+function AvailabilityRoute() {
   const [activeTab, setActiveTab] = useState<"schedules" | "calendar">(
     "schedules",
   );
   const [isEventTypeModalOpen, setIsEventTypeModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [weeklyRows, setWeeklyRows] =
-    useState<WeeklyRow[]>(initialWeeklyRows);
+
+  const [weeklyRows, setWeeklyRows] = useState<WeeklyRow[]>([
+    { short: "S", label: "Sunday", unavailable: true },
+    { short: "M", label: "Monday", from: "14:15", to: "18:00" },
+    { short: "T", label: "Tuesday", from: "14:15", to: "18:00" },
+    { short: "W", label: "Wednesday", from: "14:15", to: "18:00" },
+    { short: "T", label: "Thursday", from: "14:15", to: "18:00" },
+    { short: "F", label: "Friday", unavailable: true },
+    { short: "S", label: "Saturday", unavailable: true },
+  ]);
+
   const [timezone, setTimezone] = useState<string>(
     Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC",
   );
+
   const [eventTypes, setEventTypes] = useState<EventType[]>([
     {
       id: "interview-beyond",
@@ -71,6 +76,6 @@ const AvailabilityPage = () => {
       </section>
     </DefaultLayout>
   );
-};
+}
 
-export default AvailabilityPage;
+

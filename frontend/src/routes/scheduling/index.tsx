@@ -1,8 +1,13 @@
-import EventTypesList from "../../components/scheduling/EventTypesList";
+import { createFileRoute } from "@tanstack/react-router";
 import PageHeader from "../../components/layout/PageHeader";
+import EventTypesList from "../../components/scheduling/EventTypesList";
 import DefaultLayout from "../../layouts/DefaultLayout";
 
-const SchedulingPage = () => {
+export const Route = createFileRoute("/scheduling/")({
+  component: SchedulingRoute,
+});
+
+function SchedulingRoute() {
   return (
     <DefaultLayout>
       <section className="max-w-6xl mx-auto w-full py-4 sm:py-6 px-4 sm:px-0">
@@ -14,6 +19,6 @@ const SchedulingPage = () => {
       </section>
     </DefaultLayout>
   );
-};
+}
 
-export default SchedulingPage;
+
