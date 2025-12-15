@@ -20,6 +20,22 @@
     "forceConsistentCasingInFileNames": true,
     "noImplicitAny": false,
     "strictBindCallApply": false,
-    "noFallthroughCasesInSwitch": false
-  }
+    "noFallthroughCasesInSwitch": false,
+        "paths": {
+      "@/*": ["src/*"],
+      "@modules/*": ["src/modules/*"],
+      "generated/prisma": ["generated/prisma"],
+      "generated/prisma/*": ["generated/prisma/*"]
+    }
+  },
+  "include": [
+    "src/**/*",
+    "src/templates/**/*",
+    "generated/**/*",
+    "prisma/**/*"
+  ],
+  "exclude": [
+    "dist/**/*",
+    "node_modules/**/*"
+  ]
 }

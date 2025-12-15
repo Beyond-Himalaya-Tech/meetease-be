@@ -7,6 +7,7 @@ import { UsersModule } from '../users/users.module';
 import { EventTypesModule } from '../event-types/event-types.module';
 import { ContactsModule } from '../contacts/contacts.module';
 import { GoogleOauthModule } from '../google-oauth/google-oauth.module';
+import { MailModule } from '../mail/mail.module';
 
 @Module({
     imports: [
@@ -15,7 +16,8 @@ import { GoogleOauthModule } from '../google-oauth/google-oauth.module';
         UsersModule,
         EventTypesModule,
         ContactsModule,
-        GoogleOauthModule
+        GoogleOauthModule,
+        MailModule
     ],
     controllers: [EventsController],
     providers: [EventsService]

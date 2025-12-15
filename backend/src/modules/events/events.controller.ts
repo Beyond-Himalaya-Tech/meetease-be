@@ -8,6 +8,7 @@ import { CreateContactDto } from 'src/dto/contacts.dto';
 import { GoogleOAuthService } from '../google-oauth/google-oauth.service';
 import { responseFormatter, notFoundResponse } from 'src/helpers/response.helper';
 import { toUTCDate } from 'src/helpers/time.helper';
+import { MailService } from '../mail/mail.service';
 
 @UseGuards(AuthGuard)
 @Controller('events')
@@ -16,7 +17,8 @@ export class EventsController {
     private readonly eventService: EventsService,
     private readonly contactService: ContactsService,
     private readonly eventTypeService: EventTypesService,
-    private readonly oAuthService: GoogleOAuthService
+    private readonly oAuthService: GoogleOAuthService,
+    private readonly mailService: MailService
   ) {}
 
   @Post()
@@ -70,6 +72,30 @@ export class EventsController {
         contact_id: contact.id,
         description: dto.description ? dto.description : '',
       };
+
+      const templateData = {
+        hostName: eventData.user_id,
+        name: dto.name,
+        email: dto.email,
+        meetingDate: start_at.toLocaleDateString(),
+        meetingTime: start_at.toLocaleTimeString(),
+        timezone: eventData.timezone,
+        meetingLink: eventData.location_link,
+        description: eventData.description
+      };
+      this.mailService.sendEmail({
+        subject: 'New Meeting Scheduled',
+        template: 'new-meet-set',
+        context: templateData,
+        emailsList: req.user.email
+      });
+      this.mailService.sendEmail({
+        subject: 'New Meeting Scheduled',
+        template: 'new-meet-set',
+        context: templateData,
+        emailsList: dto.email
+      });
+
       return responseFormatter(await this.eventService.create(eventData));
     } catch (err) {
       throw responseFormatter(err, "error");

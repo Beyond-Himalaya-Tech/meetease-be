@@ -1,0 +1,97 @@
+doctype html
+html(lang="en")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1.0")
+
+    style.
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 600px;
+        margin: auto;
+        background-color: #ffffff;
+        padding: 30px;
+        border-radius: 6px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      }
+
+      .header {
+        text-align: center;
+        margin-bottom: 25px;
+      }
+
+      .header h2 {
+        margin: 0;
+        font-size: 24px;
+        color: #333333;
+      }
+
+      .highlight {
+        color: #2563eb;
+        font-weight: bold;
+      }
+
+      .content p {
+        font-size: 15px;
+        line-height: 1.6;
+        color: #333333;
+        margin: 10px 0;
+      }
+
+      .meeting-details {
+        background-color: #f9f9f9;
+        padding: 15px;
+        border: 1px solid #dddddd;
+        border-radius: 4px;
+        margin-top: 20px;
+      }
+
+      .meeting-details p {
+        margin: 8px 0;
+        font-weight: bold;
+        color: #444444;
+      }
+
+      .footer {
+        margin-top: 30px;
+        font-size: 13px;
+        color: #999999;
+        text-align: center;
+      }
+
+  body
+    .container
+      .header
+        h2 Your Meeting is Scheduled!
+
+      .content
+        p Hello #{name},
+
+        p.highlight Your meeting has been successfully scheduled via MeetEase.
+
+        p Below are your meeting details:
+
+        .meeting-details
+          p Host: #{hostName}
+          p Attendee: #{name}
+          p Email: #{email}
+          p Date: #{meetingDate}
+          p Time: #{meetingTime} (#{timezone})
+          p Meeting Link:
+            a(href=meetingLink target="_blank") #{meetingLink}
+          if description
+            p Notes: #{description}
+
+        p If you need to reschedule or cancel, please contact the host.
+
+        p Best regards,  
+        p The MeetEase Team
+
+      .footer
+        p This is an automated email sent by MeetEase. Please do not reply directly.

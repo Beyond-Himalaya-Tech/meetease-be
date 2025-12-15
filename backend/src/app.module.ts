@@ -14,6 +14,7 @@ import { AuthService } from './modules/auth/auth.service';
 import { AuthModule } from './modules/auth/auth.module';
 import { JwtModule } from '@nestjs/jwt';
 import { GoogleOauthModule } from './modules/google-oauth/google-oauth.module';
+import { MailModule } from './modules/mail/mail.module';
 
 @Module({
   imports: [
@@ -25,7 +26,8 @@ import { GoogleOauthModule } from './modules/google-oauth/google-oauth.module';
     EventTypesModule,
     EventsModule,
     AuthModule,
-    GoogleOauthModule
+    GoogleOauthModule,
+    MailModule
   ],
   providers: [PrismaService, AvailabilitiesService, ContactsService, EventTypesService, EventsService, AuthService],
 })
