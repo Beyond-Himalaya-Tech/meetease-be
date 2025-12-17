@@ -1,0 +1,32 @@
+services:
+  postgres_db:
+    image: postgres:15
+    container_name: postgres_db
+    restart: always
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - ${DB_PORT}:${DB_PORT}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  meet_ease:
+    build:
+      context: .
+      dockerfile: local.Dockerfile
+    container_name: meet_ease
+    restart: always
+    env_file:
+      - dev.env
+    ports:
+      - ${PORT}:${PORT}
+    depends_on:
+      - postgres_db
+    volumes:
+    - .:/app
+    - /app/node_modules
+
+volumes:
+  postgres_data:

@@ -24,14 +24,18 @@
     "@nestjs/core": "^11.0.1",
     "@nestjs/mapped-types": "*",
     "@nestjs/platform-express": "^11.0.1",
-    "@prisma/adapter-pg": "^7.0.1",
-    "@prisma/client": "^7.0.1",
+    "@nestjs/swagger": "^11.0.0",
+    "@prisma/adapter-pg": "^6.11.0",
+    "@prisma/client": "^6.11.0",
     "@types/pg": "^8.15.6",
     "dotenv": "^17.2.3",
+    "googleapis": "^167.0.0",
+    "jsonwebtoken": "^9.0.3",
     "pg": "^8.16.3",
-    "prisma": "^7.0.1",
+    "prisma": "^6.11.0",
     "reflect-metadata": "^0.2.2",
-    "rxjs": "^7.8.1"
+    "rxjs": "^7.8.1",
+    "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",

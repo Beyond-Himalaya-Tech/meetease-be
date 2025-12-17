@@ -9,48 +9,60 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as SettingsRouteImport } from './routes/settings'
-import { Route as SchedulingRouteImport } from './routes/scheduling'
-import { Route as DashboardRouteImport } from './routes/dashboard'
-import { Route as CustomersRouteImport } from './routes/customers'
-import { Route as BookingsRouteImport } from './routes/bookings'
-import { Route as AvailabilityRouteImport } from './routes/availability'
+import { Route as SettingsIndexRouteImport } from './routes/settings/index'
+import { Route as SchedulingIndexRouteImport } from './routes/scheduling/index'
+import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
+import { Route as CustomersIndexRouteImport } from './routes/customers/index'
+import { Route as BookingsIndexRouteImport } from './routes/bookings/index'
+import { Route as AvailabilityIndexRouteImport } from './routes/availability/index'
 import { Route as authIndexRouteImport } from './routes/(auth)/index'
+import { Route as CustomersCustomerIdRouteImport } from './routes/customers/$customerId'
+import { Route as BookingsBookingIdRouteImport } from './routes/bookings/$bookingId'
 import { Route as authForgetPasswordRouteImport } from './routes/(auth)/forget-password'
 
-const SettingsRoute = SettingsRouteImport.update({
-  id: '/settings',
-  path: '/settings',
+const SettingsIndexRoute = SettingsIndexRouteImport.update({
+  id: '/settings/',
+  path: '/settings/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SchedulingRoute = SchedulingRouteImport.update({
-  id: '/scheduling',
-  path: '/scheduling',
+const SchedulingIndexRoute = SchedulingIndexRouteImport.update({
+  id: '/scheduling/',
+  path: '/scheduling/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DashboardRoute = DashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
+const DashboardIndexRoute = DashboardIndexRouteImport.update({
+  id: '/dashboard/',
+  path: '/dashboard/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const CustomersRoute = CustomersRouteImport.update({
-  id: '/customers',
-  path: '/customers',
+const CustomersIndexRoute = CustomersIndexRouteImport.update({
+  id: '/customers/',
+  path: '/customers/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const BookingsRoute = BookingsRouteImport.update({
-  id: '/bookings',
-  path: '/bookings',
+const BookingsIndexRoute = BookingsIndexRouteImport.update({
+  id: '/bookings/',
+  path: '/bookings/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AvailabilityRoute = AvailabilityRouteImport.update({
-  id: '/availability',
-  path: '/availability',
+const AvailabilityIndexRoute = AvailabilityIndexRouteImport.update({
+  id: '/availability/',
+  path: '/availability/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const authIndexRoute = authIndexRouteImport.update({
   id: '/(auth)/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CustomersCustomerIdRoute = CustomersCustomerIdRouteImport.update({
+  id: '/customers/$customerId',
+  path: '/customers/$customerId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BookingsBookingIdRoute = BookingsBookingIdRouteImport.update({
+  id: '/bookings/$bookingId',
+  path: '/bookings/$bookingId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const authForgetPasswordRoute = authForgetPasswordRouteImport.update({
@@ -60,122 +72,136 @@ const authForgetPasswordRoute = authForgetPasswordRouteImport.update({
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/availability': typeof AvailabilityRoute
-  '/bookings': typeof BookingsRoute
-  '/customers': typeof CustomersRoute
-  '/dashboard': typeof DashboardRoute
-  '/scheduling': typeof SchedulingRoute
-  '/settings': typeof SettingsRoute
   '/forget-password': typeof authForgetPasswordRoute
+  '/bookings/$bookingId': typeof BookingsBookingIdRoute
+  '/customers/$customerId': typeof CustomersCustomerIdRoute
   '/': typeof authIndexRoute
+  '/availability': typeof AvailabilityIndexRoute
+  '/bookings': typeof BookingsIndexRoute
+  '/customers': typeof CustomersIndexRoute
+  '/dashboard': typeof DashboardIndexRoute
+  '/scheduling': typeof SchedulingIndexRoute
+  '/settings': typeof SettingsIndexRoute
 }
 export interface FileRoutesByTo {
-  '/availability': typeof AvailabilityRoute
-  '/bookings': typeof BookingsRoute
-  '/customers': typeof CustomersRoute
-  '/dashboard': typeof DashboardRoute
-  '/scheduling': typeof SchedulingRoute
-  '/settings': typeof SettingsRoute
   '/forget-password': typeof authForgetPasswordRoute
+  '/bookings/$bookingId': typeof BookingsBookingIdRoute
+  '/customers/$customerId': typeof CustomersCustomerIdRoute
   '/': typeof authIndexRoute
+  '/availability': typeof AvailabilityIndexRoute
+  '/bookings': typeof BookingsIndexRoute
+  '/customers': typeof CustomersIndexRoute
+  '/dashboard': typeof DashboardIndexRoute
+  '/scheduling': typeof SchedulingIndexRoute
+  '/settings': typeof SettingsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/availability': typeof AvailabilityRoute
-  '/bookings': typeof BookingsRoute
-  '/customers': typeof CustomersRoute
-  '/dashboard': typeof DashboardRoute
-  '/scheduling': typeof SchedulingRoute
-  '/settings': typeof SettingsRoute
   '/(auth)/forget-password': typeof authForgetPasswordRoute
+  '/bookings/$bookingId': typeof BookingsBookingIdRoute
+  '/customers/$customerId': typeof CustomersCustomerIdRoute
   '/(auth)/': typeof authIndexRoute
+  '/availability/': typeof AvailabilityIndexRoute
+  '/bookings/': typeof BookingsIndexRoute
+  '/customers/': typeof CustomersIndexRoute
+  '/dashboard/': typeof DashboardIndexRoute
+  '/scheduling/': typeof SchedulingIndexRoute
+  '/settings/': typeof SettingsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
+    | '/forget-password'
+    | '/bookings/$bookingId'
+    | '/customers/$customerId'
+    | '/'
     | '/availability'
     | '/bookings'
     | '/customers'
     | '/dashboard'
     | '/scheduling'
     | '/settings'
-    | '/forget-password'
-    | '/'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/forget-password'
+    | '/bookings/$bookingId'
+    | '/customers/$customerId'
+    | '/'
     | '/availability'
     | '/bookings'
     | '/customers'
     | '/dashboard'
     | '/scheduling'
     | '/settings'
-    | '/forget-password'
-    | '/'
   id:
     | '__root__'
-    | '/availability'
-    | '/bookings'
-    | '/customers'
-    | '/dashboard'
-    | '/scheduling'
-    | '/settings'
     | '/(auth)/forget-password'
+    | '/bookings/$bookingId'
+    | '/customers/$customerId'
     | '/(auth)/'
+    | '/availability/'
+    | '/bookings/'
+    | '/customers/'
+    | '/dashboard/'
+    | '/scheduling/'
+    | '/settings/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  AvailabilityRoute: typeof AvailabilityRoute
-  BookingsRoute: typeof BookingsRoute
-  CustomersRoute: typeof CustomersRoute
-  DashboardRoute: typeof DashboardRoute
-  SchedulingRoute: typeof SchedulingRoute
-  SettingsRoute: typeof SettingsRoute
   authForgetPasswordRoute: typeof authForgetPasswordRoute
+  BookingsBookingIdRoute: typeof BookingsBookingIdRoute
+  CustomersCustomerIdRoute: typeof CustomersCustomerIdRoute
   authIndexRoute: typeof authIndexRoute
+  AvailabilityIndexRoute: typeof AvailabilityIndexRoute
+  BookingsIndexRoute: typeof BookingsIndexRoute
+  CustomersIndexRoute: typeof CustomersIndexRoute
+  DashboardIndexRoute: typeof DashboardIndexRoute
+  SchedulingIndexRoute: typeof SchedulingIndexRoute
+  SettingsIndexRoute: typeof SettingsIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/settings': {
-      id: '/settings'
+    '/settings/': {
+      id: '/settings/'
       path: '/settings'
       fullPath: '/settings'
-      preLoaderRoute: typeof SettingsRouteImport
+      preLoaderRoute: typeof SettingsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/scheduling': {
-      id: '/scheduling'
+    '/scheduling/': {
+      id: '/scheduling/'
       path: '/scheduling'
       fullPath: '/scheduling'
-      preLoaderRoute: typeof SchedulingRouteImport
+      preLoaderRoute: typeof SchedulingIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/dashboard': {
-      id: '/dashboard'
+    '/dashboard/': {
+      id: '/dashboard/'
       path: '/dashboard'
       fullPath: '/dashboard'
-      preLoaderRoute: typeof DashboardRouteImport
+      preLoaderRoute: typeof DashboardIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/customers': {
-      id: '/customers'
+    '/customers/': {
+      id: '/customers/'
       path: '/customers'
       fullPath: '/customers'
-      preLoaderRoute: typeof CustomersRouteImport
+      preLoaderRoute: typeof CustomersIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/bookings': {
-      id: '/bookings'
+    '/bookings/': {
+      id: '/bookings/'
       path: '/bookings'
       fullPath: '/bookings'
-      preLoaderRoute: typeof BookingsRouteImport
+      preLoaderRoute: typeof BookingsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/availability': {
-      id: '/availability'
+    '/availability/': {
+      id: '/availability/'
       path: '/availability'
       fullPath: '/availability'
-      preLoaderRoute: typeof AvailabilityRouteImport
+      preLoaderRoute: typeof AvailabilityIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/(auth)/': {
@@ -183,6 +209,20 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof authIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/customers/$customerId': {
+      id: '/customers/$customerId'
+      path: '/customers/$customerId'
+      fullPath: '/customers/$customerId'
+      preLoaderRoute: typeof CustomersCustomerIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/bookings/$bookingId': {
+      id: '/bookings/$bookingId'
+      path: '/bookings/$bookingId'
+      fullPath: '/bookings/$bookingId'
+      preLoaderRoute: typeof BookingsBookingIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/(auth)/forget-password': {
@@ -196,14 +236,16 @@ declare module '@tanstack/react-router' {
 }
 
 const rootRouteChildren: RootRouteChildren = {
-  AvailabilityRoute: AvailabilityRoute,
-  BookingsRoute: BookingsRoute,
-  CustomersRoute: CustomersRoute,
-  DashboardRoute: DashboardRoute,
-  SchedulingRoute: SchedulingRoute,
-  SettingsRoute: SettingsRoute,
   authForgetPasswordRoute: authForgetPasswordRoute,
+  BookingsBookingIdRoute: BookingsBookingIdRoute,
+  CustomersCustomerIdRoute: CustomersCustomerIdRoute,
   authIndexRoute: authIndexRoute,
+  AvailabilityIndexRoute: AvailabilityIndexRoute,
+  BookingsIndexRoute: BookingsIndexRoute,
+  CustomersIndexRoute: CustomersIndexRoute,
+  DashboardIndexRoute: DashboardIndexRoute,
+  SchedulingIndexRoute: SchedulingIndexRoute,
+  SettingsIndexRoute: SettingsIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
