@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as LogoutRouteImport } from './routes/logout'
 import { Route as SettingsIndexRouteImport } from './routes/settings/index'
 import { Route as SchedulingIndexRouteImport } from './routes/scheduling/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
@@ -16,10 +17,16 @@ import { Route as CustomersIndexRouteImport } from './routes/customers/index'
 import { Route as BookingsIndexRouteImport } from './routes/bookings/index'
 import { Route as AvailabilityIndexRouteImport } from './routes/availability/index'
 import { Route as authIndexRouteImport } from './routes/(auth)/index'
+import { Route as OauthCallbackRouteImport } from './routes/oauth/callback'
 import { Route as CustomersCustomerIdRouteImport } from './routes/customers/$customerId'
 import { Route as BookingsBookingIdRouteImport } from './routes/bookings/$bookingId'
 import { Route as authForgetPasswordRouteImport } from './routes/(auth)/forget-password'
 
+const LogoutRoute = LogoutRouteImport.update({
+  id: '/logout',
+  path: '/logout',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SettingsIndexRoute = SettingsIndexRouteImport.update({
   id: '/settings/',
   path: '/settings/',
@@ -55,6 +62,11 @@ const authIndexRoute = authIndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OauthCallbackRoute = OauthCallbackRouteImport.update({
+  id: '/oauth/callback',
+  path: '/oauth/callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CustomersCustomerIdRoute = CustomersCustomerIdRouteImport.update({
   id: '/customers/$customerId',
   path: '/customers/$customerId',
@@ -72,9 +84,11 @@ const authForgetPasswordRoute = authForgetPasswordRouteImport.update({
 } as any)
 
 export interface FileRoutesByFullPath {
+  '/logout': typeof LogoutRoute
   '/forget-password': typeof authForgetPasswordRoute
   '/bookings/$bookingId': typeof BookingsBookingIdRoute
   '/customers/$customerId': typeof CustomersCustomerIdRoute
+  '/oauth/callback': typeof OauthCallbackRoute
   '/': typeof authIndexRoute
   '/availability': typeof AvailabilityIndexRoute
   '/bookings': typeof BookingsIndexRoute
@@ -84,9 +98,11 @@ export interface FileRoutesByFullPath {
   '/settings': typeof SettingsIndexRoute
 }
 export interface FileRoutesByTo {
+  '/logout': typeof LogoutRoute
   '/forget-password': typeof authForgetPasswordRoute
   '/bookings/$bookingId': typeof BookingsBookingIdRoute
   '/customers/$customerId': typeof CustomersCustomerIdRoute
+  '/oauth/callback': typeof OauthCallbackRoute
   '/': typeof authIndexRoute
   '/availability': typeof AvailabilityIndexRoute
   '/bookings': typeof BookingsIndexRoute
@@ -97,9 +113,11 @@ export interface FileRoutesByTo {
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
+  '/logout': typeof LogoutRoute
   '/(auth)/forget-password': typeof authForgetPasswordRoute
   '/bookings/$bookingId': typeof BookingsBookingIdRoute
   '/customers/$customerId': typeof CustomersCustomerIdRoute
+  '/oauth/callback': typeof OauthCallbackRoute
   '/(auth)/': typeof authIndexRoute
   '/availability/': typeof AvailabilityIndexRoute
   '/bookings/': typeof BookingsIndexRoute
@@ -111,9 +129,11 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
+    | '/logout'
     | '/forget-password'
     | '/bookings/$bookingId'
     | '/customers/$customerId'
+    | '/oauth/callback'
     | '/'
     | '/availability'
     | '/bookings'
@@ -123,9 +143,11 @@ export interface FileRouteTypes {
     | '/settings'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/logout'
     | '/forget-password'
     | '/bookings/$bookingId'
     | '/customers/$customerId'
+    | '/oauth/callback'
     | '/'
     | '/availability'
     | '/bookings'
@@ -135,9 +157,11 @@ export interface FileRouteTypes {
     | '/settings'
   id:
     | '__root__'
+    | '/logout'
     | '/(auth)/forget-password'
     | '/bookings/$bookingId'
     | '/customers/$customerId'
+    | '/oauth/callback'
     | '/(auth)/'
     | '/availability/'
     | '/bookings/'
@@ -148,9 +172,11 @@ export interface FileRouteTypes {
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
+  LogoutRoute: typeof LogoutRoute
   authForgetPasswordRoute: typeof authForgetPasswordRoute
   BookingsBookingIdRoute: typeof BookingsBookingIdRoute
   CustomersCustomerIdRoute: typeof CustomersCustomerIdRoute
+  OauthCallbackRoute: typeof OauthCallbackRoute
   authIndexRoute: typeof authIndexRoute
   AvailabilityIndexRoute: typeof AvailabilityIndexRoute
   BookingsIndexRoute: typeof BookingsIndexRoute
@@ -162,6 +188,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/logout': {
+      id: '/logout'
+      path: '/logout'
+      fullPath: '/logout'
+      preLoaderRoute: typeof LogoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/settings/': {
       id: '/settings/'
       path: '/settings'
@@ -211,6 +244,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/oauth/callback': {
+      id: '/oauth/callback'
+      path: '/oauth/callback'
+      fullPath: '/oauth/callback'
+      preLoaderRoute: typeof OauthCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/customers/$customerId': {
       id: '/customers/$customerId'
       path: '/customers/$customerId'
@@ -236,9 +276,11 @@ declare module '@tanstack/react-router' {
 }
 
 const rootRouteChildren: RootRouteChildren = {
+  LogoutRoute: LogoutRoute,
   authForgetPasswordRoute: authForgetPasswordRoute,
   BookingsBookingIdRoute: BookingsBookingIdRoute,
   CustomersCustomerIdRoute: CustomersCustomerIdRoute,
+  OauthCallbackRoute: OauthCallbackRoute,
   authIndexRoute: authIndexRoute,
   AvailabilityIndexRoute: AvailabilityIndexRoute,
   BookingsIndexRoute: BookingsIndexRoute,

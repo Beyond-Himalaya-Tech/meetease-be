@@ -2,8 +2,10 @@ import { createFileRoute } from "@tanstack/react-router";
 import BookingsList from "../../components/bookings/BookingsList";
 import PageHeader from "../../components/layout/PageHeader";
 import DefaultLayout from "../../layouts/DefaultLayout";
+import { requireAuth } from "../../auth/requireAuth";
 
 export const Route = createFileRoute("/bookings/")({
+  beforeLoad: requireAuth,
   component: BookingsRoute,
 });
 

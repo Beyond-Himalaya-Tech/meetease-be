@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Link } from "@tanstack/react-router";
 import type { FormEvent } from "react";
+import { API_BASE_URL } from "../../lib/api";
 
 export const Route = createFileRoute("/(auth)/")({
   component: LoginRoute,
@@ -9,10 +10,26 @@ export const Route = createFileRoute("/(auth)/")({
 function LoginRoute() {
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const formData = new FormData(event.currentTarget);
-    const email = formData.get("email");
-    const password = formData.get("password");
-    console.log("Login submitted:", { email, password });
+    console.warn(
+      "Email/password login is not supported. Please use Google sign-in."
+    );
+  };
+
+  const handleGoogleSignIn = async () => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/auth/authorize`);
+      if (!res.ok) {
+        throw new Error("Failed to get auth URL");
+      }
+      const data: { authUrl: string } = await res.json();
+      if (!data.authUrl) {
+        throw new Error("authUrl missing from response");
+      }
+      window.location.href = data.authUrl;
+    } catch (error) {
+      console.error("Google sign-in failed", error);
+      alert("Unable to start Google sign-in. Please try again.");
+    }
   };
 
   return (
@@ -80,6 +97,23 @@ function LoginRoute() {
             Sign in
           </button>
         </form>
+        <div className="my-4 flex items-center">
+          <div className="flex-1 h-px bg-gray-200" />
+          <span className="mx-3 text-xs text-gray-400">OR</span>
+          <div className="flex-1 h-px bg-gray-200" />
+        </div>
+        <button
+          type="button"
+          onClick={handleGoogleSignIn}
+          className="w-full border border-gray-300 rounded py-2 flex items-center justify-center gap-2 text-sm font-medium hover:bg-gray-50 transition-colors"
+        >
+          <img
+            src="https://www.svgrepo.com/show/475656/google-color.svg"
+            alt="Google"
+            className="h-5 w-5"
+          />
+          Continue with Google
+        </button>
         <p className="mt-4 text-sm text-center">
           <Link
             to="/forget-password"

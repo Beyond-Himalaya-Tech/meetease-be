@@ -5,8 +5,10 @@ import CustomersList from "../../components/customers/CustomersList";
 import { initialCustomers, type Customer } from "../../components/customers/types";
 import PageHeader from "../../components/layout/PageHeader";
 import DefaultLayout from "../../layouts/DefaultLayout";
+import { requireAuth } from "../../auth/requireAuth";
 
 export const Route = createFileRoute("/customers/")({
+  beforeLoad: requireAuth,
   component: CustomersRoute,
 });
 

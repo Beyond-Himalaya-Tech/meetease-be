@@ -2,8 +2,10 @@ import { createFileRoute } from "@tanstack/react-router";
 import PageHeader from "../../components/layout/PageHeader";
 import SettingsSections from "../../components/settings/SettingsSections";
 import DefaultLayout from "../../layouts/DefaultLayout";
+import { requireAuth } from "../../auth/requireAuth";
 
 export const Route = createFileRoute("/settings/")({
+  beforeLoad: requireAuth,
   component: SettingsRoute,
 });
 
