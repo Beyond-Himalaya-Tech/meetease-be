@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SettingsIndexRouteImport } from './routes/settings/index'
 import { Route as SchedulingIndexRouteImport } from './routes/scheduling/index'
+import { Route as MeetingsIndexRouteImport } from './routes/meetings/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as CustomersIndexRouteImport } from './routes/customers/index'
 import { Route as BookingsIndexRouteImport } from './routes/bookings/index'
@@ -28,6 +29,11 @@ const SettingsIndexRoute = SettingsIndexRouteImport.update({
 const SchedulingIndexRoute = SchedulingIndexRouteImport.update({
   id: '/scheduling/',
   path: '/scheduling/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MeetingsIndexRoute = MeetingsIndexRouteImport.update({
+  id: '/meetings/',
+  path: '/meetings/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardIndexRoute = DashboardIndexRouteImport.update({
@@ -80,6 +86,7 @@ export interface FileRoutesByFullPath {
   '/bookings': typeof BookingsIndexRoute
   '/customers': typeof CustomersIndexRoute
   '/dashboard': typeof DashboardIndexRoute
+  '/meetings': typeof MeetingsIndexRoute
   '/scheduling': typeof SchedulingIndexRoute
   '/settings': typeof SettingsIndexRoute
 }
@@ -92,6 +99,7 @@ export interface FileRoutesByTo {
   '/bookings': typeof BookingsIndexRoute
   '/customers': typeof CustomersIndexRoute
   '/dashboard': typeof DashboardIndexRoute
+  '/meetings': typeof MeetingsIndexRoute
   '/scheduling': typeof SchedulingIndexRoute
   '/settings': typeof SettingsIndexRoute
 }
@@ -105,6 +113,7 @@ export interface FileRoutesById {
   '/bookings/': typeof BookingsIndexRoute
   '/customers/': typeof CustomersIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/meetings/': typeof MeetingsIndexRoute
   '/scheduling/': typeof SchedulingIndexRoute
   '/settings/': typeof SettingsIndexRoute
 }
@@ -119,6 +128,7 @@ export interface FileRouteTypes {
     | '/bookings'
     | '/customers'
     | '/dashboard'
+    | '/meetings'
     | '/scheduling'
     | '/settings'
   fileRoutesByTo: FileRoutesByTo
@@ -131,6 +141,7 @@ export interface FileRouteTypes {
     | '/bookings'
     | '/customers'
     | '/dashboard'
+    | '/meetings'
     | '/scheduling'
     | '/settings'
   id:
@@ -143,6 +154,7 @@ export interface FileRouteTypes {
     | '/bookings/'
     | '/customers/'
     | '/dashboard/'
+    | '/meetings/'
     | '/scheduling/'
     | '/settings/'
   fileRoutesById: FileRoutesById
@@ -156,6 +168,7 @@ export interface RootRouteChildren {
   BookingsIndexRoute: typeof BookingsIndexRoute
   CustomersIndexRoute: typeof CustomersIndexRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
+  MeetingsIndexRoute: typeof MeetingsIndexRoute
   SchedulingIndexRoute: typeof SchedulingIndexRoute
   SettingsIndexRoute: typeof SettingsIndexRoute
 }
@@ -174,6 +187,13 @@ declare module '@tanstack/react-router' {
       path: '/scheduling'
       fullPath: '/scheduling'
       preLoaderRoute: typeof SchedulingIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/meetings/': {
+      id: '/meetings/'
+      path: '/meetings'
+      fullPath: '/meetings'
+      preLoaderRoute: typeof MeetingsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard/': {
@@ -244,6 +264,7 @@ const rootRouteChildren: RootRouteChildren = {
   BookingsIndexRoute: BookingsIndexRoute,
   CustomersIndexRoute: CustomersIndexRoute,
   DashboardIndexRoute: DashboardIndexRoute,
+  MeetingsIndexRoute: MeetingsIndexRoute,
   SchedulingIndexRoute: SchedulingIndexRoute,
   SettingsIndexRoute: SettingsIndexRoute,
 }
