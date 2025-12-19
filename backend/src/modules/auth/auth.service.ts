@@ -57,8 +57,40 @@ export class AuthService {
     }
 
     const payload = { sub: user.id, email: user.email };
-    const access_token = await this.jwtService.signAsync(payload);
 
-    return { access_token };
+    // Short-lived access token
+    const access_token = await this.jwtService.signAsync(payload, {
+      expiresIn: '15m',
+    });
+
+    // Long-lived refresh token (used only from HttpOnly cookie)
+    const refresh_token = await this.jwtService.signAsync(payload, {
+      expiresIn: '30d',
+    });
+
+    return { access_token, refresh_token };
+  }
+
+  async refreshAccessToken(refreshToken: string) {
+    try {
+      const decoded = await this.jwtService.verifyAsync<{
+        sub: number;
+        email: string;
+      }>(refreshToken);
+
+      const user = await this.usersService.findOne(decoded.sub);
+      if (!user) {
+        throw new Error('User not found');
+      }
+
+      const payload = { sub: user.id, email: user.email };
+      const access_token = await this.jwtService.signAsync(payload, {
+        expiresIn: '15m',
+      });
+
+      return { access_token };
+    } catch {
+      throw new Error('Invalid or expired refresh token');
+    }
   }
 }

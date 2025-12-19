@@ -6,8 +6,10 @@ import EventTypesModal from "../../components/availability/EventTypesModal";
 import type { EventType, WeeklyRow } from "../../components/availability/types";
 import WeeklyHoursCard from "../../components/availability/WeeklyHoursCard";
 import DefaultLayout from "../../layouts/DefaultLayout";
+import { requireAuth } from "../../auth/requireAuth";
 
 export const Route = createFileRoute("/availability/")({
+  beforeLoad: requireAuth,
   component: AvailabilityRoute,
 });
 

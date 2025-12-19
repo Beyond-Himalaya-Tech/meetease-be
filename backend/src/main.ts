@@ -15,7 +15,14 @@ async function bootstrap() {
     })
   );
 
-  app.enableCors();
+  app.enableCors({
+    // origin: process.env.FRONTEND_URL ?? 'http://localhost:5173',
+    origin: [
+      'http://localhost:5173',
+      'https://hoppscotch.io',
+    ],
+    credentials: true,
+  });
   
   app.setGlobalPrefix('api');
     app.enableVersioning({

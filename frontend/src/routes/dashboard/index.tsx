@@ -2,8 +2,10 @@ import { createFileRoute } from "@tanstack/react-router";
 import DashboardOverview from "../../components/dashboard/DashboardOverview";
 import PageHeader from "../../components/layout/PageHeader";
 import DefaultLayout from "../../layouts/DefaultLayout";
+import { requireAuth } from "../../auth/requireAuth";
 
 export const Route = createFileRoute("/dashboard/")({
+  beforeLoad: requireAuth,
   component: DashboardRoute,
 });
 

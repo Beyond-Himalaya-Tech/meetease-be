@@ -1,24 +1,41 @@
 import {
-    Bars3Icon,
-    CalendarIcon,
-    ChartBarIcon,
-    ClockIcon,
-    Cog6ToothIcon,
-    LinkIcon,
-    PowerIcon,
-    UserGroupIcon,
-} from "@heroicons/react/24/outline";
+  Dashboard as DashboardIcon,
+  Link as LinkIcon,
+  CalendarToday as CalendarIcon,
+  AccessTime as ClockIcon,
+  People as UserGroupIcon,
+  Person as UserIcon,
+  PowerSettingsNew as PowerIcon,
+  Menu as MenuIcon,
+} from "@mui/icons-material";
+import {
+  Drawer,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Box,
+  Typography,
+  IconButton,
+  Divider,
+  useTheme,
+  useMediaQuery,
+} from "@mui/material";
 import { Link, useRouterState } from "@tanstack/react-router";
 
+const DRAWER_WIDTH = 256;
+
 const navMenu = [
-  { name: "Dashboard", to: "/dashboard", icon: <ChartBarIcon className="h-5 w-5 mr-2" /> },
-  { name: "Scheduling", to: "/scheduling", icon: <LinkIcon className="h-5 w-5 mr-2" /> },
-  { name: "Bookings", to: "/bookings", icon: <CalendarIcon className="h-5 w-5 mr-2" /> },
-  { name: "Availability", to: "/availability", icon: <ClockIcon className="h-5 w-5 mr-2" /> },
-  { name: "Customers", to: "/customers", icon: <UserGroupIcon className="h-5 w-5 mr-2" /> },
-  { name: "Settings", to: "/settings", icon: <Cog6ToothIcon className="h-5 w-5 mr-2" /> },
-  { name: "Logout", to: "/logout", icon: <PowerIcon className="h-5 w-5 mr-2" /> },
+  { name: "Dashboard", to: "/dashboard", icon: <DashboardIcon /> },
+  { name: "Scheduling", to: "/scheduling", icon: <LinkIcon /> },
+  { name: "Bookings", to: "/bookings", icon: <CalendarIcon /> },
+  { name: "Availability", to: "/availability", icon: <ClockIcon /> },
+  { name: "Contacts", to: "/customers", icon: <UserGroupIcon /> },
+  { name: "Profile", to: "/profile", icon: <UserIcon /> },
 ];
+
+const logoutItem = { name: "Logout", to: "/logout", icon: <PowerIcon /> };
 
 export const Sidebar = ({
   open,
@@ -26,61 +43,200 @@ export const Sidebar = ({
 }: {
   open: boolean;
   setOpen: (open: boolean) => void;
-}) => (
-  <aside
-    className={`
-      fixed sm:relative z-40 inset-y-0 left-0 
-      transform ${open ? "translate-x-0" : "-translate-x-full"}
-      transition-transform duration-200 ease-in-out
-      sm:inset-auto sm:h-full sm:w-64
-      bg-white shadow-md w-64 flex flex-col h-full
-    `}
-  >
-    <div className="flex items-center justify-between px-4 py-4 border-b sm:hidden">
-      <span className="font-bold text-lg">Menu</span>
-      <button
-        className="p-2"
-        aria-label="Close sidebar"
-        onClick={() => setOpen(false)}
+}) => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
+  const drawerContent = (
+    <Box sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
+      {/* Brand / logo area */}
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          px: 2.5,
+          py: 2.5,
+          borderBottom: 1,
+          borderColor: "divider",
+        }}
       >
-        <Bars3Icon className="h-6 w-6" />
-      </button>
-    </div>
-    <SidebarNav />
-  </aside>
-);
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+          <Box
+            sx={{
+              width: 32,
+              height: 32,
+              borderRadius: 2,
+              bgcolor: "primary.main",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "primary.contrastText",
+              fontWeight: 700,
+              fontSize: "0.9rem",
+            }}
+          >
+            M
+          </Box>
+          <Box>
+            <Typography variant="subtitle1" fontWeight={700}>
+              MeetEase
+            </Typography>
+          </Box>
+        </Box>
+
+        {isMobile && (
+          <IconButton
+            onClick={() => setOpen(false)}
+            aria-label="Close sidebar"
+            size="small"
+          >
+            <MenuIcon fontSize="small" />
+          </IconButton>
+        )}
+      </Box>
+
+      <Divider />
+
+      {/* Navigation list */}
+      <Box sx={{ flex: 1, overflow: "auto", py: 2 }}>
+        <SidebarNav />
+      </Box>
+
+      {/* Logout at bottom */}
+      <Box sx={{ borderTop: 1, borderColor: "divider", px: 1.5, py: 1.5 }}>
+        <SidebarLogout />
+      </Box>
+    </Box>
+  );
+
+  return (
+    <Drawer
+      variant={isMobile ? "temporary" : "persistent"}
+      open={open}
+      onClose={() => setOpen(false)}
+      sx={{
+        width: DRAWER_WIDTH,
+        flexShrink: 0,
+        "& .MuiDrawer-paper": {
+          width: DRAWER_WIDTH,
+          boxSizing: "border-box",
+          borderRight: 1,
+          borderColor: "divider",
+          bgcolor: "background.paper",
+        },
+      }}
+    >
+      {drawerContent}
+    </Drawer>
+  );
+};
 
 const SidebarNav = () => {
   const routerState = useRouterState();
   const pathname = routerState.location.pathname;
 
   return (
-    <nav className="flex-1 px-4 py-6">
-      <ul className="space-y-2">
-        {navMenu.map((item) => {
-          const isActive =
-            pathname === item.to || (item.to !== "/" && pathname.startsWith(item.to));
+    <List sx={{ px: 1.5 }}>
+      {navMenu.map((item) => {
+        const isActive =
+          pathname === item.to || (item.to !== "/" && pathname.startsWith(item.to));
 
-          const baseClasses =
-            "flex items-center px-3 py-2 rounded font-medium transition";
-          const inactiveClasses = "text-gray-700 hover:bg-blue-100";
-          const activeClasses = "bg-blue-600 text-white";
-
-          return (
-            <li key={item.to}>
-              <Link
-                to={item.to}
-                className={`${baseClasses} ${
-                  isActive ? activeClasses : inactiveClasses
-                }`}
+        return (
+          <ListItem key={item.to} disablePadding sx={{ mb: 0.5 }}>
+            <ListItemButton
+              component={Link}
+              to={item.to}
+              selected={isActive}
+              sx={{
+                borderRadius: 1.5,
+                minHeight: 40,
+                "&.Mui-selected": {
+                  bgcolor: "primary.main",
+                  color: "primary.contrastText",
+                  "&:hover": {
+                    bgcolor: "primary.dark",
+                  },
+                  "& .MuiListItemIcon-root": {
+                    color: "primary.contrastText",
+                  },
+                },
+                "&:hover": {
+                  bgcolor: "action.hover",
+                },
+              }}
+            >
+              <ListItemIcon
+                sx={{
+                  minWidth: 40,
+                  color: isActive ? "primary.contrastText" : "text.secondary",
+                }}
               >
                 {item.icon}
-                <span>{item.name}</span>
-              </Link>
-            </li>
-          );
-        })}
-      </ul>
-    </nav>
+              </ListItemIcon>
+              <ListItemText
+                primary={item.name}
+                primaryTypographyProps={{
+                  fontWeight: isActive ? 600 : 500,
+                  fontSize: "0.875rem",
+                }}
+              />
+            </ListItemButton>
+          </ListItem>
+        );
+      })}
+    </List>
+  );
+};
+
+const SidebarLogout = () => {
+  const routerState = useRouterState();
+  const pathname = routerState.location.pathname;
+  const isActive =
+    pathname === logoutItem.to || pathname.startsWith(logoutItem.to);
+
+  return (
+    <List disablePadding>
+      <ListItem disablePadding>
+        <ListItemButton
+          component={Link}
+          to={logoutItem.to}
+          selected={isActive}
+          sx={{
+            borderRadius: 1.5,
+            minHeight: 40,
+            "&.Mui-selected": {
+              bgcolor: "primary.main",
+              color: "primary.contrastText",
+              "&:hover": {
+                bgcolor: "primary.dark",
+              },
+              "& .MuiListItemIcon-root": {
+                color: "primary.contrastText",
+              },
+            },
+            "&:hover": {
+              bgcolor: "action.hover",
+            },
+          }}
+        >
+          <ListItemIcon
+            sx={{
+              minWidth: 40,
+              color: isActive ? "primary.contrastText" : "text.secondary",
+            }}
+          >
+            {logoutItem.icon}
+          </ListItemIcon>
+          <ListItemText
+            primary={logoutItem.name}
+            primaryTypographyProps={{
+              fontWeight: isActive ? 600 : 500,
+              fontSize: "0.875rem",
+            }}
+          />
+        </ListItemButton>
+      </ListItem>
+    </List>
   );
 };

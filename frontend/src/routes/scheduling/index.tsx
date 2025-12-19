@@ -2,8 +2,10 @@ import { createFileRoute } from "@tanstack/react-router";
 import PageHeader from "../../components/layout/PageHeader";
 import EventTypesList from "../../components/scheduling/EventTypesList";
 import DefaultLayout from "../../layouts/DefaultLayout";
+import { requireAuth } from "../../auth/requireAuth";
 
 export const Route = createFileRoute("/scheduling/")({
+  beforeLoad: requireAuth,
   component: SchedulingRoute,
 });
 

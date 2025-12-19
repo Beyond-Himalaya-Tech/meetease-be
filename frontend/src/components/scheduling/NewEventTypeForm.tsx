@@ -1,14 +1,45 @@
-import React from "react";
+import React, { useState } from "react";
+import toast from "react-hot-toast";
+import { createEventType } from "../../lib/api";
 
 type NewEventTypeFormProps = {
   onBack: () => void;
+  onCreated?: () => Promise<void> | void;
 };
 
-const NewEventTypeForm = ({ onBack }: NewEventTypeFormProps) => {
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault(); // Prevent page reload
-    console.log("Form submitted");
-    // Add your form submission logic here
+const NewEventTypeForm = ({ onBack, onCreated }: NewEventTypeFormProps) => {
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [duration, setDuration] = useState<number | "">("");
+  const [clientTag, setClientTag] = useState("");
+  const [isActive, setIsActive] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!title || !duration) return;
+
+    try {
+      setSubmitting(true);
+      await createEventType({
+        title,
+        description: description || undefined,
+        duration_minutes: typeof duration === "number" ? duration : Number(duration),
+        client_tag: clientTag || undefined,
+        is_active: isActive,
+      });
+      toast.success("Event type created");
+      if (onCreated) {
+        await onCreated();
+      }
+      onBack();
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Failed to create event type";
+      toast.error(message);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -44,6 +75,8 @@ const NewEventTypeForm = ({ onBack }: NewEventTypeFormProps) => {
           <input
             type="text"
             placeholder="e.g. Intro call"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
             className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm
                        focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
           />
@@ -55,6 +88,8 @@ const NewEventTypeForm = ({ onBack }: NewEventTypeFormProps) => {
           <textarea
             rows={3}
             placeholder="Short description shown to clients"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
             className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm
                        focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
           />
@@ -69,6 +104,8 @@ const NewEventTypeForm = ({ onBack }: NewEventTypeFormProps) => {
             type="number"
             min={1}
             placeholder="15"
+            value={duration}
+            onChange={(e) => setDuration(e.target.value === "" ? "" : Number(e.target.value))}
             className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm
                        focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
           />
@@ -80,6 +117,8 @@ const NewEventTypeForm = ({ onBack }: NewEventTypeFormProps) => {
           <input
             type="text"
             placeholder="e.g. sales, support"
+            value={clientTag}
+            onChange={(e) => setClientTag(e.target.value)}
             className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm
                        focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
           />
@@ -89,7 +128,8 @@ const NewEventTypeForm = ({ onBack }: NewEventTypeFormProps) => {
         <div className="flex items-center gap-2">
           <input
             type="checkbox"
-            defaultChecked
+            checked={isActive}
+            onChange={(e) => setIsActive(e.target.checked)}
             className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
           />
           <label className="text-sm text-gray-700">Active</label>
@@ -107,9 +147,10 @@ const NewEventTypeForm = ({ onBack }: NewEventTypeFormProps) => {
         </button>
         <button
           type="submit"
+          disabled={submitting}
           className="rounded-full bg-blue-600 px-4 py-2 text-xs font-semibold text-white hover:bg-blue-700"
         >
-          Create event type
+          {submitting ? "Creating..." : "Create event type"}
         </button>
       </div>
     </form>
