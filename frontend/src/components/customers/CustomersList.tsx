@@ -1,32 +1,24 @@
 import { useEffect, useMemo, useState } from "react";
 import type { Customer } from "./types";
 
-type ColumnId =
-  | "name"
-  | "email"
-  | "phone"
-  | "tag"
-  | "eventType"
-  | "company"
-  | "jobTitle";
+type ColumnId = "name" | "email" | "phone" | "tag";
 
 const allColumns: { id: ColumnId; label: string; always?: boolean }[] = [
   { id: "name", label: "Name", always: true },
   { id: "email", label: "Email" },
   { id: "phone", label: "Number" },
   { id: "tag", label: "Tag" },
-  { id: "eventType", label: "Event type" },
-  { id: "company", label: "Company" },
-  { id: "jobTitle", label: "Job title" },
 ];
 
 const STORAGE_KEY = "customersTableColumns";
 
 type CustomersListProps = {
   customers: Customer[];
+  onEdit: (customer: Customer) => void;
+  onDelete: (customer: Customer) => void;
 };
 
-const CustomersList = ({ customers }: CustomersListProps) => {
+const CustomersList = ({ customers, onEdit, onDelete }: CustomersListProps) => {
   const [search, setSearch] = useState("");
   const [eventFilter, setEventFilter] = useState<string>("all");
   const [filterOpen, setFilterOpen] = useState(false);
@@ -121,7 +113,7 @@ const CustomersList = ({ customers }: CustomersListProps) => {
         matchesJobTitle
       );
     });
-  }, [search, eventFilter, filters]);
+  }, [customers, search, eventFilter, filters]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
   const currentPage = Math.min(page, totalPages);
@@ -427,15 +419,7 @@ const CustomersList = ({ customers }: CustomersListProps) => {
               {visibleColumns.tag && (
                 <th className="px-4 sm:px-6 py-2">Tag</th>
               )}
-              {visibleColumns.eventType && (
-                <th className="px-4 sm:px-6 py-2">Event type</th>
-              )}
-              {visibleColumns.company && (
-                <th className="px-4 sm:px-6 py-2">Company</th>
-              )}
-              {visibleColumns.jobTitle && (
-                <th className="px-4 sm:px-6 py-2">Job title</th>
-              )}
+              <th className="px-4 sm:px-6 py-2 text-right">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
@@ -461,26 +445,31 @@ const CustomersList = ({ customers }: CustomersListProps) => {
                 )}
                 {visibleColumns.tag && (
                   <td className="px-4 sm:px-6 py-2">
-                    <span className="inline-flex rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-blue-700">
-                      {c.tag}
-                    </span>
+                    {c.tag ? (
+                      <span className="inline-flex rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-blue-700">
+                        {c.tag}
+                      </span>
+                    ) : (
+                      <span className="text-xs text-gray-400">—</span>
+                    )}
                   </td>
                 )}
-                {visibleColumns.eventType && (
-                  <td className="px-4 sm:px-6 py-2 text-gray-700">
-                    {c.eventType}
-                  </td>
-                )}
-                {visibleColumns.company && (
-                  <td className="px-4 sm:px-6 py-2 text-gray-700">
-                    {c.company}
-                  </td>
-                )}
-                {visibleColumns.jobTitle && (
-                  <td className="px-4 sm:px-6 py-2 text-gray-700">
-                    {c.jobTitle}
-                  </td>
-                )}
+                <td className="px-4 sm:px-6 py-2 text-right">
+                  <button
+                    type="button"
+                    onClick={() => onEdit(c)}
+                    className="mr-2 rounded-full border border-gray-300 px-3 py-1 text-xs font-medium text-gray-700 hover:bg-gray-50"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onDelete(c)}
+                    className="rounded-full border border-red-200 px-3 py-1 text-xs font-medium text-red-600 hover:bg-red-50"
+                  >
+                    Delete
+                  </button>
+                </td>
               </tr>
             ))}
             {currentRows.length === 0 && (

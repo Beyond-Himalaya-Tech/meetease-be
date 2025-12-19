@@ -1,40 +1,43 @@
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import NewEventTypeForm from "./NewEventTypeForm";
-
-type EventType = {
-  id: number;
-  name: string;
-  duration: string;
-  location: string;
-  status: "Active" | "Paused";
-};
-
-const mockEventTypes: EventType[] = [
-  {
-    id: 1,
-    name: "Intro call",
-    duration: "15 mins",
-    location: "Google Meet",
-    status: "Active",
-  },
-  {
-    id: 2,
-    name: "Product demo",
-    duration: "30 mins",
-    location: "Zoom",
-    status: "Active",
-  },
-  {
-    id: 3,
-    name: "Customer check-in",
-    duration: "45 mins",
-    location: "Phone",
-    status: "Paused",
-  },
-];
+import EditEventTypeDialog from "./EditEventTypeDialog";
+import { getEventTypes, type EventType } from "../../lib/api";
 
 const EventTypesList = () => {
   const [showForm, setShowForm] = useState(false);
+  const [eventTypes, setEventTypes] = useState<EventType[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [editingEventType, setEditingEventType] = useState<EventType | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+
+  const loadEventTypes = useCallback(async () => {
+    let cancelled = false;
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await getEventTypes();
+      if (!cancelled) {
+        setEventTypes(data);
+      }
+    } catch (err) {
+      if (!cancelled) {
+        setError(err instanceof Error ? err.message : "Failed to load event types");
+      }
+    } finally {
+      if (!cancelled) {
+        setLoading(false);
+      }
+    }
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    void loadEventTypes();
+  }, [loadEventTypes]);
 
   const handleBack = () => {
     setShowForm(false);
@@ -60,37 +63,69 @@ const EventTypesList = () => {
           </div>
 
           {/* List */}
-          <ul className="divide-y divide-gray-100">
-            {mockEventTypes.map((event) => (
-              <li
-                key={event.id}
-                className="flex items-center justify-between gap-4 px-5 py-4 transition-colors hover:bg-gray-50"
-              >
-                <div>
-                  <p className="text-sm font-medium text-gray-900">
-                    {event.name}
-                  </p>
-                  <p className="mt-0.5 text-xs text-gray-500">
-                    {event.duration} · {event.location}
-                  </p>
-                </div>
-
-                <span
-                  className={`rounded-full px-3 py-1 text-xs font-medium ${
-                    event.status === "Active"
-                      ? "bg-green-50 text-green-700"
-                      : "bg-gray-100 text-gray-600"
-                  }`}
+          {loading ? (
+            <div className="px-5 py-6 text-sm text-gray-500">Loading event types...</div>
+          ) : error ? (
+            <div className="px-5 py-6 text-sm text-red-500">{error}</div>
+          ) : eventTypes.length === 0 ? (
+            <div className="px-5 py-6 text-sm text-gray-500">
+              No event types found. Click &quot;New event type&quot; to create one.
+            </div>
+          ) : (
+            <ul className="divide-y divide-gray-100">
+              {eventTypes.map((event) => (
+                <li
+                  key={event.id}
+                  onClick={() => {
+                    setEditingEventType(event);
+                    setIsEditDialogOpen(true);
+                  }}
+                  className="flex items-center justify-between gap-4 px-5 py-4 transition-colors hover:bg-gray-50 cursor-pointer"
                 >
-                  {event.status}
-                </span>
-              </li>
-            ))}
-          </ul>
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">
+                      {event.title}
+                    </p>
+                    <p className="mt-0.5 text-xs text-gray-500">
+                      {event.duration_minutes} mins
+                      {event.client_tag ? ` · ${event.client_tag}` : null}
+                    </p>
+                  </div>
+
+                  <span
+                    className={`rounded-full px-3 py-1 text-xs font-medium ${
+                      event.is_active
+                        ? "bg-green-50 text-green-700"
+                        : "bg-gray-100 text-gray-600"
+                    }`}
+                  >
+                    {event.is_active ? "Active" : "Paused"}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
         </section>
       ) : (
-        <NewEventTypeForm onBack={handleBack} />
+        <NewEventTypeForm
+          onBack={handleBack}
+          onCreated={async () => {
+            await loadEventTypes();
+          }}
+        />
       )}
+
+      <EditEventTypeDialog
+        isOpen={isEditDialogOpen}
+        onClose={() => {
+          setIsEditDialogOpen(false);
+          setEditingEventType(null);
+        }}
+        eventType={editingEventType}
+        onUpdated={async () => {
+          await loadEventTypes();
+        }}
+      />
     </>
   );
 };

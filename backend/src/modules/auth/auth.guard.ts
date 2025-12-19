@@ -11,9 +11,7 @@ export class AuthGuard implements CanActivate {
     private readonly usersService: UsersService,
   ) {}
 
-  async canActivate(context: ExecutionContext
-    
-  ): Promise<boolean> {
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     const req = context.switchToHttp().getRequest();
     const authHeader = req.headers.authorization;
 
@@ -21,9 +19,16 @@ export class AuthGuard implements CanActivate {
       throw new UnauthorizedException('Authorization header required');
     }
 
+    // Extract token from "Bearer <token>"
+    const token = authHeader.replace('Bearer ', '');
+
+    if (!token) {
+      throw new UnauthorizedException('Token required');
+    }
+
     try {
-      // Decode JWT
-      const decoded = await this.jwtService.verifyAsync(authHeader);
+      // Verify and decode JWT token
+      const decoded = await this.jwtService.verifyAsync(token);
 
       // Load user from DB
       const user = await this.usersService.findOne(decoded.sub);

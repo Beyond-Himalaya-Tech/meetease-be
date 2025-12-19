@@ -10,8 +10,8 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as LogoutRouteImport } from './routes/logout'
-import { Route as SettingsIndexRouteImport } from './routes/settings/index'
 import { Route as SchedulingIndexRouteImport } from './routes/scheduling/index'
+import { Route as ProfileIndexRouteImport } from './routes/profile/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as CustomersIndexRouteImport } from './routes/customers/index'
 import { Route as BookingsIndexRouteImport } from './routes/bookings/index'
@@ -27,14 +27,14 @@ const LogoutRoute = LogoutRouteImport.update({
   path: '/logout',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SettingsIndexRoute = SettingsIndexRouteImport.update({
-  id: '/settings/',
-  path: '/settings/',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const SchedulingIndexRoute = SchedulingIndexRouteImport.update({
   id: '/scheduling/',
   path: '/scheduling/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileIndexRoute = ProfileIndexRouteImport.update({
+  id: '/profile/',
+  path: '/profile/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardIndexRoute = DashboardIndexRouteImport.update({
@@ -94,8 +94,8 @@ export interface FileRoutesByFullPath {
   '/bookings': typeof BookingsIndexRoute
   '/customers': typeof CustomersIndexRoute
   '/dashboard': typeof DashboardIndexRoute
+  '/profile': typeof ProfileIndexRoute
   '/scheduling': typeof SchedulingIndexRoute
-  '/settings': typeof SettingsIndexRoute
 }
 export interface FileRoutesByTo {
   '/logout': typeof LogoutRoute
@@ -108,8 +108,8 @@ export interface FileRoutesByTo {
   '/bookings': typeof BookingsIndexRoute
   '/customers': typeof CustomersIndexRoute
   '/dashboard': typeof DashboardIndexRoute
+  '/profile': typeof ProfileIndexRoute
   '/scheduling': typeof SchedulingIndexRoute
-  '/settings': typeof SettingsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -123,8 +123,8 @@ export interface FileRoutesById {
   '/bookings/': typeof BookingsIndexRoute
   '/customers/': typeof CustomersIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/profile/': typeof ProfileIndexRoute
   '/scheduling/': typeof SchedulingIndexRoute
-  '/settings/': typeof SettingsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -139,8 +139,8 @@ export interface FileRouteTypes {
     | '/bookings'
     | '/customers'
     | '/dashboard'
+    | '/profile'
     | '/scheduling'
-    | '/settings'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/logout'
@@ -153,8 +153,8 @@ export interface FileRouteTypes {
     | '/bookings'
     | '/customers'
     | '/dashboard'
+    | '/profile'
     | '/scheduling'
-    | '/settings'
   id:
     | '__root__'
     | '/logout'
@@ -167,8 +167,8 @@ export interface FileRouteTypes {
     | '/bookings/'
     | '/customers/'
     | '/dashboard/'
+    | '/profile/'
     | '/scheduling/'
-    | '/settings/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -182,8 +182,8 @@ export interface RootRouteChildren {
   BookingsIndexRoute: typeof BookingsIndexRoute
   CustomersIndexRoute: typeof CustomersIndexRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
+  ProfileIndexRoute: typeof ProfileIndexRoute
   SchedulingIndexRoute: typeof SchedulingIndexRoute
-  SettingsIndexRoute: typeof SettingsIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -195,18 +195,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LogoutRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/settings/': {
-      id: '/settings/'
-      path: '/settings'
-      fullPath: '/settings'
-      preLoaderRoute: typeof SettingsIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/scheduling/': {
       id: '/scheduling/'
       path: '/scheduling'
       fullPath: '/scheduling'
       preLoaderRoute: typeof SchedulingIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile/': {
+      id: '/profile/'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard/': {
@@ -286,8 +286,8 @@ const rootRouteChildren: RootRouteChildren = {
   BookingsIndexRoute: BookingsIndexRoute,
   CustomersIndexRoute: CustomersIndexRoute,
   DashboardIndexRoute: DashboardIndexRoute,
+  ProfileIndexRoute: ProfileIndexRoute,
   SchedulingIndexRoute: SchedulingIndexRoute,
-  SettingsIndexRoute: SettingsIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
