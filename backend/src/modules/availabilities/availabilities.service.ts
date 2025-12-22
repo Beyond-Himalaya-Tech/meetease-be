@@ -22,9 +22,11 @@ export class AvailabilitiesService {
   async upsert(data: CreateAvailabilityDto) {
     return await this.prisma.availabilities.upsert({
       where: {
-        user_id_day_of_week: {
+        user_day_time_unique: {
           user_id: data.user_id,
           day_of_week: data.day_of_week,
+          start_time: timeStringToDate(data.start_time),
+          end_time: timeStringToDate(data.end_time)
         },
       },
       update: {

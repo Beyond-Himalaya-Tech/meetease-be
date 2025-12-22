@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, Request, BadRequestException } from '@nestjs/common';
 import { EventsService } from './events.service';
 import { CreateEventDataDto, CreateEventDto, EventStatus, RescheduleEventDto, UpdateEventDto } from 'src/dto/events.dto';
 import { AuthGuard } from '../auth/auth.guard';
@@ -7,7 +7,7 @@ import { ContactsService } from '../contacts/contacts.service';
 import { CreateContactDto } from 'src/dto/contacts.dto';
 import { GoogleOAuthService } from '../google-oauth/google-oauth.service';
 import { responseFormatter, notFoundResponse } from 'src/helpers/response.helper';
-import { toUTCDate } from 'src/helpers/time.helper';
+import { dateToTimeString, formatDateKey, toUTCDate } from 'src/helpers/time.helper';
 import { MailService } from '../mail/mail.service';
 
 @UseGuards(AuthGuard)
@@ -102,27 +102,116 @@ export class EventsController {
     }
   }
 
-  @Get()
-  async findAll(@Query('event') event: string, @Request() req) {
+  @Get('filter/:event')
+  async findAll(
+    @Param('event') event: string,
+    @Request() req,
+    @Query('from_date') from_date?: string,
+    @Query('to_date') to_date?: string,
+  ) {
     try {
-      let where: any = {
+      const where: any = {
         user_id: req.user.id,
       };
-      if(event == 'upcoming')
-        where.start_at = {
-          gte: new Date()
-        }
-      if(event == 'past')
-        where.start_at = {
-          lte: new Date()
-        }
-      const userEvents = await this.eventService.findFilteredByUser(where);
-      if(!userEvents.length) {
-        throw notFoundResponse("No user events");
+
+      const now = new Date();
+
+      switch (event) {
+        case 'upcoming':
+          where.start_at = {
+            gte: now,
+          };
+          break;
+
+        case 'past':
+          where.start_at = {
+            lt: now,
+          };
+          break;
+
+        case 'range':
+          if (!from_date || !to_date) {
+            throw new BadRequestException(
+              '`from` and `to` query parameters are required for range events',
+            );
+          }
+
+          const from = new Date(from_date);
+          const to = new Date(to_date);
+
+          if (isNaN(from.getTime()) || isNaN(to.getTime())) {
+            throw new BadRequestException('Invalid date format');
+          }
+
+          if (from > to) {
+            throw new BadRequestException('`from` date must be before `to` date');
+          }
+
+          from.setHours(0, 0, 0, 0);
+          to.setHours(23, 59, 59, 999); 
+
+          where.start_at = {
+            gte: from,
+            lte: to,
+          };
+          break;
+
+        default:
+          throw new BadRequestException('Invalid event type');
       }
-      return responseFormatter(userEvents);
+
+      const userEvents = await this.eventService.findFilteredByUser(where);
+
+      if (!userEvents.length) {
+        throw notFoundResponse('No user events');
+      }
+
+      const groupedResponse = userEvents.reduce((acc, event) => {
+        const startDate = new Date(event.start_at);
+
+        const dateKey = formatDateKey(startDate); // "19th Dec, 2025"
+
+        const meetDate = startDate.toISOString().split('T')[0];
+
+        const startTime = dateToTimeString(startDate);
+
+        const endDate = new Date(event.end_at);
+        const endTime = dateToTimeString(endDate)
+
+        const formattedEvent = {
+          id: event.id,
+          start_at: event.start_at,
+          end_at: event.end_at,
+          meet_date: meetDate,
+          start_time: startTime,
+          end_time: endTime,
+          timezone: event.timezone,
+          location_link: event.location_link,
+          description: event.description,
+          is_rescheduled: event.is_rescheduled,
+
+          event_types: event.event_types?.title,
+          event_types_description: event.event_types?.description,
+          duration_minutes: event.event_types?.duration_minutes,
+
+          contact_name: event.contacts?.name,
+          contact_email: event.contacts?.email,
+          contact_tag: event.contacts?.tag,
+        };
+
+        if (!acc[dateKey]) {
+          acc[dateKey] = [];
+        }
+
+        acc[dateKey].push(formattedEvent);
+
+        return acc;
+      }, {} as Record<string, any[]>);
+
+
+      return responseFormatter(groupedResponse);
     } catch (err) {
-      throw responseFormatter(err, "error");
+      throw responseFormatter(err, 'error');
     }
   }
 

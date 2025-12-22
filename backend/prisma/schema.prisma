@@ -50,7 +50,7 @@ model availabilities {
   updated_at  DateTime @default(now())
 
   users       users    @relation(fields: [user_id], references: [id])
-  @@unique([user_id, day_of_week], name: "user_id_day_of_week")
+  @@unique([user_id, day_of_week, start_time, end_time], name: "user_day_time_unique")
 }
 
 model contacts {
