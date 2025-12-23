@@ -4,12 +4,14 @@ import { ContactsController } from './contacts.controller';
 import { ContactsService } from './contacts.service';
 import { AuthModule } from '../auth/auth.module';
 import { UsersModule } from '../users/users.module';
+import { EventTypesModule } from '../event-types/event-types.module';
 
 @Module({
   imports: [
     PrismaModule,
     forwardRef(() => AuthModule),
-    UsersModule
+    UsersModule,
+    EventTypesModule
   ],
   controllers: [ContactsController],
   providers: [ContactsService],

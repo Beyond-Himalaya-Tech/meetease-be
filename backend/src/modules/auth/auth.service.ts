@@ -49,7 +49,7 @@ export class AuthService {
         token_expiry: tokens.expiry_date ? new Date(tokens.expiry_date) : undefined,
       });
       let availabilities: any = [];
-      for(let i=0; i<7; i++) {
+      for(let i=1; i<6; i++) {
         availabilities.push({
           user_id: user.id,
           day_of_week: i,
