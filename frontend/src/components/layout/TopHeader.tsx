@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   AppBar,
   Toolbar,
@@ -9,36 +9,12 @@ import {
   MenuItem,
 } from "@mui/material";
 import { useNavigate } from "@tanstack/react-router";
-import { getUser, type User } from "../../lib/api";
+import { useUser } from "../../lib/queries";
 
 export default function TopHeader() {
-  const [user, setUser] = useState<User | null>(null);
+  const { data: user } = useUser();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    let cancelled = false;
-
-    async function fetchUser() {
-      try {
-        const userData = await getUser();
-        if (!cancelled) {
-          setUser(userData);
-        }
-      } catch {
-        // Silently fail - user might not be authenticated yet
-        if (!cancelled) {
-          setUser(null);
-        }
-      }
-    }
-
-    fetchUser();
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
 
   const handleProfileClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -139,14 +115,6 @@ export default function TopHeader() {
             }}
           >
             <MenuItem onClick={handleProfileNavigate}>Profile</MenuItem>
-            <MenuItem
-              onClick={() => {
-                handleClose();
-                // Settings route can be added later
-              }}
-            >
-              Settings
-            </MenuItem>
             <MenuItem
               onClick={() => {
                 handleClose();

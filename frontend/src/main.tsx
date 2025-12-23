@@ -1,11 +1,24 @@
 import { RouterProvider } from "@tanstack/react-router";
 import { StrictMode, useEffect } from "react";
 import { createRoot } from "react-dom/client";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "react-hot-toast";
 import { CssBaseline, ThemeProvider, createTheme } from "@mui/material";
 import "./index.css";
 import { router } from "./router";
 import { bootstrapAuth } from "./auth/storage";
+
+// Create a client for TanStack Query
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5, // 5 minutes - data is fresh for 5 minutes
+      gcTime: 1000 * 60 * 10, // 10 minutes - cache garbage collection time
+      refetchOnWindowFocus: false, // Don't refetch on window focus
+      retry: 1, // Retry failed requests once
+    },
+  },
+});
 
 const theme = createTheme({
   palette: {
@@ -59,24 +72,26 @@ export function App() {
   }, []);
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <RouterProvider router={router} />
-      <Toaster
-        position="top-right"
-        toastOptions={{
-          duration: 5000,
-          style: {
-            background: "#fff",
-            color: "#1f2937",
-            borderRadius: "0.75rem",
-            border: "1px solid #e5e7eb",
-            boxShadow:
-              "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
-          },
-        }}
-      />
-    </ThemeProvider>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <RouterProvider router={router} />
+        <Toaster
+          position="top-right"
+          toastOptions={{
+            duration: 5000,
+            style: {
+              background: "#fff",
+              color: "#1f2937",
+              borderRadius: "0.75rem",
+              border: "1px solid #e5e7eb",
+              boxShadow:
+                "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
+            },
+          }}
+        />
+      </ThemeProvider>
+    </QueryClientProvider>
   );
 }
 

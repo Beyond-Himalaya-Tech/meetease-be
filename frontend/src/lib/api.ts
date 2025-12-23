@@ -454,3 +454,50 @@ export async function getFilteredEvents(
   const data = await response.json();
   return (data.data ?? {}) as GroupedEventsResponse;
 }
+
+export async function getEventById(id: number): Promise<Event> {
+  const response = await fetchWithAuth(`${API_BASE_URL}/events/${id}`);
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.message || "Failed to fetch event");
+  }
+
+  const data = await response.json();
+  return data.data;
+}
+
+export type RescheduleEventData = {
+  start_at: string; // ISO8601 date string
+  end_at?: string; // ISO8601 date string (optional)
+  timezone: string;
+};
+
+export async function rescheduleEvent(id: number, payload: RescheduleEventData): Promise<Event> {
+  const response = await fetchWithAuth(`${API_BASE_URL}/events/reschedule/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.message || "Failed to reschedule event");
+  }
+
+  const data = await response.json();
+  return data.data;
+}
+
+export async function cancelEvent(id: number): Promise<Event> {
+  const response = await fetchWithAuth(`${API_BASE_URL}/events/cancel/${id}`, {
+    method: "PATCH",
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.message || "Failed to cancel event");
+  }
+
+  const data = await response.json();
+  return data.data;
+}

@@ -9,7 +9,7 @@ type PageHeaderProps = {
   title: string;
   subtitle?: string;
   tabs?: Tab[];
-  activeTabId?: string;
+  activeTabId?: number;
   onTabChange?: (id: number) => void;
   rightSlot?: ReactNode;
 };
@@ -24,18 +24,18 @@ const PageHeader = ({
 }: PageHeaderProps) => {
   return (
     <header className="mb-4 sm:mb-6">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-baseline sm:justify-between">
-        <div className="flex items-center gap-1.5">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div className="flex flex-col items-start gap-1">
           <h1 className="text-2xl sm:text-3xl font-semibold text-gray-900">
             {title}
           </h1>
           {subtitle && (
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="text-sm text-gray-500">
               {subtitle}
             </p>
           )}
         </div>
-        {rightSlot && <div className="flex-shrink-0">{rightSlot}</div>}
+        {rightSlot && <div className="shrink-0">{rightSlot}</div>}
       </div>
 
       {tabs && tabs.length > 0 && onTabChange && (

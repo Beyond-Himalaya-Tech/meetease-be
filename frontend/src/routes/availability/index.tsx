@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import AvailabilityHeader from "../../components/availability/AvailabilityHeader";
 import CalendarSettings from "../../components/availability/CalendarSettings";
 import EventTypesModal from "../../components/availability/EventTypesModal";
@@ -8,13 +8,13 @@ import WeeklyHoursCard from "../../components/availability/WeeklyHoursCard";
 import DefaultLayout from "../../layouts/DefaultLayout";
 import { requireAuth } from "../../auth/requireAuth";
 import {
-  getAvailabilities,
-  createAvailability,
-  updateAvailability,
-  deleteAvailability,
-  type Availability,
-} from "../../lib/api";
-import toast from "react-hot-toast";
+  useAvailabilities,
+  useDeleteAvailability,
+  useUpdateAvailability,
+  useCreateAvailability,
+  useUser,
+} from "../../lib/queries";
+import type { Availability } from "../../lib/api";
 
 export const Route = createFileRoute("/availability/")({
   beforeLoad: requireAuth,
@@ -51,16 +51,25 @@ const formatTimeForBackend = (time: string): string => {
 };
 
 function AvailabilityRoute() {
+  const { data: availabilities = [], isLoading: loading } = useAvailabilities();
+  const deleteAvailabilityMutation = useDeleteAvailability();
+  const updateAvailabilityMutation = useUpdateAvailability();
+  const createAvailabilityMutation = useCreateAvailability();
+
   const [activeTab, setActiveTab] = useState<"schedules" | "calendar">(
     "schedules",
   );
   const [isEventTypeModalOpen, setIsEventTypeModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [, setSaving] = useState(false);
-  const [availabilitiesMap, setAvailabilitiesMap] = useState<
-    Map<number, Availability>
-  >(new Map());
+
+  // Create a map for easy lookup
+  const availabilitiesMap = useMemo(() => {
+    const map = new Map<number, Availability>();
+    availabilities.forEach((avail) => {
+      map.set(avail.day_of_week, avail);
+    });
+    return map;
+  }, [availabilities]);
 
   const [weeklyRows, setWeeklyRows] = useState<WeeklyRow[]>(DAY_LABELS);
 
@@ -78,91 +87,59 @@ function AvailabilityRoute() {
     },
   ]);
 
-  // Load availabilities from API
-  const loadAvailabilities = useCallback(async () => {
-    try {
-      setLoading(true);
-      const availabilities = await getAvailabilities();
-      
-      // Create a map for easy lookup
-      const map = new Map<number, Availability>();
-      availabilities.forEach((avail) => {
-        map.set(avail.day_of_week, avail);
-      });
-      setAvailabilitiesMap(map);
-
-      // Map to WeeklyRow format
-      const rows: WeeklyRow[] = DAY_LABELS.map((day, index) => {
-        const availability = map.get(index);
-        if (availability) {
-          return {
-            ...day,
-            from: formatTimeForInput(availability.start_time),
-            to: formatTimeForInput(availability.end_time),
-            unavailable: false,
-          };
-        }
-        return { ...day, unavailable: true };
-      });
-
-      setWeeklyRows(rows);
-    } catch (err) {
-      console.error("Failed to load availabilities:", err);
-      // Keep default rows on error
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
+  // Update weekly rows when availabilities change
   useEffect(() => {
-    void loadAvailabilities();
-  }, [loadAvailabilities]);
+    const rows: WeeklyRow[] = DAY_LABELS.map((day, index) => {
+      const availability = availabilitiesMap.get(index);
+      if (availability) {
+        return {
+          ...day,
+          from: formatTimeForInput(availability.start_time),
+          to: formatTimeForInput(availability.end_time),
+          unavailable: false,
+        };
+      }
+      return { ...day, unavailable: true };
+    });
+    setWeeklyRows(rows);
+  }, [availabilitiesMap]);
+
+  const { data: user } = useUser();
 
   // Save availability when rows change
   const handleSaveAvailability = useCallback(
-    async (dayIndex: number, row: WeeklyRow) => {
-      try {
-        setSaving(true);
-        const existingAvailability = availabilitiesMap.get(dayIndex);
+    (dayIndex: number, row: WeeklyRow) => {
+      if (!user?.id) return;
 
-        if (row.unavailable || !row.from || !row.to) {
-          // Delete if unavailable or times are missing
-          if (existingAvailability) {
-            await deleteAvailability(existingAvailability.id);
-            availabilitiesMap.delete(dayIndex);
-            setAvailabilitiesMap(new Map(availabilitiesMap));
-            toast.success(`${row.label} availability removed`);
-          }
-        } else {
-          // Create or update availability
-          const payload = {
-            day_of_week: dayIndex,
-            start_time: formatTimeForBackend(row.from),
-            end_time: formatTimeForBackend(row.to),
-          };
+      const existingAvailability = availabilitiesMap.get(dayIndex);
 
-          if (existingAvailability) {
-            await updateAvailability(existingAvailability.id, {
+      if (row.unavailable || !row.from || !row.to) {
+        // Delete if unavailable or times are missing
+        if (existingAvailability) {
+          deleteAvailabilityMutation.mutate(existingAvailability.id);
+        }
+      } else {
+        // Create or update availability
+        const payload = {
+          day_of_week: dayIndex,
+          start_time: formatTimeForBackend(row.from),
+          end_time: formatTimeForBackend(row.to),
+        };
+
+        if (existingAvailability) {
+          updateAvailabilityMutation.mutate({
+            id: existingAvailability.id,
+            data: {
               start_time: payload.start_time,
               end_time: payload.end_time,
-            });
-            toast.success(`${row.label} availability updated`);
-          } else {
-            const newAvailability = await createAvailability(payload);
-            availabilitiesMap.set(dayIndex, newAvailability);
-            setAvailabilitiesMap(new Map(availabilitiesMap));
-            toast.success(`${row.label} availability saved`);
-          }
+            },
+          });
+        } else {
+          createAvailabilityMutation.mutate(payload);
         }
-      } catch (err) {
-        const message =
-          err instanceof Error ? err.message : "Failed to save availability";
-        toast.error(message);
-      } finally {
-        setSaving(false);
       }
     },
-    [availabilitiesMap]
+    [availabilitiesMap, user, deleteAvailabilityMutation, updateAvailabilityMutation, createAvailabilityMutation]
   );
 
   // Handle weekly rows change with debounced save

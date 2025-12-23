@@ -100,15 +100,27 @@ const BookingForm = ({ event, selectedDate, selectedTime, onBack, eventTypeId, t
         description: notes || undefined,
       });
 
-      toast.success("Event scheduled successfully!");
+      // Calculate time range for confirmation page
+      const endTime = getEndTime();
+      const startTimeFormatted = selectedTime;
+      const endTimeFormatted = endTime.toLocaleTimeString("default", { 
+        hour: "2-digit", 
+        minute: "2-digit",
+        hour12: true 
+      });
+      const timeRangeStr = `${startTimeFormatted} - ${endTimeFormatted}`;
       
-      // Redirect to the event detail page
-      setTimeout(() => {
-        navigate({
-          to: "/bookings/$bookingId",
-          params: { bookingId: createdEvent.id.toString() },
-        });
-      }, 1000);
+      // Redirect to confirmation page
+      navigate({
+        to: "/bookings/confirmation",
+        search: {
+          title: event.title,
+          organizer: event.organizer,
+          date: selectedDate.toISOString(),
+          timeRange: timeRangeStr,
+          timezone: timezone,
+        },
+      });
     } catch (err) {
       const message = err instanceof Error ? err.message : "Failed to schedule event";
       toast.error(message);

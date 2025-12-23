@@ -20,6 +20,7 @@ import { Route as AvailabilityIndexRouteImport } from './routes/availability/ind
 import { Route as authIndexRouteImport } from './routes/(auth)/index'
 import { Route as OauthCallbackRouteImport } from './routes/oauth/callback'
 import { Route as CustomersCustomerIdRouteImport } from './routes/customers/$customerId'
+import { Route as BookingsConfirmationRouteImport } from './routes/bookings/confirmation'
 import { Route as BookingsBookingIdRouteImport } from './routes/bookings/$bookingId'
 import { Route as authForgetPasswordRouteImport } from './routes/(auth)/forget-password'
 import { Route as MeetingsUserSlugEventSlugRouteImport } from './routes/meetings/$userSlug/$eventSlug'
@@ -79,6 +80,11 @@ const CustomersCustomerIdRoute = CustomersCustomerIdRouteImport.update({
   path: '/customers/$customerId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BookingsConfirmationRoute = BookingsConfirmationRouteImport.update({
+  id: '/bookings/confirmation',
+  path: '/bookings/confirmation',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BookingsBookingIdRoute = BookingsBookingIdRouteImport.update({
   id: '/bookings/$bookingId',
   path: '/bookings/$bookingId',
@@ -100,6 +106,7 @@ export interface FileRoutesByFullPath {
   '/logout': typeof LogoutRoute
   '/forget-password': typeof authForgetPasswordRoute
   '/bookings/$bookingId': typeof BookingsBookingIdRoute
+  '/bookings/confirmation': typeof BookingsConfirmationRoute
   '/customers/$customerId': typeof CustomersCustomerIdRoute
   '/oauth/callback': typeof OauthCallbackRoute
   '/': typeof authIndexRoute
@@ -116,6 +123,7 @@ export interface FileRoutesByTo {
   '/logout': typeof LogoutRoute
   '/forget-password': typeof authForgetPasswordRoute
   '/bookings/$bookingId': typeof BookingsBookingIdRoute
+  '/bookings/confirmation': typeof BookingsConfirmationRoute
   '/customers/$customerId': typeof CustomersCustomerIdRoute
   '/oauth/callback': typeof OauthCallbackRoute
   '/': typeof authIndexRoute
@@ -133,6 +141,7 @@ export interface FileRoutesById {
   '/logout': typeof LogoutRoute
   '/(auth)/forget-password': typeof authForgetPasswordRoute
   '/bookings/$bookingId': typeof BookingsBookingIdRoute
+  '/bookings/confirmation': typeof BookingsConfirmationRoute
   '/customers/$customerId': typeof CustomersCustomerIdRoute
   '/oauth/callback': typeof OauthCallbackRoute
   '/(auth)/': typeof authIndexRoute
@@ -151,6 +160,7 @@ export interface FileRouteTypes {
     | '/logout'
     | '/forget-password'
     | '/bookings/$bookingId'
+    | '/bookings/confirmation'
     | '/customers/$customerId'
     | '/oauth/callback'
     | '/'
@@ -167,6 +177,7 @@ export interface FileRouteTypes {
     | '/logout'
     | '/forget-password'
     | '/bookings/$bookingId'
+    | '/bookings/confirmation'
     | '/customers/$customerId'
     | '/oauth/callback'
     | '/'
@@ -183,6 +194,7 @@ export interface FileRouteTypes {
     | '/logout'
     | '/(auth)/forget-password'
     | '/bookings/$bookingId'
+    | '/bookings/confirmation'
     | '/customers/$customerId'
     | '/oauth/callback'
     | '/(auth)/'
@@ -200,6 +212,7 @@ export interface RootRouteChildren {
   LogoutRoute: typeof LogoutRoute
   authForgetPasswordRoute: typeof authForgetPasswordRoute
   BookingsBookingIdRoute: typeof BookingsBookingIdRoute
+  BookingsConfirmationRoute: typeof BookingsConfirmationRoute
   CustomersCustomerIdRoute: typeof CustomersCustomerIdRoute
   OauthCallbackRoute: typeof OauthCallbackRoute
   authIndexRoute: typeof authIndexRoute
@@ -292,6 +305,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CustomersCustomerIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/bookings/confirmation': {
+      id: '/bookings/confirmation'
+      path: '/bookings/confirmation'
+      fullPath: '/bookings/confirmation'
+      preLoaderRoute: typeof BookingsConfirmationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/bookings/$bookingId': {
       id: '/bookings/$bookingId'
       path: '/bookings/$bookingId'
@@ -320,6 +340,7 @@ const rootRouteChildren: RootRouteChildren = {
   LogoutRoute: LogoutRoute,
   authForgetPasswordRoute: authForgetPasswordRoute,
   BookingsBookingIdRoute: BookingsBookingIdRoute,
+  BookingsConfirmationRoute: BookingsConfirmationRoute,
   CustomersCustomerIdRoute: CustomersCustomerIdRoute,
   OauthCallbackRoute: OauthCallbackRoute,
   authIndexRoute: authIndexRoute,

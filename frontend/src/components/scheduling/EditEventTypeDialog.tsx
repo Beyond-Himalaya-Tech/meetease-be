@@ -12,8 +12,8 @@ import {
   Checkbox,
   FormControlLabel,
 } from "@mui/material";
-import { type EventType, updateEventType, type UpdateEventTypeData } from "../../lib/api";
-import toast from "react-hot-toast";
+import { type EventType } from "../../lib/api";
+import { useUpdateEventType } from "../../lib/queries";
 
 type EditEventTypeDialogProps = {
   isOpen: boolean;
@@ -33,7 +33,7 @@ const EditEventTypeDialog = ({
   const [duration, setDuration] = useState<number | "">("");
   const [clientTag, setClientTag] = useState("");
   const [isActive, setIsActive] = useState(true);
-  const [saving, setSaving] = useState(false);
+  const updateEventTypeMutation = useUpdateEventType();
 
   // Pre-fill form when eventType changes
   useEffect(() => {
@@ -50,28 +50,26 @@ const EditEventTypeDialog = ({
     event.preventDefault();
     if (!eventType || !title || !duration) return;
 
-    try {
-      setSaving(true);
-      const updateData: UpdateEventTypeData = {
-        title: title.trim() || undefined,
-        description: description.trim() || undefined,
-        duration_minutes: typeof duration === "number" ? duration : Number(duration),
-        client_tag: clientTag.trim() || undefined,
-        is_active: isActive,
-      };
-      await updateEventType(eventType.id, updateData);
-      toast.success("Event type updated successfully");
-      if (onUpdated) {
-        await onUpdated();
+    updateEventTypeMutation.mutate(
+      {
+        id: eventType.id,
+        data: {
+          title: title.trim() || undefined,
+          description: description.trim() || undefined,
+          duration_minutes: typeof duration === "number" ? duration : Number(duration),
+          client_tag: clientTag.trim() || undefined,
+          is_active: isActive,
+        },
+      },
+      {
+        onSuccess: () => {
+          if (onUpdated) {
+            onUpdated();
+          }
+          onClose();
+        },
       }
-      onClose();
-    } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Failed to update event type";
-      toast.error(message);
-    } finally {
-      setSaving(false);
-    }
+    );
   };
 
   return (
@@ -156,7 +154,7 @@ const EditEventTypeDialog = ({
         <DialogActions sx={{ px: 3, pb: 2 }}>
           <Button
             onClick={onClose}
-            disabled={saving}
+            disabled={updateEventTypeMutation.isPending}
             variant="outlined"
             size="small"
             sx={{ textTransform: "none" }}
@@ -165,12 +163,12 @@ const EditEventTypeDialog = ({
           </Button>
           <Button
             type="submit"
-            disabled={saving}
+            disabled={updateEventTypeMutation.isPending}
             variant="contained"
             size="small"
             sx={{ textTransform: "none", fontWeight: 600 }}
           >
-            {saving ? "Saving..." : "Save Changes"}
+            {updateEventTypeMutation.isPending ? "Saving..." : "Save Changes"}
           </Button>
         </DialogActions>
       </Box>

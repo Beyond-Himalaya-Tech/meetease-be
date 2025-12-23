@@ -1,6 +1,5 @@
 import React, { useState } from "react";
-import toast from "react-hot-toast";
-import { createEventType } from "../../lib/api";
+import { useCreateEventType } from "../../lib/queries";
 
 type NewEventTypeFormProps = {
   onBack: () => void;
@@ -13,33 +12,29 @@ const NewEventTypeForm = ({ onBack, onCreated }: NewEventTypeFormProps) => {
   const [duration, setDuration] = useState<number | "">("");
   const [clientTag, setClientTag] = useState("");
   const [isActive, setIsActive] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
+  const createEventTypeMutation = useCreateEventType();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!title || !duration) return;
 
-    try {
-      setSubmitting(true);
-      await createEventType({
+    createEventTypeMutation.mutate(
+      {
         title,
         description: description || undefined,
         duration_minutes: typeof duration === "number" ? duration : Number(duration),
         client_tag: clientTag || undefined,
         is_active: isActive,
-      });
-      toast.success("Event type created");
-      if (onCreated) {
-        await onCreated();
+      },
+      {
+        onSuccess: () => {
+          if (onCreated) {
+            onCreated();
+          }
+          onBack();
+        },
       }
-      onBack();
-    } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Failed to create event type";
-      toast.error(message);
-    } finally {
-      setSubmitting(false);
-    }
+    );
   };
 
   return (
@@ -147,10 +142,10 @@ const NewEventTypeForm = ({ onBack, onCreated }: NewEventTypeFormProps) => {
         </button>
         <button
           type="submit"
-          disabled={submitting}
-          className="rounded-full bg-blue-600 px-4 py-2 text-xs font-semibold text-white hover:bg-blue-700"
+          disabled={createEventTypeMutation.isPending}
+          className="rounded-full bg-blue-600 px-4 py-2 text-xs font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
         >
-          {submitting ? "Creating..." : "Create event type"}
+          {createEventTypeMutation.isPending ? "Creating..." : "Create event type"}
         </button>
       </div>
     </form>

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -9,6 +10,8 @@ import {
   Link as MuiLink,
   Stack,
 } from "@mui/material";
+import { useCancelEvent } from "../../lib/queries";
+import RescheduleModal from "./RescheduleModal";
 
 type Booking = {
   id: number;
@@ -28,13 +31,17 @@ type BookingDetailsModalProps = {
   booking: Booking | null;
   isOpen: boolean;
   onClose: () => void;
+  onSuccess?: () => void;
 };
 
 const BookingDetailsModal = ({
   booking,
   isOpen,
   onClose,
+  onSuccess,
 }: BookingDetailsModalProps) => {
+  const [rescheduleOpen, setRescheduleOpen] = useState(false);
+  const cancelMutation = useCancelEvent();
   const open = isOpen && !!booking;
 
   const handleCopyLink = async () => {
@@ -47,15 +54,25 @@ const BookingDetailsModal = ({
     }
   };
 
-  const handleCancel = () => {
-    // Placeholder for API call
-    console.log("Cancel booking", booking.id);
-    onClose();
+  const handleCancel = async () => {
+    if (!booking) return;
+    
+    try {
+      await cancelMutation.mutateAsync(booking.id);
+      onSuccess?.();
+      onClose();
+    } catch (error) {
+      // Error is handled by the mutation's onError
+    }
   };
 
   const handleReschedule = () => {
-    // Placeholder for API call
-    console.log("Reschedule booking", booking.id);
+    setRescheduleOpen(true);
+  };
+
+  const handleRescheduleSuccess = () => {
+    setRescheduleOpen(false);
+    onSuccess?.();
     onClose();
   };
 
@@ -162,14 +179,16 @@ const BookingDetailsModal = ({
                 variant="outlined"
                 size="small"
                 onClick={handleCancel}
+                disabled={cancelMutation.isPending}
                 sx={{ borderRadius: 999, textTransform: "none" }}
               >
-                Cancel
+                {cancelMutation.isPending ? "Cancelling..." : "Cancel"}
               </Button>
               <Button
                 variant="contained"
                 size="small"
                 onClick={handleReschedule}
+                disabled={cancelMutation.isPending}
                 sx={{ borderRadius: 999, textTransform: "none" }}
               >
                 Reschedule
@@ -178,6 +197,12 @@ const BookingDetailsModal = ({
           </DialogActions>
         </>
       )}
+      <RescheduleModal
+        booking={booking}
+        isOpen={rescheduleOpen}
+        onClose={() => setRescheduleOpen(false)}
+        onSuccess={handleRescheduleSuccess}
+      />
     </Dialog>
   );
 };

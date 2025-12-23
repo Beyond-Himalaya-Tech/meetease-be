@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Box,
   Button,
@@ -10,7 +10,6 @@ import {
   Typography,
 } from "@mui/material";
 import { Link as RouterLink } from "@tanstack/react-router";
-import toast from "react-hot-toast";
 import CustomerFormModal from "../../components/customers/CustomerFormModal";
 import CustomersList from "../../components/customers/CustomersList";
 import { type Customer } from "../../components/customers/types";
@@ -18,13 +17,13 @@ import PageHeader from "../../components/layout/PageHeader";
 import DefaultLayout from "../../layouts/DefaultLayout";
 import { requireAuth } from "../../auth/requireAuth";
 import {
-  createContact,
-  deleteContact,
-  getContacts,
-  updateContact,
-  type Contact,
-  getUser,
-} from "../../lib/api";
+  useUser,
+  useContacts,
+  useCreateContact,
+  useUpdateContact,
+  useDeleteContact,
+} from "../../lib/queries";
+import { type Contact } from "../../lib/api";
 
 export const Route = createFileRoute("/customers/")({
   beforeLoad: requireAuth,
@@ -46,45 +45,21 @@ function mapContactToCustomer(contact: Contact): Customer {
 }
 
 function CustomersRoute() {
-  const [customers, setCustomers] = useState<Customer[]>([]);
+  const { data: user } = useUser();
+  const { data: contacts = [], isLoading: loading, error: queryError } = useContacts(
+    user?.id ?? 0
+  );
+  const createContactMutation = useCreateContact();
+  const updateContactMutation = useUpdateContact();
+  const deleteContactMutation = useDeleteContact();
+
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [userId, setUserId] = useState<number | null>(null);
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
   const [dialogMode, setDialogMode] = useState<"add" | "edit">("add");
   const [pendingDelete, setPendingDelete] = useState<Customer | null>(null);
 
-  useEffect(() => {
-    let cancelled = false;
-
-    async function loadContacts() {
-      try {
-        setLoading(true);
-        setError(null);
-        const user = await getUser();
-        const contacts = await getContacts(user.id);
-        if (!cancelled) {
-          setUserId(user.id);
-          setCustomers(contacts.map(mapContactToCustomer));
-        }
-      } catch (err) {
-        if (!cancelled) {
-          setError(err instanceof Error ? err.message : "Failed to load contacts");
-        }
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
-      }
-    }
-
-    void loadContacts();
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  const customers = contacts.map(mapContactToCustomer);
+  const error = queryError instanceof Error ? queryError.message : null;
 
   const openAddDialog = () => {
     setDialogMode("add");
@@ -229,43 +204,48 @@ function CustomersRoute() {
             : undefined
         }
         onSubmit={async (data) => {
-          if (!userId) {
-            toast.error("User not loaded yet. Please try again.");
+          if (!user?.id) {
             return;
           }
-          try {
-            if (dialogMode === "add") {
-              const payload = {
-                user_id: userId,
+          if (dialogMode === "add") {
+            createContactMutation.mutate(
+              {
+                user_id: user.id,
                 name: data.name,
                 email: data.email,
                 phone: data.phone || undefined,
                 tag: data.tag || undefined,
-              };
-              await createContact(payload);
-              toast.success("Contact added successfully");
-            } else if (dialogMode === "edit" && editingCustomer) {
-              await updateContact(editingCustomer.id, {
-                name: data.name,
-                email: data.email,
-                phone: data.phone || undefined,
-                tag: data.tag || undefined,
-              });
-              toast.success("Contact updated successfully");
-            }
-
-            const contacts = await getContacts(userId);
-            setCustomers(contacts.map(mapContactToCustomer));
-            setIsDialogOpen(false);
-            setEditingCustomer(null);
-            setDialogMode("add");
-          } catch (err) {
-            const message =
-              err instanceof Error ? err.message : "Failed to save contact";
-            toast.error(message);
+              },
+              {
+                onSuccess: () => {
+                  setIsDialogOpen(false);
+                  setEditingCustomer(null);
+                  setDialogMode("add");
+                },
+              }
+            );
+          } else if (dialogMode === "edit" && editingCustomer) {
+            updateContactMutation.mutate(
+              {
+                id: editingCustomer.id,
+                data: {
+                  name: data.name,
+                  email: data.email,
+                  phone: data.phone || undefined,
+                  tag: data.tag || undefined,
+                },
+              },
+              {
+                onSuccess: () => {
+                  setIsDialogOpen(false);
+                  setEditingCustomer(null);
+                  setDialogMode("add");
+                },
+              }
+            );
           }
         }}
-        availableTags={[...new Set(customers.map((c) => c.tag))].filter(Boolean)}
+        availableTags={[...new Set(customers.map((c: Customer) => c.tag).filter(Boolean))] as string[]}
       />
 
       {/* Delete confirmation dialog */}
@@ -296,23 +276,16 @@ function CustomersRoute() {
             color="error"
             variant="contained"
             sx={{ textTransform: "none" }}
-            onClick={async () => {
-              if (!userId || !pendingDelete) {
+            onClick={() => {
+              if (!pendingDelete) {
                 setPendingDelete(null);
                 return;
               }
-              try {
-                await deleteContact(pendingDelete.id);
-                toast.success("Contact deleted");
-                const contacts = await getContacts(userId);
-                setCustomers(contacts.map(mapContactToCustomer));
-              } catch (err) {
-                const message =
-                  err instanceof Error ? err.message : "Failed to delete contact";
-                toast.error(message);
-              } finally {
-                setPendingDelete(null);
-              }
+              deleteContactMutation.mutate(pendingDelete.id, {
+                onSuccess: () => {
+                  setPendingDelete(null);
+                },
+              });
             }}
           >
             Delete

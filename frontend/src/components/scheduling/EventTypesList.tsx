@@ -1,57 +1,20 @@
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 import { ClipboardDocumentIcon, CheckIcon } from "@heroicons/react/24/outline";
 import NewEventTypeForm from "./NewEventTypeForm";
 import EditEventTypeDialog from "./EditEventTypeDialog";
-import { getEventTypes, getUser, type EventType, type User } from "../../lib/api";
+import { useEventTypes, useUser } from "../../lib/queries";
+import type { EventType } from "../../lib/api";
 import toast from "react-hot-toast";
 
 const EventTypesList = () => {
+  const { data: eventTypes = [], isLoading: loading, error: queryError } = useEventTypes();
+  const { data: currentUser } = useUser();
   const [showForm, setShowForm] = useState(false);
-  const [eventTypes, setEventTypes] = useState<EventType[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [editingEventType, setEditingEventType] = useState<EventType | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [copiedEventId, setCopiedEventId] = useState<number | null>(null);
 
-  const loadEventTypes = useCallback(async () => {
-    let cancelled = false;
-    try {
-      setLoading(true);
-      setError(null);
-      const data = await getEventTypes();
-      if (!cancelled) {
-        setEventTypes(data);
-      }
-    } catch (err) {
-      if (!cancelled) {
-        setError(err instanceof Error ? err.message : "Failed to load event types");
-      }
-    } finally {
-      if (!cancelled) {
-        setLoading(false);
-      }
-    }
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  const loadUser = useCallback(async () => {
-    try {
-      const user = await getUser();
-      setCurrentUser(user);
-    } catch (err) {
-      console.error("Failed to load user:", err);
-    }
-  }, []);
-
-  useEffect(() => {
-    void loadEventTypes();
-    void loadUser();
-  }, [loadEventTypes, loadUser]);
+  const error = queryError instanceof Error ? queryError.message : null;
 
   const handleBack = () => {
     setShowForm(false);
@@ -83,16 +46,8 @@ const EventTypesList = () => {
       // Link format: /meetings/{user-slug}/{event-slug}?id={eventId}
       bookingLink = `${window.location.origin}/meetings/${userSlug}/${eventSlug}?id=${eventType.id}`;
     } else {
-      // Fallback: try to load user first
-      try {
-        const user = await getUser();
-        const userSlug = user.email.split("@")[0] || `user-${user.id}`;
-        const eventSlug = eventType.title ? createSlug(eventType.title) : `event-${eventType.id}`;
-        bookingLink = `${window.location.origin}/meetings/${userSlug}/${eventSlug}?id=${eventType.id}`;
-      } catch {
-        // Final fallback: use event ID only
-        bookingLink = `${window.location.origin}/meetings/event/${eventType.id}?id=${eventType.id}`;
-      }
+      // Fallback: use event ID only if user not available
+      bookingLink = `${window.location.origin}/meetings/event/${eventType.id}?id=${eventType.id}`;
     }
     
     try {
@@ -156,7 +111,7 @@ const EventTypesList = () => {
             </div>
           ) : (
             <ul className="divide-y divide-gray-100">
-              {eventTypes.map((event) => (
+              {eventTypes.map((event: EventType) => (
                 <li
                   key={event.id}
                   onClick={() => {
@@ -213,8 +168,8 @@ const EventTypesList = () => {
       ) : (
         <NewEventTypeForm
           onBack={handleBack}
-          onCreated={async () => {
-            await loadEventTypes();
+          onCreated={() => {
+            setShowForm(false);
           }}
         />
       )}
@@ -226,8 +181,9 @@ const EventTypesList = () => {
           setEditingEventType(null);
         }}
         eventType={editingEventType}
-        onUpdated={async () => {
-          await loadEventTypes();
+        onUpdated={() => {
+          setIsEditDialogOpen(false);
+          setEditingEventType(null);
         }}
       />
     </>

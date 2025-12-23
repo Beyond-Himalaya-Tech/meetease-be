@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState, type ChangeEvent } from "react";
-import toast from "react-hot-toast";
+import { useState, type ChangeEvent } from "react";
 import {
   Avatar,
   Box,
@@ -15,7 +14,7 @@ import {
 } from "@mui/material";
 import DefaultLayout from "../../layouts/DefaultLayout";
 import { requireAuth } from "../../auth/requireAuth";
-import { getUser, updateUser, type User, type UpdateUserData } from "../../lib/api";
+import { useUser, useUpdateUser } from "../../lib/queries";
 import PageHeader from "../../components/layout/PageHeader";
 
 export const Route = createFileRoute("/profile/")({
@@ -24,45 +23,10 @@ export const Route = createFileRoute("/profile/")({
 });
 
 function ProfileRoute() {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data: user, isLoading: loading, error: queryError } = useUser();
+  const updateUserMutation = useUpdateUser();
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editForm, setEditForm] = useState({ name: "", email: "" });
-  const [saving, setSaving] = useState(false);
-
-  useEffect(() => {
-    let cancelled = false;
-    
-    async function fetchUser() {
-      try {
-        setLoading(true);
-        setError(null);
-        const userData = await getUser();
-        if (!cancelled) {
-          setUser(userData);
-          setEditForm({
-            name: userData.name || "",
-            email: userData.email || "",
-          });
-        }
-      } catch (err) {
-        if (!cancelled) {
-          setError(err instanceof Error ? err.message : "Failed to load profile");
-        }
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
-      }
-    }
-
-    fetchUser();
-    
-    return () => {
-      cancelled = true;
-    };
-  }, []);
 
   const handleEditClick = () => {
     if (user) {
@@ -74,27 +38,22 @@ function ProfileRoute() {
     }
   };
 
-  const handleSave = async () => {
+  const handleSave = () => {
     if (!user) return;
 
-    try {
-      setSaving(true);
-      setError(null);
-      const updateData: UpdateUserData = {
-        name: editForm.name.trim() || undefined,
-        email: editForm.email.trim() || undefined,
-      };
-      const updatedUser = await updateUser(user.id, updateData);
-      setUser(updatedUser);
-      setIsEditDialogOpen(false);
-      toast.success("Profile updated successfully!");
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Failed to update profile";
-      setError(errorMessage);
-      toast.error(errorMessage);
-    } finally {
-      setSaving(false);
-    }
+    const updateData = {
+      name: editForm.name.trim() || undefined,
+      email: editForm.email.trim() || undefined,
+    };
+    
+    updateUserMutation.mutate(
+      { userId: user.id, data: updateData },
+      {
+        onSuccess: () => {
+          setIsEditDialogOpen(false);
+        },
+      }
+    );
   };
 
   const handleCancel = () => {
@@ -128,6 +87,8 @@ function ProfileRoute() {
     );
   }
 
+  const error = queryError instanceof Error ? queryError.message : null;
+  
   if (error && !user) {
     return (
       <DefaultLayout>
@@ -224,7 +185,7 @@ function ProfileRoute() {
               color="primary"
               size="small"
               onClick={handleEditClick}
-              disabled={saving}
+              disabled={updateUserMutation.isPending}
               sx={{ textTransform: "none", fontWeight: 600 }}
             >
               Edit
@@ -306,7 +267,7 @@ function ProfileRoute() {
                   setEditForm({ ...editForm, name: e.target.value })
                 }
                 size="small"
-                disabled={saving}
+                disabled={updateUserMutation.isPending}
                 fullWidth
               />
               <TextField
@@ -317,7 +278,7 @@ function ProfileRoute() {
                   setEditForm({ ...editForm, email: e.target.value })
                 }
                 size="small"
-                disabled={saving}
+                disabled={updateUserMutation.isPending}
                 fullWidth
               />
             </Box>
@@ -325,7 +286,7 @@ function ProfileRoute() {
           <DialogActions sx={{ px: 3, pb: 2 }}>
             <Button
               onClick={handleCancel}
-              disabled={saving}
+              disabled={updateUserMutation.isPending}
               variant="outlined"
               size="small"
               sx={{ textTransform: "none" }}
@@ -334,12 +295,12 @@ function ProfileRoute() {
             </Button>
             <Button
               onClick={handleSave}
-              disabled={saving}
+              disabled={updateUserMutation.isPending}
               variant="contained"
               size="small"
               sx={{ textTransform: "none" }}
             >
-              {saving ? "Saving..." : "Save Changes"}
+              {updateUserMutation.isPending ? "Saving..." : "Save Changes"}
             </Button>
           </DialogActions>
         </Dialog>
