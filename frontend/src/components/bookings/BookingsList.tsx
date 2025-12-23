@@ -72,6 +72,8 @@ const BookingsList = () => {
       timeRange: `${startLabel} – ${endLabel}`,
       attendee,
       eventType: ev.event_types || "Event",
+      eventStatus: ev.event_status,
+      isRescheduled: ev.is_rescheduled,
       hosts: 1,
       nonHosts: 0,
       location: ev.location_link || "Online",
@@ -340,6 +342,12 @@ const BookingsList = () => {
                             {b.eventType}
                           </span>
                         </p>
+
+                        {b.isRescheduled && (
+                          <span className="inline-flex rounded-full bg-green-50 px-2.5 py-1 text-xs font-medium text-green-700 mt-1">
+                            Rescheduled
+                          </span>
+                        )}
                       </div>
                     </div>
                     <div className="flex items-center gap-4">

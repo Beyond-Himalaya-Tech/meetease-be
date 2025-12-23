@@ -424,6 +424,7 @@ export interface FilteredEvent {
   location_link: string;
   description?: string | null;
   is_rescheduled: boolean;
+  event_status: string;
   event_types?: string | null;
   event_types_description?: string | null;
   duration_minutes?: number | null;

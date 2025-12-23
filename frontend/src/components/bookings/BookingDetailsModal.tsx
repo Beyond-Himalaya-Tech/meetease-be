@@ -21,6 +21,8 @@ type Booking = {
   timeRange: string;
   attendee: string;
   eventType: string;
+  eventStatus: string;
+  isRescheduled: boolean;
   hosts: number;
   nonHosts: number;
   location: string;

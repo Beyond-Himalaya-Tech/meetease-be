@@ -50,15 +50,12 @@ function CustomersRoute() {
   const [dialogMode, setDialogMode] = useState<"add" | "edit">("add");
   const [pendingDelete, setPendingDelete] = useState<Customer | null>(null);
   const [filters, setFilters] = useState({
-    hasPhone: false,
-    timezones: [] as string[],
-    companies: [] as string[],
-    jobTitles: [] as string[],
+    hasPhone: false
   });
 
   const { data: user } = useUser();
   const { data: contacts = [], isLoading: loading, error: queryError } = useContacts(
-    filters.hasPhone ? null : null,
+    filters.hasPhone ? "phone" : null,
     null
   );
   const createContactMutation = useCreateContact();
