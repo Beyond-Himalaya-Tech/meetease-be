@@ -1,10 +1,23 @@
 import { notFoundResponse } from "./response.helper";
 
-export function paginateData(data, total: number, currentPage: number = 1, pageSize: number = 10) {
+export function paginateData(data, total: number, currentPage: number = 1, pageSize: number = 10) {  
   const totalPage = Math.ceil(total / pageSize);
 
+  if (!data.length)
+    return {
+      data,
+      meta: {
+        total,
+        totalPage,
+        currentPage,
+        totalPerPage: pageSize,
+        prevPage: null,
+        nextPage: null,
+      },
+    };
+
   if (currentPage > totalPage) {
-    throw notFoundResponse(`No  Data in page ${currentPage}`);
+    throw notFoundResponse(`No Data in page ${currentPage}`);
   }
 
   return {

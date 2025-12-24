@@ -81,13 +81,13 @@ export class EventTypesController {
         }
       })
 
+      const timeNow = timeStringToDate(dateToTimeString(toTimezoneDate(new Date(), 'Asia/Kathmandu'))).getTime();
       for (let currentTime = startTime.getTime(); currentTime < endTime.getTime(); currentTime += intervalMs) {
-        // if(date == (new Date).toISOString().split('T')[0]) {
-        //   // console.log(currentTime);
-        //   if(currentTime > (new Date).getTime())  allSlots.push(currentTime);
-        // } else {
+        if(date == (new Date).toISOString().split('T')[0]) {
+          if(currentTime > timeNow)  allSlots.push(currentTime);
+        } else {
           allSlots.push(currentTime);
-        // }
+        }
       }
       const filteredSlots = allSlots.filter(time => {
         return !eventTimes.some(event => time >= event.start && time < event.end);
