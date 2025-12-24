@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Request, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Request, UseGuards, Query } from '@nestjs/common';
 import { EventTypesService } from './event-types.service';
 import { CreateEventTypeDto, UpdateEventTypeDto } from 'src/dto/eventsType.dto';
 import { AuthGuard } from '../auth/auth.guard';
@@ -6,6 +6,7 @@ import { AvailabilitiesService } from '../availabilities/availabilities.service'
 import { dateToTimeString, msToHour, timeStringToDate, toTimezoneDate } from 'src/helpers/time.helper';
 import { responseFormatter, notFoundResponse } from 'src/helpers/response.helper';
 import { GoogleOAuthService } from '../google-oauth/google-oauth.service';
+import { paginateData } from '@/helpers/paginage.helper';
 
 @UseGuards(AuthGuard)
 @Controller('event-types')
@@ -26,13 +27,16 @@ export class EventTypesController {
   }
 
   @Get()
-  async findAll(@Request() req) {
+  async findAll(@Request() req, @Query('current_page') current_page?: number, @Query('size') size?: number) {
     try {
-      const userEventTypes = await this.eventTypeService.findAllByUser(req.user.id);
+      const userEventTypes = await this.eventTypeService.findAllByUser(req.user.id, current_page, size);
       if(!userEventTypes.length) {
         throw notFoundResponse("No user event types");
       }
-      return responseFormatter(userEventTypes);
+
+      const total = await this.eventTypeService.count({user_id: req.user.id})
+      const response = paginateData(userEventTypes, total, current_page, size)
+      return response;
     } catch (err) {
       throw responseFormatter(err, "error");
     }

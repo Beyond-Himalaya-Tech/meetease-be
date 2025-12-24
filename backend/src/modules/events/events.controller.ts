@@ -9,6 +9,7 @@ import { GoogleOAuthService } from '../google-oauth/google-oauth.service';
 import { responseFormatter, notFoundResponse } from 'src/helpers/response.helper';
 import { dateToTimeString, formatDateKey, toUTCDate } from 'src/helpers/time.helper';
 import { MailService } from '../mail/mail.service';
+import { paginateData } from '@/helpers/paginage.helper';
 
 @UseGuards(AuthGuard)
 @Controller('events')
@@ -108,6 +109,8 @@ export class EventsController {
     @Request() req,
     @Query('from_date') from_date?: string,
     @Query('to_date') to_date?: string,
+    @Query('current_page') current_page?: number,
+    @Query('size') size?: number,
   ) {
     try {
       const where: any = {
@@ -164,6 +167,7 @@ export class EventsController {
         not: "CANCELLED"
       }
       const userEvents = await this.eventService.findFilteredByUser(where);
+      const total = await this.eventService.count(where);
 
       if (!userEvents.length) {
         throw notFoundResponse('No user events');
@@ -213,7 +217,8 @@ export class EventsController {
       }, {} as Record<string, any[]>);
 
 
-      return responseFormatter(groupedResponse);
+      const response = paginateData(groupedResponse, total, current_page, size)
+      return response;
     } catch (err) {
       throw responseFormatter(err, 'error');
     }

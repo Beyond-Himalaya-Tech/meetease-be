@@ -36,7 +36,7 @@ export class EventsService {
   async findFilteredByUser(where) {
     return await this.prisma.events.findMany({
       where,
-      orderBy: { created_at: 'desc' },
+      orderBy: { start_at: 'desc' },
       include: {
         event_types: true,
         contacts: true,
@@ -64,5 +64,9 @@ export class EventsService {
 
   async remove(id: number) {
     return await this.prisma.events.delete({ where: { id } });
+  }
+
+  async count(where) {
+    return await this.prisma.events.count({ where });
   }
 }
