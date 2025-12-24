@@ -4,6 +4,7 @@ import { UpdateContactDto } from 'src/dto/contacts.dto';
 import { AuthGuard } from '../auth/auth.guard';
 import { responseFormatter } from 'src/helpers/response.helper';
 import { EventTypesService } from '../event-types/event-types.service';
+import { paginateData } from '@/helpers/paginage.helper';
 
 @UseGuards(AuthGuard)
 @Controller('contacts')
@@ -23,7 +24,7 @@ export class ContactsController {
   }
 
   @Get()
-  async findAll(@Request() req, @Query('not_null') not_null?: string, @Query('event_type') event_type?: number) {
+  async findAll(@Request() req, @Query('not_null') not_null?: string, @Query('event_type') event_type?: number, @Query('current_page') current_page?: number, @Query('size') size?: number) {
     try {
       const filter: Record<string, any> = {};
       if(not_null)
@@ -37,7 +38,10 @@ export class ContactsController {
           filter['tag'] = eventType.client_tag
         }
       }
-      return responseFormatter(await this.contactsService.findAllByUser(req.user.id, filter));
+      const userContacts = await this.contactsService.findAllByUser(req.user.id, filter)
+      const total = await this.contactsService.count({ user_id: req.user.id, ...filter})
+      const response = paginateData(userContacts, total, current_page, size)
+      return response;
     } catch (err) {
       throw responseFormatter(err, "error");
     }

@@ -47,6 +47,10 @@ export class ContactsService {
     });
   }
 
+  async count(where) {
+    return await this.prisma.contacts.count({ where });
+  }
+
   async remove(id: number) {
     return await this.prisma.contacts.delete({ where: { id } });
   }

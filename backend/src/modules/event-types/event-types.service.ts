@@ -19,15 +19,22 @@ export class EventTypesService {
     });
   }
 
-  async findAllByUser(user_id: number) {
+  async findAllByUser(user_id: number, current_page: number = 1, itemsPerPage: number = 10) {
+    const skip = (current_page - 1) * itemsPerPage;
     return await this.prisma.event_types.findMany({
       where: { user_id },
+      take: itemsPerPage,
+      skip: skip,
       orderBy: { created_at: 'desc' },
     });
   }
 
   async findOne(id: number) {
     return await this.prisma.event_types.findUnique({ where: { id } });
+  }
+
+  async count(where) {
+    return await this.prisma.event_types.count({ where });
   }
 
   async update(id: number, dto: UpdateEventTypeDto) {
