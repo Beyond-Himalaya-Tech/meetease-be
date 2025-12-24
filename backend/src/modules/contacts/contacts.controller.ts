@@ -37,6 +37,31 @@ export class ContactsController {
           filter['tag'] = eventType.client_tag
         }
       }
+      return responseFormatter(await this.contactsService.findAllByUser(req.user.id, filter));
+    } catch (err) {
+      throw responseFormatter(err, "error");
+    }
+  }
+
+  @Get("search/:search")
+  async findSearch(@Request() req, @Param('search') search: string) {
+    try {
+      const filter: Record<string, any> = {
+        OR: [
+          {
+            name : {
+              contains: search,
+              mode: 'insensitive'
+            }
+          },
+          {
+            email : {
+              contains: search,
+              mode: 'insensitive'
+            }
+          }
+        ]
+      };
       
       return responseFormatter(await this.contactsService.findAllByUser(req.user.id, filter));
     } catch (err) {
