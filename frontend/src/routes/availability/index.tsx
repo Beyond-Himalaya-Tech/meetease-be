@@ -51,7 +51,8 @@ const formatTimeForBackend = (time: string): string => {
 };
 
 function AvailabilityRoute() {
-  const { data: availabilities = [], isLoading: loading } = useAvailabilities();
+  const { data, isLoading: loading } = useAvailabilities();
+  const availabilities = data?.data ?? [];
   const deleteAvailabilityMutation = useDeleteAvailability();
   const updateAvailabilityMutation = useUpdateAvailability();
   const createAvailabilityMutation = useCreateAvailability();
@@ -73,9 +74,7 @@ function AvailabilityRoute() {
 
   const [weeklyRows, setWeeklyRows] = useState<WeeklyRow[]>(DAY_LABELS);
 
-  const [timezone, setTimezone] = useState<string>(
-    Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC",
-  );
+  const [timezone, setTimezone] = useState<string>("UTC",);
 
   const [eventTypes, setEventTypes] = useState<EventType[]>([
     {
@@ -103,6 +102,11 @@ function AvailabilityRoute() {
     });
     setWeeklyRows(rows);
   }, [availabilitiesMap]);
+
+  useEffect(() => {
+    if (!data) return;
+    setTimezone(data?.timezone == 'Asia/Katmandu' ? 'Asia/Kathmandu' : data?.timezone);
+  }, [data]);
 
   const { data: user } = useUser();
 

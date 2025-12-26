@@ -8,7 +8,8 @@ export const Route = createFileRoute("/(auth)/")({
 function LoginRoute() {
   const handleGoogleSignIn = async () => {
     try {
-      const res = await fetch(`${API_BASE_URL}/auth/authorize`);
+      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      const res = await fetch(`${API_BASE_URL}/auth/authorize?timezone=${encodeURIComponent(timezone)}`);
       if (!res.ok) {
         throw new Error("Failed to get auth URL");
       }

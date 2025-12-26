@@ -3,7 +3,7 @@ import { EventTypesService } from './event-types.service';
 import { CreateEventTypeDto, UpdateEventTypeDto } from 'src/dto/eventsType.dto';
 import { AuthGuard } from '../auth/auth.guard';
 import { AvailabilitiesService } from '../availabilities/availabilities.service';
-import { dateToTimeString, msToHour, timeStringToDate, toTimezoneDate } from 'src/helpers/time.helper';
+import { dateToTimeString, getDateTime, msToHour, timeStringToDate, toTimezoneDate, toUTCDate } from 'src/helpers/time.helper';
 import { responseFormatter, notFoundResponse } from 'src/helpers/response.helper';
 import { GoogleOAuthService } from '../google-oauth/google-oauth.service';
 import { paginateData } from '@/helpers/paginage.helper';
@@ -51,8 +51,8 @@ export class EventTypesController {
     }
   }
 
-  @Get('availabilities/:id/:date')
-  async findAvailability(@Param('id') id: number, @Param('date') date: string, @Request() req) {
+  @Get('availabilities/:id/:date/:timezone')
+  async findAvailability(@Param('id') id: number, @Param('date') date: string, @Param('timezone') timezone: string, @Request() req) {
     try {
       const eventType = await this.eventTypeService.findOne(id);
       const givenDate = new Date(date);
@@ -66,22 +66,23 @@ export class EventTypesController {
       if(userAvailabilities.length == 0) {
         return responseFormatter({});
       }
-      const startTime = new Date(userAvailabilities[0].start_time);
-      const endTime = new Date(userAvailabilities[0].end_time);
+      let startTime = new Date(userAvailabilities[0].start_time);
+      let endTime = new Date(userAvailabilities[0].end_time);
+
       const intervalMs = eventType?.duration_minutes ? eventType.duration_minutes * 60 * 1000 : 30 * 60 * 1000;
       const allSlots: number[] = [];
       
       const availableEvents = await this.oauthService.getGoogleCalendarEvent(req.user, givenDate, startTime.getTime(), endTime.getTime());
       const eventTimes = availableEvents.map((events) => {
-        const start = events?.start?.dateTime && events?.start?.timeZone ? toTimezoneDate(new Date(events?.start?.dateTime), events?.start?.timeZone) : new Date(givenDate);
-        const end = events?.end?.dateTime && events?.end?.timeZone ? toTimezoneDate(new Date(events?.end?.dateTime), events?.end?.timeZone) : new Date(givenDate);
+        const start = events?.start?.dateTime && timezone ? toTimezoneDate(new Date(events?.start?.dateTime), timezone) : new Date(givenDate);
+        const end = events?.end?.dateTime && timezone ? toTimezoneDate(new Date(events?.end?.dateTime), timezone) : new Date(givenDate);
         return {
           start: timeStringToDate(dateToTimeString(start)).getTime(),
           end: timeStringToDate(dateToTimeString(end)).getTime()
         }
       })
 
-      const timeNow = timeStringToDate(dateToTimeString(toTimezoneDate(new Date(), 'Asia/Kathmandu'))).getTime();
+      const timeNow = timeStringToDate(dateToTimeString(toTimezoneDate(new Date(), timezone))).getTime();
       for (let currentTime = startTime.getTime(); currentTime < endTime.getTime(); currentTime += intervalMs) {
         if(date == (new Date).toISOString().split('T')[0]) {
           if(currentTime > timeNow)  allSlots.push(currentTime);
@@ -93,6 +94,21 @@ export class EventTypesController {
         return !eventTimes.some(event => time >= event.start && time < event.end);
       });
       const availableSlots = filteredSlots.map(msToHour);
+
+      if(userAvailabilities[0].timezone !== timezone) {
+        const zoneWiseSlot = availableSlots.map((slot) => {
+          const [startHourStr, startMinuteStr] = slot.split(":");
+  
+          const startHour = Number(startHourStr);
+          const startMinute = Number(startMinuteStr);
+          startTime = new Date(givenDate);
+          startTime.setHours(startHour, startMinute, 0, 0);
+          const toUtcDate = toUTCDate(startTime, userAvailabilities[0].timezone ?? 'Asia/Kathmandu')
+          const convertedDate = toTimezoneDate(toUtcDate, timezone)
+          return getDateTime(convertedDate);
+        })
+        return responseFormatter(zoneWiseSlot);
+      }
 
       return responseFormatter(availableSlots);
     } catch (err) {

@@ -131,6 +131,10 @@ export interface Availability {
   created_at?: string;
   updated_at?: string;
 }
+export interface AvailabilityResponse {
+  data: Availability[];
+  timezone: string;
+}
 
 export type CreateAvailabilityData = {
   day_of_week: number;
@@ -313,12 +317,12 @@ export async function getEventTypeById(id: number): Promise<EventType> {
   return data.data;
 }
 
-export async function getEventAvailabilities(id: number, date: string): Promise<string[]> {
+export async function getEventAvailabilities(id: number, date: string, timezone: string): Promise<string[]> {
   // Date should already be in YYYY-MM-DD format, use it directly
   // Avoid timezone conversion that could shift the date
   const formattedDate = date; // Already in YYYY-MM-DD format from TimeSlots
   const response = await fetchWithAuth(
-    `${API_BASE_URL}/event-types/availabilities/${id}/${formattedDate}`
+    `${API_BASE_URL}/event-types/availabilities/${id}/${formattedDate}/${encodeURIComponent(timezone)}`
   );
 
   if (!response.ok) {
@@ -337,7 +341,7 @@ export async function getEventAvailabilities(id: number, date: string): Promise<
   return [];
 }
 
-export async function getAvailabilities(): Promise<Availability[]> {
+export async function getAvailabilities(): Promise<AvailabilityResponse> {
   const response = await fetchWithAuth(`${API_BASE_URL}/availabilities`);
 
   if (!response.ok) {
@@ -346,7 +350,7 @@ export async function getAvailabilities(): Promise<Availability[]> {
   }
 
   const data = await response.json();
-  return data.data || [];
+  return data;
 }
 
 export async function getAvailabilitiesByUserId(userId: number): Promise<Availability[]> {

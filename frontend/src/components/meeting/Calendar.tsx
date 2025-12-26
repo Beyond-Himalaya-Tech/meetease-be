@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { ChevronLeft, ChevronRight, ArrowDropDown, Language } from "@mui/icons-material";
+import { TIMEZONES } from "../../constants/timezones";
 
 type CalendarProps = {
   selectedDate: Date | null;
@@ -10,18 +11,6 @@ type CalendarProps = {
 };
 
 const WEEK_DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-
-const TIMEZONES = [
-  { value: "Asia/Kathmandu", label: "Nepal Time (GMT+05:45)" },
-  { value: "Australia/Sydney", label: "Sydney, Melbourne, Canberra (GMT+10 / GMT+11)" },
-  { value: "Australia/Brisbane", label: "Brisbane (GMT+10)" },
-  { value: "Australia/Adelaide", label: "Adelaide (GMT+09:30 / GMT+10:30)" },
-  { value: "Australia/Darwin", label: "Darwin (GMT+09:30)" },
-  { value: "Australia/Perth", label: "Perth (GMT+08:00)" },
-  { value: "Australia/Hobart", label: "Hobart (GMT+10 / GMT+11)" },
-  { value: "Australia/Lord_Howe", label: "Lord Howe Island (GMT+10:30 / GMT+11)" },
-  { value: "Antarctica/Macquarie", label: "Macquarie Island (GMT+10 / GMT+11)" },
-];
 
 const Calendar = ({ selectedDate, onSelectDate, availableDays, timezone = "Asia/Kathmandu", onTimezoneChange }: CalendarProps) => {
   const [currentMonth, setCurrentMonth] = useState(() => {

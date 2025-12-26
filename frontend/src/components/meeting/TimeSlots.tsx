@@ -33,16 +33,17 @@ type Props = {
   selectedDate: Date | null;
   onSelectTime: (time: string) => void; // callback to parent
   eventTypeId?: number | null;
+  timezone?: string | null;
 };
 
-const TimeSlots = ({ selectedDate, onSelectTime, eventTypeId }: Props) => {
+const TimeSlots = ({ selectedDate, onSelectTime, eventTypeId, timezone }: Props) => {
   const [slots, setSlots] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const loadAvailabilities = async () => {
-      if (!selectedDate || !eventTypeId) {
+      if (!selectedDate || !eventTypeId || !timezone) {
         // Fallback to static slots if no eventTypeId
         if (selectedDate) {
           const day = selectedDate.getDay();
@@ -62,7 +63,7 @@ const TimeSlots = ({ selectedDate, onSelectTime, eventTypeId }: Props) => {
         const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
         const day = String(selectedDate.getDate()).padStart(2, '0');
         const dateStr = `${year}-${month}-${day}`;
-        const availableSlots = await getEventAvailabilities(eventTypeId, dateStr);
+        const availableSlots = await getEventAvailabilities(eventTypeId, dateStr, timezone);
         
         // Ensure availableSlots is an array
         if (!Array.isArray(availableSlots)) {
@@ -97,7 +98,7 @@ const TimeSlots = ({ selectedDate, onSelectTime, eventTypeId }: Props) => {
     };
 
     void loadAvailabilities();
-  }, [selectedDate, eventTypeId]);
+  }, [selectedDate, eventTypeId, timezone]);
 
   if (!selectedDate) {
     return (

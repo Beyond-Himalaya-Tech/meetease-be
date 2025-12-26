@@ -10,6 +10,7 @@ import {
   CalendarToday as CalendarIcon,
   Language as LanguageIcon,
 } from "@mui/icons-material";
+import { tzMap } from "../../constants/timezones";
 
 type BookingConfirmationProps = {
   eventTitle: string;
@@ -38,15 +39,7 @@ const BookingConfirmation = ({
   // Format timezone display (e.g., "Asia/Kathmandu" -> "Nepal Time")
   const formatTimezone = (tz: string) => {
     // Common timezone mappings
-    const tzMap: Record<string, string> = {
-      "Asia/Kathmandu": "Nepal",
-      "America/New_York": "Eastern",
-      "America/Los_Angeles": "Pacific",
-      "Europe/London": "London",
-      "Asia/Tokyo": "Japan",
-      "Asia/Dubai": "Dubai",
-    };
-    
+  
     if (tzMap[tz]) {
       return `${tzMap[tz]} Time`;
     }

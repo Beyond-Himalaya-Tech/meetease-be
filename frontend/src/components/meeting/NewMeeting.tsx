@@ -63,6 +63,7 @@ const NewMeetingPage = ({ eventData, eventTypeId, availableDays, timezone: initi
                 selectedDate={selectedDate}
                 onSelectTime={(time: string) => setSelectedTime(time)}
                 eventTypeId={eventTypeId}
+                timezone={timezone}
               />
             </div>
           </div>

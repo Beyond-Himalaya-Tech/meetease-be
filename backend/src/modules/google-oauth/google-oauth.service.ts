@@ -13,7 +13,7 @@ export class GoogleOAuthService {
 
   constructor(private readonly usersService: UsersService) {}
 
-  getAuthUrl() {
+  getAuthUrl(timeZone: string) {
     const scopes = [
       'openid',
       'profile',
@@ -28,6 +28,7 @@ export class GoogleOAuthService {
       access_type: 'offline', // ensures refresh token is returned
       scope: scopes,
       prompt: 'consent',
+      state: Buffer.from(timeZone).toString("base64"),
     });
   }
 

@@ -77,6 +77,13 @@ export class AvailabilitiesService {
     });
   }
 
+  async bulkUpdate(user_id: number, data) {
+    await this.prisma.availabilities.updateMany({
+      where: { user_id },
+      data
+    });
+  }
+
   async remove(id: number) {
     return await this.prisma.availabilities.delete({
       where: { id },

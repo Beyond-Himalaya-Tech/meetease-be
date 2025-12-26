@@ -44,8 +44,10 @@ model availabilities {
   id          Int      @id @default(autoincrement())
   user_id     Int
   day_of_week Int
-  start_time  DateTime @db.Time
-  end_time    DateTime @db.Time
+  start_time  DateTime  @db.Time
+  end_time    DateTime  @db.Time
+  apply_date  DateTime? @db.Date
+  timezone    String?
   created_at  DateTime @default(now())
   updated_at  DateTime @default(now())
 

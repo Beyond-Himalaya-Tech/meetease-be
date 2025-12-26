@@ -44,7 +44,7 @@ export class AvailabilitiesController {
           end_time: dateToTimeString(availabilities.end_time)
         }
       })
-      return responseFormatter(formattedAvailabilities);
+      return {...responseFormatter(formattedAvailabilities), timezone: userAvailabilities[0].timezone};
     } catch (err) {
       throw responseFormatter(err, "error");
     }

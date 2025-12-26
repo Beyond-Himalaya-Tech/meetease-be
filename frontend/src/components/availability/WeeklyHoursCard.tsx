@@ -1,5 +1,6 @@
 import { ClipboardDocumentIcon, PlusIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import type { WeeklyRow } from "./types";
+import { tzMap } from "../../constants/timezones";
 
 type WeeklyHoursCardProps = {
   rows: WeeklyRow[];
@@ -7,25 +8,6 @@ type WeeklyHoursCardProps = {
   timezone: string;
   onTimezoneChange: (value: string) => void;
 };
-
-const timezones = [
-  "UTC",
-  "Pacific/Honolulu",
-  "America/Los_Angeles",
-  "America/Denver",
-  "America/Chicago",
-  "America/New_York",
-  "Europe/London",
-  "Europe/Berlin",
-  "Europe/Paris",
-  "Europe/Moscow",
-  "Asia/Dubai",
-  "Asia/Kolkata",
-  "Asia/Bangkok",
-  "Asia/Hong_Kong",
-  "Asia/Tokyo",
-  "Australia/Sydney",
-];
 
 const WeeklyHoursCard = ({
   rows,
@@ -173,9 +155,9 @@ const WeeklyHoursCard = ({
           onChange={(e) => onTimezoneChange(e.target.value)}
           className="max-w-xs rounded-md border border-gray-300 bg-white px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
-          {timezones.map((tz) => (
+          {Object.keys(tzMap).map((tz) => (
             <option key={tz} value={tz}>
-              {tz}
+              {tzMap[tz]} Time
             </option>
           ))}
         </select>

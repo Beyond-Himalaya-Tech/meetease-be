@@ -8,16 +8,18 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Get('authorize')
-  async getAuthUrl() {  
-    const authUrl = await this.authService.getAuthUrl();
+  async getAuthUrl(@Query("timezone") timezone: string) {  
+    const authUrl = await this.authService.getAuthUrl(timezone);
     return authUrl;
   }
 
   @Get('callback')
-  async authCallback(@Query('code') code: string, @Res() res: Response) {
+  async authCallback(@Query('code') code: string, @Query('state') state: string, @Res() res: Response) {
     try {
+      const timezone = Buffer.from(state, "base64").toString();
+      
       const { access_token, refresh_token } =
-        await this.authService.handleCallback(code);
+        await this.authService.handleCallback(code, timezone);
 
       // HttpOnly refresh token cookie
       res.cookie('refresh_token', refresh_token, {

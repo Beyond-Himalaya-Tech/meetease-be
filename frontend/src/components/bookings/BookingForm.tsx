@@ -7,6 +7,7 @@ import { useNavigate } from "@tanstack/react-router";
 import type { EventInfoProps } from "../meeting/EventInfo";
 import { createEvent } from "../../lib/api";
 import toast from "react-hot-toast";
+import { tzMap } from "../../constants/timezones";
 
 type Props = {
   event: EventInfoProps;
@@ -163,7 +164,7 @@ const BookingForm = ({ event, selectedDate, selectedTime, onBack, eventTypeId, t
               year: "numeric",
             })}
           </p>
-          <p className="text-sm text-gray-500">Nepal Time</p>
+          <p className="text-sm text-gray-500">{tzMap[timezone] ? `${tzMap[timezone]} Time` : timezone}</p>
         </div>
 
         <button

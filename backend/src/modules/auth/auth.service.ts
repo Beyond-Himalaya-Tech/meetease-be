@@ -15,12 +15,12 @@ export class AuthService {
     private readonly oAuthService: GoogleOAuthService
   ) {}
 
-  async getAuthUrl() {
-    const authUrl = await this.oAuthService.getAuthUrl();
+  async getAuthUrl(timeZone: string) {
+    const authUrl = await this.oAuthService.getAuthUrl(timeZone);
     return { authUrl };
   }
 
-  async handleCallback(code: string) {
+  async handleCallback(code: string, timezone: string) {
     const { tokens } = await this.oAuthService.getTokens(code);
 
     const accessToken = tokens.access_token || tokens.refresh_token || tokens.id_token;
@@ -54,7 +54,8 @@ export class AuthService {
           user_id: user.id,
           day_of_week: i,
           start_time: timeStringToDate("09:00"),
-          end_time: timeStringToDate("17:00")
+          end_time: timeStringToDate("17:00"),
+          timezone
         });
       } 
       await this.availabiltyService.bulkCreate(availabilities);
@@ -67,6 +68,7 @@ export class AuthService {
         refresh_token: tokens.refresh_token || user.refresh_token || undefined,
         token_expiry: tokens.expiry_date ? new Date(tokens.expiry_date) : undefined
       });
+      this.availabiltyService.bulkUpdate(user.id, { timezone });
     }
 
     const payload = { sub: user.id, email: user.email };

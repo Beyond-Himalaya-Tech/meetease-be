@@ -1,4 +1,4 @@
-import { fromZonedTime, toZonedTime } from 'date-fns-tz';
+import { fromZonedTime, toZonedTime, format } from 'date-fns-tz';
 
 export function timeStringToDate(time: string) {
   const [hours, minutes] = time.split(":").map(Number);
@@ -24,6 +24,10 @@ export function msToHour(time: number): string {
   return `${hh}:${mm}`;
 }
 
+export function getDateTime(date: Date): string {
+  return format(date, "HH:mm");
+}
+
 export function toUTCDate(date: Date, timezone: string) {
   return fromZonedTime(date, timezone);
 }
@@ -43,4 +47,3 @@ export function formatDateKey (date: Date) {
     month: 'short',
   })}, ${date.getFullYear()}`;
 };
-
