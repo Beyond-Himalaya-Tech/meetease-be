@@ -31,7 +31,7 @@ function MeetingPageRoute() {
         if (eventId) {
           const eventType = await getEventTypeById(eventId);
           // Fetch user info to get organizer name
-          // For now, use slug as organizer name (format: "suraj.rai" -> "Suraj Rai")
+          // For now, use slug as organizer name (format: "beyond.himalayan" -> "Beyond Himalayan")
           const organizerName = userSlug.replace(/\./g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
           
           setEventData({
@@ -59,9 +59,6 @@ function MeetingPageRoute() {
 
           setLoading(false);
         } else {
-          // If no event ID, try to find by matching user email and event title
-          // This would require a public API endpoint or fetching all event types
-          // For now, show error
           setError("Event ID is required. Please use a valid booking link.");
           setLoading(false);
         }

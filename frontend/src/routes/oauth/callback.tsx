@@ -17,7 +17,7 @@ function OAuthCallbackRoute() {
     }
 
     setToken(token);
-    window.location.replace("/dashboard/");
+    window.location.replace("/scheduling/");
   }, []);
 
   return (
