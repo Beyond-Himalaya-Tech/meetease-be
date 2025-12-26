@@ -127,7 +127,7 @@ const CustomersList = ({ customers, eventTypes, appliedFilters, onApplyFilters, 
         <div className="flex flex-wrap items-center gap-2 sm:gap-3">
           <input
             type="search"
-            placeholder="Search name, email, company..."
+            placeholder="Search name, email..."
             value={search}
             onChange={(e) => {
               setSearch(e.target.value);
