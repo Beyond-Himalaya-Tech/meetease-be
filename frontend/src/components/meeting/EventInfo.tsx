@@ -11,29 +11,29 @@ export type EventInfoProps = {
   description: string;
 };
 
-const EventInfo = ({ event }: EventInfoProps) => {
+const EventInfo = ({ organizer, title, duration, location, description }: EventInfoProps) => {
   return (
     <div className="border-r border-gray-200 p-6">
-      <p className="text-xs font-medium text-gray-500">{event.organizer}</p>
+      <p className="text-xs font-medium text-gray-500">{organizer}</p>
 
       <h1 className="mt-2 text-2xl font-semibold text-gray-800">
-        {event.title}
+        {title}
       </h1>
 
       <div className="mt-4 space-y-2 text-sm text-gray-600">
         <div className="flex items-center gap-2">
-          <ClockIcon size={18} />
-          <span>{event.duration} mins</span>
+          <ClockIcon sx={{ fontSize: 18 }} />
+          <span>{duration} mins</span>
         </div>
 
         <div className="flex items-center gap-2">
-          <VideoIcon size={18} />
-          <span>{event.location}</span>
+          <VideoIcon sx={{ fontSize: 18 }} />
+          <span>{location}</span>
         </div>
       </div>
 
       <p className="mt-6 text-sm text-gray-500">
-        {event.description}
+        {description}
       </p>
     </div>
   );

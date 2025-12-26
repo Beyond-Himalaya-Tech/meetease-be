@@ -195,10 +195,10 @@ export function useUserAvailabilities(userId: number) {
   });
 }
 
-export function useEventAvailabilities(id: number, date: string) {
+export function useEventAvailabilities(id: number, date: string, timezone: string = "Asia/Kathmandu") {
   return useQuery({
     queryKey: queryKeys.eventAvailabilities(id, date),
-    queryFn: () => getEventAvailabilities(id, date),
+    queryFn: () => getEventAvailabilities(id, date, timezone),
     enabled: !!id && !!date,
   });
 }

@@ -480,10 +480,15 @@ export type GroupedEventsResponse = Record<string, FilteredEvent[]>;
 
 export type EventFilterType = "upcoming" | "past" | "range";
 
+export interface PaginatedGroupedEventsResponse {
+  data: GroupedEventsResponse;
+  meta: PaginationMeta;
+}
+
 export async function getFilteredEvents(
   filter: EventFilterType,
   options?: { from_date?: string; to_date?: string; current_page?: number; size?: number },
-): Promise<PaginatedResponse<GroupedEventsResponse>> {
+): Promise<PaginatedGroupedEventsResponse> {
   let url = `${API_BASE_URL}/events/filter/${filter}`;
   const params = new URLSearchParams();
 
@@ -509,7 +514,7 @@ export async function getFilteredEvents(
   // If there are no events, backend returns 404 with "No user events"
   if (response.status === 404) {
     return {
-      data: {},
+      data: {} as GroupedEventsResponse,
       meta: {
         total: 0,
         totalPage: 0,

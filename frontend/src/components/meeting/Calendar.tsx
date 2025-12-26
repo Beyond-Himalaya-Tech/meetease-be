@@ -53,7 +53,7 @@ const Calendar = ({ selectedDate, onSelectDate, availableDays, timezone = "Asia/
           onClick={() => setCurrentMonth(new Date(year, month - 1, 1))}
           className="flex h-8 w-8 items-center justify-center rounded-full border border-gray-200 text-gray-600 hover:bg-gray-100 transition"
         >
-          <ChevronLeft size={16} />
+          <ChevronLeft sx={{ fontSize: 16 }} />
         </button>
 
         <h2 className="text-sm font-semibold text-gray-900">
@@ -67,7 +67,7 @@ const Calendar = ({ selectedDate, onSelectDate, availableDays, timezone = "Asia/
           onClick={() => setCurrentMonth(new Date(year, month + 1, 1))}
           className="flex h-8 w-8 items-center justify-center rounded-full border border-gray-200 text-gray-600 hover:bg-gray-100 transition"
         >
-          <ChevronRight size={16} />
+          <ChevronRight sx={{ fontSize: 16 }} />
         </button>
       </div>
 

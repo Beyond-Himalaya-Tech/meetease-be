@@ -90,7 +90,7 @@ const BookingForm = ({ event, selectedDate, selectedTime, onBack, eventTypeId, t
       // Format end time (backend will handle timezone conversion)
       const endAt = formatDateTime(selectedDate, endTimeStr);
 
-      const createdEvent = await createEvent({
+      await createEvent({
         event_type_id: eventTypeId,
         start_at: startAt,
         end_at: endAt,
@@ -117,7 +117,7 @@ const BookingForm = ({ event, selectedDate, selectedTime, onBack, eventTypeId, t
         search: {
           title: event.title,
           organizer: event.organizer,
-          date: selectedDate.toISOString(),
+          date: selectedDate,
           timeRange: timeRangeStr,
           timezone: timezone,
         },
@@ -145,11 +145,11 @@ const BookingForm = ({ event, selectedDate, selectedTime, onBack, eventTypeId, t
 
           <div className="mt-4 space-y-2 text-sm text-gray-600">
             <div className="flex items-center gap-2">
-              <ClockIcon size={16} />
+              <ClockIcon sx={{ fontSize: 16 }} />
               <span>{event.duration} min</span>
             </div>
             <div className="flex items-center gap-2">
-              <VideoIcon size={16} />
+              <VideoIcon sx={{ fontSize: 16 }} />
               <span>{event.description}</span>
             </div>
           </div>

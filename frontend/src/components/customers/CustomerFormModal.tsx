@@ -35,7 +35,6 @@ const CustomerFormModal = ({
   isOpen,
   onClose,
   onSubmit,
-  availableTags,
   initialData,
 }: CustomerFormModalProps) => {
   const [form, setForm] = useState<Omit<Customer, "id">>(initialData ?? emptyForm);
@@ -43,12 +42,6 @@ const CustomerFormModal = ({
   const handleChange =
     (field: keyof Omit<Customer, "id">) =>
     (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      setForm((prev) => ({ ...prev, [field]: event.target.value }));
-    };
-
-  const handleSelectChange =
-    (field: keyof Omit<Customer, "id">) =>
-    (event: ChangeEvent<HTMLInputElement>) => {
       setForm((prev) => ({ ...prev, [field]: event.target.value }));
     };
 

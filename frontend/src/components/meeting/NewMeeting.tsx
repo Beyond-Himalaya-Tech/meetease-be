@@ -38,7 +38,7 @@ const NewMeetingPage = ({ eventData, eventTypeId, availableDays, timezone: initi
                      selectedDate={selectedDate}
                      selectedTime={selectedTime}
                      onBack={() => setSelectedTime(null)}
-                     eventTypeId={eventTypeId}
+                     eventTypeId={eventTypeId ?? null}
                      timezone={timezone}
                    />
                  </div>
@@ -47,7 +47,7 @@ const NewMeetingPage = ({ eventData, eventTypeId, availableDays, timezone: initi
           <div className="w-[65%] h-[65%] overflow-hidden rounded-2xl">
             <div className="grid h-full w-full grid-cols-1 md:grid-cols-3 bg-white overflow-hidden rounded-2xl">
               {/* Left: Event Info */}
-              <EventInfo event={eventInfo} />
+              <EventInfo {...eventInfo} />
 
               {/* Middle: Calendar */}
               <Calendar

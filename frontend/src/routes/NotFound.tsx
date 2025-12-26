@@ -5,9 +5,6 @@ import {
   Typography,
   Stack,
 } from "@mui/material";
-import {
-  SearchOff as SearchOffIcon,
-} from "@mui/icons-material";
 
 export default function NotFoundComponent() {
   const navigate = useNavigate();

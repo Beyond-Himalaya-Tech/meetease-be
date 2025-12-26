@@ -9,7 +9,7 @@ import {
 } from "@mui/material";
 import Calendar from "../meeting/Calendar";
 import TimeSlots from "../meeting/TimeSlots";
-import { useRescheduleEvent, useEventType } from "../../lib/queries";
+import { useRescheduleEvent } from "../../lib/queries";
 import { getEventById } from "../../lib/api";
 import type { Booking } from "./BookingDetailsModal";
 

@@ -77,7 +77,7 @@ const EventTypesModal = ({
                 className="flex items-start gap-3 rounded-lg px-1 py-2"
               >
                 <input
-                  id={event.id}
+                  id={String(event.id)}
                   type="checkbox"
                   checked={event.selected}
                   onChange={(e) => toggleOne(event.id, e.target.checked)}
@@ -85,7 +85,7 @@ const EventTypesModal = ({
                 />
                 <div>
                   <label
-                    htmlFor={event.id}
+                    htmlFor={String(event.id)}
                     className="flex items-center gap-2 text-sm font-semibold text-gray-900"
                   >
                     <span className="inline-block h-2.5 w-2.5 rounded-full bg-purple-500" />
