@@ -22,6 +22,7 @@ const BookingForm = ({ event, selectedDate, selectedTime, onBack, eventTypeId, t
   const navigate = useNavigate();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState<string>("");
   const [notes, setNotes] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -98,6 +99,7 @@ const BookingForm = ({ event, selectedDate, selectedTime, onBack, eventTypeId, t
         status: "CREATED",
         name: name,
         email: email,
+        phone: phone,
         description: notes || undefined,
       });
 
@@ -209,6 +211,19 @@ const BookingForm = ({ event, selectedDate, selectedTime, onBack, eventTypeId, t
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              className="w-full rounded border border-gray-300 p-2 text-sm"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-medium text-gray-500 mb-1">
+                Phone Number
+            </label>
+            <input
+              type="text"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="Optional"
               className="w-full rounded border border-gray-300 p-2 text-sm"
             />
           </div>

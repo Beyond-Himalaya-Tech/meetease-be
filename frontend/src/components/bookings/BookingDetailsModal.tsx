@@ -10,6 +10,7 @@ import {
   Link as MuiLink,
   Stack,
 } from "@mui/material";
+import { ClipboardDocumentIcon, CheckIcon } from "@heroicons/react/24/outline";
 import { useCancelEvent } from "../../lib/queries";
 import RescheduleModal from "./RescheduleModal";
 
@@ -25,7 +26,7 @@ type Booking = {
   isRescheduled: boolean;
   hosts: number;
   nonHosts: number;
-  location: string;
+  email: string | null;
   meetingLink: string;
 };
 
@@ -43,6 +44,7 @@ const BookingDetailsModal = ({
   onSuccess,
 }: BookingDetailsModalProps) => {
   const [rescheduleOpen, setRescheduleOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
   const cancelMutation = useCancelEvent();
   const open = isOpen && !!booking;
 
@@ -50,6 +52,10 @@ const BookingDetailsModal = ({
     try {
       if (navigator.clipboard?.writeText) {
         await navigator.clipboard.writeText(booking?.meetingLink ?? "");
+        setCopied(true);
+        setTimeout(() => {
+          setCopied(false);
+        }, 2000);
       }
     } catch {
       // ignore for now
@@ -118,9 +124,11 @@ const BookingDetailsModal = ({
                 {booking.dateLabel} • {booking.timeRange}
               </Typography>
 
-              <Typography variant="caption" color="text.secondary">
-                Location: {booking.location}
-              </Typography>
+              {booking.email && (
+                <Typography variant="caption" color="text.secondary">
+                  Email: {booking.email}
+                </Typography>
+              )}
 
               <Box mt={1}>
                 <Typography
@@ -151,9 +159,30 @@ const BookingDetailsModal = ({
                     variant="outlined"
                     size="small"
                     onClick={handleCopyLink}
-                    sx={{ borderRadius: 999, textTransform: "none" }}
+                    sx={{
+                      borderRadius: 999,
+                      textTransform: "none",
+                      ...(copied
+                        ? {
+                            color: "#16a34a",
+                            borderColor: "#86efac",
+                            backgroundColor: "#f0fdf4",
+                            "&:hover": {
+                              backgroundColor: "#dcfce7",
+                              borderColor: "#86efac",
+                            },
+                          }
+                        : {}),
+                    }}
+                    startIcon={
+                      copied ? (
+                        <CheckIcon style={{ width: 16, height: 16 }} />
+                      ) : (
+                        <ClipboardDocumentIcon style={{ width: 16, height: 16 }} />
+                      )
+                    }
                   >
-                    Copy link
+                    {copied ? "Copied!" : "Copy link"}
                   </Button>
                 </Stack>
               </Box>

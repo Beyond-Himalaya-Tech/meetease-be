@@ -82,7 +82,7 @@ const BookingsList = () => {
       isRescheduled: ev.is_rescheduled,
       hosts: 1,
       nonHosts: 0,
-      location: ev.location_link || "Online",
+      email: ev.contact_email || null,
       meetingLink: ev.location_link || "",
     };
   };
