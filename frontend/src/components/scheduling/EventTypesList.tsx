@@ -3,7 +3,7 @@ import { ClipboardDocumentIcon, CheckIcon } from "@heroicons/react/24/outline";
 import NewEventTypeForm from "./NewEventTypeForm";
 import EditEventTypeDialog from "./EditEventTypeDialog";
 import { useEventTypes, useUser } from "../../lib/queries";
-import type { EventType, PaginationMeta } from "../../lib/api";
+import type { EventType } from "../../lib/api";
 import toast from "react-hot-toast";
 
 const EventTypesList = () => {
