@@ -15,7 +15,8 @@ const BookingsList = () => {
   const [dateRangeOpen, setDateRangeOpen] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
-  
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 10;
 
   const [fromDate, setFromDate] = useState<Date | null>(null);
   const [toDate, setToDate] = useState<Date | null>(null);
@@ -37,13 +38,18 @@ const BookingsList = () => {
   const fromDateStr = formatDateForAPI(appliedFromDate);
   const toDateStr = formatDateForAPI(appliedToDate);
   const filter = fromDateStr && toDateStr ? "range" : activeTab;
-  const params = fromDateStr && toDateStr ? { from_date: fromDateStr, to_date: toDateStr } : undefined;
+  const params = fromDateStr && toDateStr
+    ? { from_date: fromDateStr, to_date: toDateStr, current_page: currentPage, size: pageSize }
+    : { current_page: currentPage, size: pageSize };
 
   const {
-    data: grouped = {},
+    data: eventsData,
     isLoading: loading,
     error: queryError,
   } = useFilteredEvents(filter, params);
+  
+  const grouped = eventsData?.data || {};
+  const paginationMeta = eventsData?.meta;
 
   const error = queryError instanceof Error ? queryError.message : null;
 
@@ -101,6 +107,20 @@ const BookingsList = () => {
     return entries;
   }, [grouped, activeTab]);
 
+  // Reset to page 1 when filter changes
+  const handleTabChange = (tab: TabId) => {
+    setActiveTab(tab);
+    setCurrentPage(1);
+  };
+
+  const handleApplyDateRange = () => {
+    if (fromDate && toDate) {
+      setAppliedFromDate(fromDate);
+      setAppliedToDate(toDate);
+      setCurrentPage(1);
+    }
+  };
+
   const totalEvents = useMemo(
     () => bookingsByDate.reduce((sum, [, list]) => sum + list.length, 0),
     [bookingsByDate],
@@ -129,7 +149,7 @@ const BookingsList = () => {
                   className={`relative pb-2 ${
                     active ? "text-blue-600" : "text-gray-500 hover:text-gray-800"
                   }`}
-                  onClick={() => setActiveTab(tab)}
+                  onClick={() => handleTabChange(tab)}
                 >
                   {label}
                   {active && (
@@ -247,13 +267,7 @@ const BookingsList = () => {
                     <button
                       type="button"
                       className="rounded-full border border-blue-600 bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-700 hover:border-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                      onClick={() => {
-                        if (fromDate && toDate) {
-                          setAppliedFromDate(fromDate);
-                          setAppliedToDate(toDate);
-                          // Keep panel open after applying
-                        }
-                      }}
+                      onClick={handleApplyDateRange}
                       disabled={!fromDate || !toDate}
                     >
                       Apply
@@ -370,9 +384,52 @@ const BookingsList = () => {
               </div>
             ))}
 
-            <p className="px-4 sm:px-6 py-4 text-xs text-gray-400 text-center border-t border-gray-100">
-              You&apos;ve reached the end of the list
-            </p>
+            {paginationMeta && paginationMeta.totalPage > 1 ? (
+              <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-t border-gray-100 text-xs text-gray-500">
+                <span>
+                  Showing{" "}
+                  <span className="font-medium">
+                    {paginationMeta.total === 0 ? 0 : (paginationMeta.currentPage - 1) * paginationMeta.totalPerPage + 1}-
+                    {Math.min(paginationMeta.currentPage * paginationMeta.totalPerPage, paginationMeta.total)}
+                  </span>{" "}
+                  of <span className="font-medium">{paginationMeta.total}</span>
+                </span>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    disabled={!paginationMeta.prevPage}
+                    onClick={() => paginationMeta.prevPage && setCurrentPage(paginationMeta.prevPage)}
+                    className={`rounded-full border px-3 py-1 ${
+                      !paginationMeta.prevPage
+                        ? "border-gray-200 text-gray-300 cursor-not-allowed"
+                        : "border-gray-300 text-gray-700 hover:bg-gray-50"
+                    }`}
+                  >
+                    Prev
+                  </button>
+                  <span>
+                    Page <span className="font-medium">{paginationMeta.currentPage}</span> of{" "}
+                    <span className="font-medium">{paginationMeta.totalPage}</span>
+                  </span>
+                  <button
+                    type="button"
+                    disabled={!paginationMeta.nextPage}
+                    onClick={() => paginationMeta.nextPage && setCurrentPage(paginationMeta.nextPage)}
+                    className={`rounded-full border px-3 py-1 ${
+                      !paginationMeta.nextPage
+                        ? "border-gray-200 text-gray-300 cursor-not-allowed"
+                        : "border-gray-300 text-gray-700 hover:bg-gray-50"
+                    }`}
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <p className="px-4 sm:px-6 py-4 text-xs text-gray-400 text-center border-t border-gray-100">
+                You&apos;ve reached the end of the list
+              </p>
+            )}
           </>
         )}
       </div>

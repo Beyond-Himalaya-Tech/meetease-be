@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import type { Customer } from "./types";
-import type { EventType } from "../../lib/api";
+import type { EventType, PaginationMeta } from "../../lib/api";
 
 type ColumnId = "name" | "email" | "phone" | "tag";
 
@@ -23,17 +23,27 @@ type CustomersListProps = {
   eventTypes: EventType[];
   appliedFilters: AppliedFiltersType;
   onApplyFilters: (filters: AppliedFiltersType) => void;
+  paginationMeta?: PaginationMeta;
+  currentPage: number;
+  onPageChange: (page: number) => void;
   onEdit: (customer: Customer) => void;
   onDelete: (customer: Customer) => void;
 };
 
 
-const CustomersList = ({ customers, eventTypes, appliedFilters, onApplyFilters, onEdit, onDelete }: CustomersListProps) => {
+const CustomersList = ({
+  customers,
+  eventTypes,
+  appliedFilters,
+  onApplyFilters,
+  paginationMeta,
+  onPageChange,
+  onEdit,
+  onDelete,
+}: CustomersListProps) => {
   const [search, setSearch] = useState("");
   const [filterOpen, setFilterOpen] = useState(false);
   const [columnsOpen, setColumnsOpen] = useState(false);
-  const [page, setPage] = useState(1);
-  const pageSize = 10;
   
   // Pending filters (what user is selecting, not yet applied)
   // Initialize from appliedFilters
@@ -96,10 +106,13 @@ const CustomersList = ({ customers, eventTypes, appliedFilters, onApplyFilters, 
     });
   }, [customers, search]);
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
-  const currentPage = Math.min(page, totalPages);
-  const startIndex = (currentPage - 1) * pageSize;
-  const currentRows = filtered.slice(startIndex, startIndex + pageSize);
+  // Use backend pagination meta if available, otherwise use frontend pagination for search
+  const totalPages = paginationMeta?.totalPage || 1;
+  const totalItems = paginationMeta?.total || filtered.length;
+  const startIndex = paginationMeta
+    ? (paginationMeta.currentPage - 1) * paginationMeta.totalPerPage
+    : 0;
+  const currentRows = filtered;
 
   const clearAllFilters = () => {
     setPendingFilters({
@@ -107,7 +120,7 @@ const CustomersList = ({ customers, eventTypes, appliedFilters, onApplyFilters, 
       eventType: null,
     });
     setEventFilter("all");
-    setPage(1);
+    onPageChange(1);
   };
 
   const handleApplyFilters = () => {
@@ -117,7 +130,7 @@ const CustomersList = ({ customers, eventTypes, appliedFilters, onApplyFilters, 
       eventType: eventTypeValue || null,
     });
     setFilterOpen(false);
-    setPage(1);
+    onPageChange(1);
   };
 
   return (
@@ -131,7 +144,7 @@ const CustomersList = ({ customers, eventTypes, appliedFilters, onApplyFilters, 
             value={search}
             onChange={(e) => {
               setSearch(e.target.value);
-              setPage(1);
+              // Search is frontend-only, so we don't reset backend pagination
             }}
             className="w-40 sm:w-56 rounded-md border border-gray-300 px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
@@ -388,46 +401,48 @@ const CustomersList = ({ customers, eventTypes, appliedFilters, onApplyFilters, 
       </div>
 
       {/* Pagination */}
-      <div className="flex items-center justify-between px-4 sm:px-6 py-3 border-t border-gray-200 text-xs text-gray-500">
-        <span>
-          Showing{" "}
-          <span className="font-medium">
-            {filtered.length === 0 ? 0 : startIndex + 1}-
-            {Math.min(startIndex + pageSize, filtered.length)}
-          </span>{" "}
-          of <span className="font-medium">{filtered.length}</span>
-        </span>
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            disabled={currentPage === 1}
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
-            className={`rounded-full border px-3 py-1 ${
-              currentPage === 1
-                ? "border-gray-200 text-gray-300 cursor-not-allowed"
-                : "border-gray-300 text-gray-700 hover:bg-gray-50"
-            }`}
-          >
-            Prev
-          </button>
+      {paginationMeta && (
+        <div className="flex items-center justify-between px-4 sm:px-6 py-3 border-t border-gray-200 text-xs text-gray-500">
           <span>
-            Page <span className="font-medium">{currentPage}</span> of{" "}
-            <span className="font-medium">{totalPages}</span>
+            Showing{" "}
+            <span className="font-medium">
+              {totalItems === 0 ? 0 : startIndex + 1}-
+              {Math.min(startIndex + paginationMeta.totalPerPage, totalItems)}
+            </span>{" "}
+            of <span className="font-medium">{totalItems}</span>
           </span>
-          <button
-            type="button"
-            disabled={currentPage === totalPages}
-            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-            className={`rounded-full border px-3 py-1 ${
-              currentPage === totalPages
-                ? "border-gray-200 text-gray-300 cursor-not-allowed"
-                : "border-gray-300 text-gray-700 hover:bg-gray-50"
-            }`}
-          >
-            Next
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              disabled={!paginationMeta.prevPage}
+              onClick={() => paginationMeta.prevPage && onPageChange(paginationMeta.prevPage)}
+              className={`rounded-full border px-3 py-1 ${
+                !paginationMeta.prevPage
+                  ? "border-gray-200 text-gray-300 cursor-not-allowed"
+                  : "border-gray-300 text-gray-700 hover:bg-gray-50"
+              }`}
+            >
+              Prev
+            </button>
+            <span>
+              Page <span className="font-medium">{paginationMeta.currentPage}</span> of{" "}
+              <span className="font-medium">{totalPages}</span>
+            </span>
+            <button
+              type="button"
+              disabled={!paginationMeta.nextPage}
+              onClick={() => paginationMeta.nextPage && onPageChange(paginationMeta.nextPage)}
+              className={`rounded-full border px-3 py-1 ${
+                !paginationMeta.nextPage
+                  ? "border-gray-200 text-gray-300 cursor-not-allowed"
+                  : "border-gray-300 text-gray-700 hover:bg-gray-50"
+              }`}
+            >
+              Next
+            </button>
+          </div>
         </div>
-      </div>
+      )}
     </section>
   );
 };

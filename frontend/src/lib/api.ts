@@ -82,6 +82,20 @@ export type CreateContactData = Omit<Contact, "id" | "created_at" | "updated_at"
 
 export type UpdateContactData = Partial<Pick<Contact, "name" | "email" | "phone" | "tag">>;
 
+export interface PaginationMeta {
+  total: number;
+  totalPage: number;
+  currentPage: number;
+  totalPerPage: number;
+  prevPage: number | null;
+  nextPage: number | null;
+}
+
+export interface PaginatedResponse<T> {
+  data: T[];
+  meta: PaginationMeta;
+}
+
 export interface EventType {
   id: number;
   user_id: number;
@@ -156,7 +170,12 @@ export async function createContact(payload: CreateContactData): Promise<Contact
   return data.data;
 }
 
-export async function getContacts(notNull: string | null, eventType: number | null): Promise<Contact[]> {
+export async function getContacts(
+  notNull: string | null,
+  eventType: number | null,
+  currentPage?: number,
+  size?: number
+): Promise<PaginatedResponse<Contact>> {
   let url = `${API_BASE_URL}/contacts?`;
   const params: string[] = [];
 
@@ -165,6 +184,12 @@ export async function getContacts(notNull: string | null, eventType: number | nu
 
   if (eventType)
     params.push(`event_type=${encodeURIComponent(eventType)}`);
+
+  if (currentPage)
+    params.push(`current_page=${encodeURIComponent(currentPage)}`);
+
+  if (size)
+    params.push(`size=${encodeURIComponent(size)}`);
 
   url += params.join("&");
 
@@ -176,7 +201,7 @@ export async function getContacts(notNull: string | null, eventType: number | nu
   }
 
   const data = await response.json();
-  return data.data;
+  return data;
 }
 
 export async function deleteContact(id: number): Promise<void> {
@@ -220,8 +245,22 @@ export async function updateUser(userId: number, updateData: UpdateUserData): Pr
   return data.data;
 }
 
-export async function getEventTypes(): Promise<EventType[]> {
-  const response = await fetchWithAuth(`${API_BASE_URL}/event-types`);
+export async function getEventTypes(
+  currentPage?: number,
+  size?: number
+): Promise<PaginatedResponse<EventType>> {
+  let url = `${API_BASE_URL}/event-types?`;
+  const params: string[] = [];
+
+  if (currentPage)
+    params.push(`current_page=${encodeURIComponent(currentPage)}`);
+
+  if (size)
+    params.push(`size=${encodeURIComponent(size)}`);
+
+  url += params.join("&");
+
+  const response = await fetchWithAuth(url);
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
@@ -229,7 +268,7 @@ export async function getEventTypes(): Promise<EventType[]> {
   }
 
   const data = await response.json();
-  return data.data;
+  return data;
 }
 
 export async function createEventType(payload: CreateEventTypeData): Promise<EventType> {
@@ -439,15 +478,25 @@ export type EventFilterType = "upcoming" | "past" | "range";
 
 export async function getFilteredEvents(
   filter: EventFilterType,
-  options?: { from_date?: string; to_date?: string },
-): Promise<GroupedEventsResponse> {
+  options?: { from_date?: string; to_date?: string; current_page?: number; size?: number },
+): Promise<PaginatedResponse<GroupedEventsResponse>> {
   let url = `${API_BASE_URL}/events/filter/${filter}`;
+  const params = new URLSearchParams();
 
   if (filter === "range" && options?.from_date && options?.to_date) {
-    const params = new URLSearchParams({
-      from_date: options.from_date,
-      to_date: options.to_date,
-    });
+    params.append("from_date", options.from_date);
+    params.append("to_date", options.to_date);
+  }
+
+  if (options?.current_page) {
+    params.append("current_page", String(options.current_page));
+  }
+
+  if (options?.size) {
+    params.append("size", String(options.size));
+  }
+
+  if (params.toString()) {
     url += `?${params.toString()}`;
   }
 
@@ -455,7 +504,17 @@ export async function getFilteredEvents(
 
   // If there are no events, backend returns 404 with "No user events"
   if (response.status === 404) {
-    return {};
+    return {
+      data: {},
+      meta: {
+        total: 0,
+        totalPage: 0,
+        currentPage: 1,
+        totalPerPage: 10,
+        prevPage: null,
+        nextPage: null,
+      },
+    };
   }
 
   if (!response.ok) {
@@ -464,7 +523,11 @@ export async function getFilteredEvents(
   }
 
   const data = await response.json();
-  return (data.data ?? {}) as GroupedEventsResponse;
+  // Backend returns paginated response, but data is grouped events
+  return {
+    data: (data.data ?? {}) as GroupedEventsResponse,
+    meta: data.meta,
+  };
 }
 
 export async function getEventById(id: number): Promise<Event> {

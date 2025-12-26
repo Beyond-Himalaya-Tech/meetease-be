@@ -43,16 +43,20 @@ import toast from "react-hot-toast";
 // Query Keys
 export const queryKeys = {
   user: ["user"] as const,
-  contacts: (notNull: string | null, eventType: number | null) =>
-    ["contacts", { notNull, eventType }] as const,
+  contacts: (notNull: string | null, eventType: number | null, currentPage?: number, size?: number) =>
+    ["contacts", { notNull, eventType, currentPage, size }] as const,
   eventTypes: ["eventTypes"] as const,
+  eventTypesPaginated: (currentPage?: number, size?: number) =>
+    ["eventTypes", currentPage, size] as const,
   eventType: (id: number) => ["eventType", id] as const,
   availabilities: ["availabilities"] as const,
   userAvailabilities: (userId: number) => ["availabilities", "user", userId] as const,
   eventAvailabilities: (id: number, date: string) =>
     ["eventAvailabilities", id, date] as const,
-  filteredEvents: (filter: EventFilterType, params?: { from_date?: string; to_date?: string }) =>
-    ["events", "filter", filter, params] as const,
+  filteredEvents: (
+    filter: EventFilterType,
+    params?: { from_date?: string; to_date?: string; current_page?: number; size?: number }
+  ) => ["events", "filter", filter, params] as const,
 };
 
 // User Queries
@@ -65,10 +69,15 @@ export function useUser() {
 }
 
 // Contacts Queries
-export function useContacts(notNull: string | null, eventType: number | null) {
+export function useContacts(
+  notNull: string | null,
+  eventType: number | null,
+  currentPage?: number,
+  size?: number
+) {
   return useQuery({
-    queryKey: queryKeys.contacts(notNull, eventType),
-    queryFn: () => getContacts(notNull, eventType)
+    queryKey: queryKeys.contacts(notNull, eventType, currentPage, size),
+    queryFn: () => getContacts(notNull, eventType, currentPage, size),
   });
 }
 
@@ -77,11 +86,9 @@ export function useCreateContact() {
 
   return useMutation({
     mutationFn: (data: CreateContactData) => createContact(data),
-    onSuccess: (_, variables) => {
-      // Invalidate contacts query to refetch
-      if (variables.user_id) {
-        queryClient.invalidateQueries({ queryKey: queryKeys.contacts(variables.user_id) });
-      }
+    onSuccess: () => {
+      // Invalidate all contacts queries to refetch
+      queryClient.invalidateQueries({ queryKey: ["contacts"] });
       toast.success("Contact created successfully!");
     },
     onError: (error: Error) => {
@@ -124,10 +131,10 @@ export function useDeleteContact() {
 }
 
 // Event Types Queries
-export function useEventTypes() {
+export function useEventTypes(currentPage?: number, size?: number) {
   return useQuery({
-    queryKey: queryKeys.eventTypes,
-    queryFn: getEventTypes,
+    queryKey: [...queryKeys.eventTypes, currentPage, size],
+    queryFn: () => getEventTypes(currentPage, size),
   });
 }
 
@@ -145,7 +152,8 @@ export function useCreateEventType() {
   return useMutation({
     mutationFn: (data: CreateEventTypeData) => createEventType(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.eventTypes });
+      // Invalidate all event types queries (all pages)
+      queryClient.invalidateQueries({ queryKey: ["eventTypes"] });
       toast.success("Event type created successfully!");
     },
     onError: (error: Error) => {
@@ -246,7 +254,7 @@ export function useDeleteAvailability() {
 // Events Queries
 export function useFilteredEvents(
   filter: EventFilterType,
-  params?: { from_date?: string; to_date?: string }
+  params?: { from_date?: string; to_date?: string; current_page?: number; size?: number }
 ) {
   return useQuery({
     queryKey: queryKeys.filteredEvents(filter, params),

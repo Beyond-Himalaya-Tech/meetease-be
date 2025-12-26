@@ -3,11 +3,15 @@ import { ClipboardDocumentIcon, CheckIcon } from "@heroicons/react/24/outline";
 import NewEventTypeForm from "./NewEventTypeForm";
 import EditEventTypeDialog from "./EditEventTypeDialog";
 import { useEventTypes, useUser } from "../../lib/queries";
-import type { EventType } from "../../lib/api";
+import type { EventType, PaginationMeta } from "../../lib/api";
 import toast from "react-hot-toast";
 
 const EventTypesList = () => {
-  const { data: eventTypes = [], isLoading: loading, error: queryError } = useEventTypes();
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 10;
+  const { data: eventTypesData, isLoading: loading, error: queryError } = useEventTypes(currentPage, pageSize);
+  const eventTypes = eventTypesData?.data || [];
+  const paginationMeta = eventTypesData?.meta;
   const { data: currentUser } = useUser();
   const [showForm, setShowForm] = useState(false);
   const [editingEventType, setEditingEventType] = useState<EventType | null>(null);
@@ -163,6 +167,50 @@ const EventTypesList = () => {
                 </li>
               ))}
             </ul>
+          )}
+
+          {/* Pagination */}
+          {paginationMeta && paginationMeta.totalPage > 1 && (
+            <div className="flex items-center justify-between border-t border-gray-200 px-5 py-3 text-xs text-gray-500">
+              <span>
+                Showing{" "}
+                <span className="font-medium">
+                  {paginationMeta.total === 0 ? 0 : (paginationMeta.currentPage - 1) * paginationMeta.totalPerPage + 1}-
+                  {Math.min(paginationMeta.currentPage * paginationMeta.totalPerPage, paginationMeta.total)}
+                </span>{" "}
+                of <span className="font-medium">{paginationMeta.total}</span>
+              </span>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  disabled={!paginationMeta.prevPage}
+                  onClick={() => paginationMeta.prevPage && setCurrentPage(paginationMeta.prevPage)}
+                  className={`rounded-full border px-3 py-1 ${
+                    !paginationMeta.prevPage
+                      ? "border-gray-200 text-gray-300 cursor-not-allowed"
+                      : "border-gray-300 text-gray-700 hover:bg-gray-50"
+                  }`}
+                >
+                  Prev
+                </button>
+                <span>
+                  Page <span className="font-medium">{paginationMeta.currentPage}</span> of{" "}
+                  <span className="font-medium">{paginationMeta.totalPage}</span>
+                </span>
+                <button
+                  type="button"
+                  disabled={!paginationMeta.nextPage}
+                  onClick={() => paginationMeta.nextPage && setCurrentPage(paginationMeta.nextPage)}
+                  className={`rounded-full border px-3 py-1 ${
+                    !paginationMeta.nextPage
+                      ? "border-gray-200 text-gray-300 cursor-not-allowed"
+                      : "border-gray-300 text-gray-700 hover:bg-gray-50"
+                  }`}
+                >
+                  Next
+                </button>
+              </div>
+            </div>
           )}
         </section>
       ) : (

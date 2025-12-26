@@ -60,23 +60,36 @@ function CustomersRoute() {
     eventType: null,
   });
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 10;
+
   const { data: user } = useUser();
-  const { data: eventTypes = [] } = useEventTypes();
-  // Fetch all contacts to check if any exist (for empty state)
-  const { data: allContacts = [], isLoading: allLoading } = useContacts(null, null);
-  // Fetch filtered contacts using applied filters
-  const { data: contacts = [], isLoading: loading, error: queryError } = useContacts(
+  const { data: eventTypesData } = useEventTypes();
+  const eventTypes = eventTypesData?.data || [];
+  // Fetch all contacts to check if any exist (for empty state) - first page only
+  const { data: allContactsData, isLoading: allLoading } = useContacts(null, null, 1, 1);
+  // Fetch filtered contacts using applied filters with pagination
+  const { data: contactsData, isLoading: loading, error: queryError } = useContacts(
     appliedFilters.hasPhone ? "phone" : null,
-    appliedFilters.eventType
+    appliedFilters.eventType,
+    currentPage,
+    pageSize
   );
   const createContactMutation = useCreateContact();
   const updateContactMutation = useUpdateContact();
   const deleteContactMutation = useDeleteContact();
 
 
-  const allCustomers = allContacts.map(mapContactToCustomer);
-  const customers = contacts.map(mapContactToCustomer);
+  const allCustomers = (allContactsData?.data || []).map(mapContactToCustomer);
+  const customers = (contactsData?.data || []).map(mapContactToCustomer);
+  const paginationMeta = contactsData?.meta;
   const error = queryError instanceof Error ? queryError.message : null;
+
+  // Reset to page 1 when filters change
+  const handleApplyFilters = (filters: typeof appliedFilters) => {
+    setAppliedFilters(filters);
+    setCurrentPage(1);
+  };
 
   const openAddDialog = () => {
     setDialogMode("add");
@@ -193,9 +206,10 @@ function CustomersRoute() {
             customers={customers}
             eventTypes={eventTypes}
             appliedFilters={appliedFilters}
-            onApplyFilters={(filters) => {
-              setAppliedFilters(filters);
-            }}
+            onApplyFilters={handleApplyFilters}
+            paginationMeta={paginationMeta}
+            currentPage={currentPage}
+            onPageChange={setCurrentPage}
             onEdit={(customer) => {
               setDialogMode("edit");
               setEditingCustomer(customer);
