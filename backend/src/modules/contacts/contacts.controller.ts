@@ -43,6 +43,7 @@ export class ContactsController {
       const response = paginateData(userContacts, total, current_page, size)
       return response;
     } catch (err) {
+      console.log(err)
       throw responseFormatter(err, "error");
     }
   }

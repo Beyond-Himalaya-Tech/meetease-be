@@ -65,6 +65,7 @@ export interface UpdateUserData {
   name?: string;
   email?: string;
   picture?: string;
+  timezone?: string;
 }
 
 export interface Contact {
@@ -140,6 +141,7 @@ export type CreateAvailabilityData = {
   day_of_week: number;
   start_time: string;
   end_time: string;
+  timezone: string;
 };
 
 export type UpdateAvailabilityData = {
@@ -397,6 +399,7 @@ export async function updateAvailability(
   const data = await response.json();
   return data.data;
 }
+
 
 export async function deleteAvailability(id: number): Promise<void> {
   const response = await fetchWithAuth(`${API_BASE_URL}/availabilities/${id}`, {

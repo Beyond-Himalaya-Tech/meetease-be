@@ -26,6 +26,10 @@ export class CreateUserDto {
   @IsOptional()
   @IsDate()
   token_expiry?: Date | null;
+
+  @IsOptional()
+  @IsString()
+  timezone?: string;
 }
 
 export class UpdateUserDto {
@@ -52,8 +56,12 @@ export class UpdateUserDto {
   @IsOptional()
   @IsString()
   refresh_token?: string;
-
+  
   @IsOptional()
   @IsDate()
   token_expiry?: Date | null;
+  
+  @IsOptional()
+  @IsString()
+  timezone?: string;
 }

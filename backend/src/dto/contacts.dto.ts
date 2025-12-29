@@ -17,6 +17,10 @@ export class CreateContactDto {
   @IsOptional()
   @IsString()
   tag?: string;
+
+  @IsOptional()
+  @IsString()
+  timezone?: string;
 }
 
 export class UpdateContactDto {
@@ -35,4 +39,8 @@ export class UpdateContactDto {
   @IsOptional()
   @IsString()
   tag?: string;
+
+  @IsOptional()
+  @IsString()
+  timezone?: string;
 }

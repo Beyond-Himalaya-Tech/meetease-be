@@ -23,8 +23,4 @@ export class UpdateAvailabilityDto {
   @IsOptional()
   @IsString()
   end_time?: string;
-
-  @IsOptional()
-  @IsString()
-  timezone?: string;
 }

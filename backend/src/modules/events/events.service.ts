@@ -39,7 +39,7 @@ export class EventsService {
       orderBy: { start_at: 'desc' },
       include: {
         event_types: true,
-        contacts: true,
+        contacts: true
       },
     });
   }

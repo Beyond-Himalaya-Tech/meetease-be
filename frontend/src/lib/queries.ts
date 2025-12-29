@@ -34,6 +34,7 @@ import {
   type RescheduleEventData,
   type UpdateUserData,
   type EventFilterType,
+  type UpdateAvailabilityTimezone,
 } from "./api";
 
 // Re-export types for convenience

@@ -56,6 +56,9 @@ export class AvailabilitiesService {
   async findByUser(where) {
     return await this.prisma.availabilities.findMany({
       where,
+      include: {
+        users: true
+      }
     });
   }
 
@@ -74,13 +77,6 @@ export class AvailabilitiesService {
     return await this.prisma.availabilities.update({
       where: { id },
       data: updateData,
-    });
-  }
-
-  async bulkUpdate(user_id: number, data) {
-    await this.prisma.availabilities.updateMany({
-      where: { user_id },
-      data
     });
   }
 
