@@ -18,6 +18,7 @@ model users {
   token_expiry    DateTime?
   created_at      DateTime      @default(now())
   updated_at      DateTime      @default(now())
+  timezone        String?
 
   event_types     event_types[]
   availabilities  availabilities[]
@@ -47,7 +48,6 @@ model availabilities {
   start_time  DateTime  @db.Time
   end_time    DateTime  @db.Time
   apply_date  DateTime? @db.Date
-  timezone    String?
   created_at  DateTime @default(now())
   updated_at  DateTime @default(now())
 
@@ -64,6 +64,9 @@ model contacts {
   tag        String?
   created_at DateTime @default(now())
   updated_at DateTime @default(now())
+
+  deleted_at DateTime? @map("deleted_at")
+  timezone   String?
 
   users      users    @relation(fields: [user_id], references: [id])
   events     events[]

@@ -47,6 +47,7 @@ export class AuthService {
         access_token: tokens.access_token || accessToken,
         refresh_token: tokens.refresh_token || undefined,
         token_expiry: tokens.expiry_date ? new Date(tokens.expiry_date) : undefined,
+        timezone: timezone,
       });
       let availabilities: any = [];
       for(let i=1; i<6; i++) {
@@ -54,8 +55,7 @@ export class AuthService {
           user_id: user.id,
           day_of_week: i,
           start_time: timeStringToDate("09:00"),
-          end_time: timeStringToDate("17:00"),
-          timezone
+          end_time: timeStringToDate("17:00")
         });
       } 
       await this.availabiltyService.bulkCreate(availabilities);
@@ -66,9 +66,9 @@ export class AuthService {
         picture: picture || '',
         access_token: tokens.access_token || accessToken,
         refresh_token: tokens.refresh_token || user.refresh_token || undefined,
-        token_expiry: tokens.expiry_date ? new Date(tokens.expiry_date) : undefined
+        token_expiry: tokens.expiry_date ? new Date(tokens.expiry_date) : undefined,
+        timezone,
       });
-      this.availabiltyService.bulkUpdate(user.id, { timezone });
     }
 
     const payload = { sub: user.id, email: user.email };

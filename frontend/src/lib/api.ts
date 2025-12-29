@@ -65,6 +65,7 @@ export interface UpdateUserData {
   name?: string;
   email?: string;
   picture?: string;
+  timezone?: string;
 }
 
 export interface Contact {
@@ -146,10 +147,6 @@ export type CreateAvailabilityData = {
 export type UpdateAvailabilityData = {
   start_time?: string;
   end_time?: string;
-};
-
-export type UpdateAvailabilityTimezone = {
-  timezone: string;
 };
 
 export async function getUser(): Promise<User> {
@@ -403,23 +400,6 @@ export async function updateAvailability(
   return data.data;
 }
 
-export async function bulkUpdateAvailability(
-  user_id: number,
-  updateData: UpdateAvailabilityTimezone
-): Promise<Availability> {
-  const response = await fetchWithAuth(`${API_BASE_URL}/availabilities/user/${user_id}`, {
-    method: "PATCH",
-    body: JSON.stringify(updateData),
-  });
-
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.message || "Failed to update availability");
-  }
-
-  const data = await response.json();
-  return data.data;
-}
 
 export async function deleteAvailability(id: number): Promise<void> {
   const response = await fetchWithAuth(`${API_BASE_URL}/availabilities/${id}`, {

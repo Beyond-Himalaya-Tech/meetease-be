@@ -39,7 +39,6 @@ export class AvailabilitiesService {
         day_of_week: data.day_of_week,
         start_time: timeStringToDate(data.start_time),
         end_time: timeStringToDate(data.end_time),
-        timezone: data.timezone,
       },
     });
   }
@@ -57,6 +56,9 @@ export class AvailabilitiesService {
   async findByUser(where) {
     return await this.prisma.availabilities.findMany({
       where,
+      include: {
+        users: true
+      }
     });
   }
 
@@ -75,13 +77,6 @@ export class AvailabilitiesService {
     return await this.prisma.availabilities.update({
       where: { id },
       data: updateData,
-    });
-  }
-
-  async bulkUpdate(user_id: number, data: UpdateAvailabilityDto) {
-    return await this.prisma.availabilities.updateMany({
-      where: { user_id },
-      data
     });
   }
 

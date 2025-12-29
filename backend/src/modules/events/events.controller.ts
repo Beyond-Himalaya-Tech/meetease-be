@@ -7,9 +7,10 @@ import { ContactsService } from '../contacts/contacts.service';
 import { CreateContactDto } from 'src/dto/contacts.dto';
 import { GoogleOAuthService } from '../google-oauth/google-oauth.service';
 import { responseFormatter, notFoundResponse } from 'src/helpers/response.helper';
-import { dateToTimeString, formatDateKey, toUTCDate } from 'src/helpers/time.helper';
+import { dateToTimeString, formatDateKey, toTimezoneDate, toUTCDate } from 'src/helpers/time.helper';
 import { MailService } from '../mail/mail.service';
 import { paginateData } from '@/helpers/paginage.helper';
+import { UsersService } from '../users/users.service';
 
 @UseGuards(AuthGuard)
 @Controller('events')
@@ -19,7 +20,8 @@ export class EventsController {
     private readonly contactService: ContactsService,
     private readonly eventTypeService: EventTypesService,
     private readonly oAuthService: GoogleOAuthService,
-    private readonly mailService: MailService
+    private readonly mailService: MailService,
+    private readonly userService: UsersService
   ) {}
 
   @Post()
@@ -29,7 +31,8 @@ export class EventsController {
       const contactData: CreateContactDto = {
         user_id: req.user.id,
         email: dto.email,
-        name: dto.name
+        name: dto.name,
+        timezone: dto.timezone || undefined
       };
 
       if(dto.phone)  contactData.phone = dto.phone;
@@ -173,19 +176,24 @@ export class EventsController {
         throw notFoundResponse('No user events');
       }
 
-      const groupedResponse = userEvents.reduce((acc, event) => {
+      const userData = await this.userService.findOne(req.user.id);
+      const groupedResponse: Record<string, any[]> = {};
+
+      for (const event of userEvents) {
         const startDate = new Date(event.start_at);
-
-        const dateKey = formatDateKey(startDate); // "19th Dec, 2025"
-
+        const dateKey = formatDateKey(startDate);
         const meetDate = startDate.toISOString().split('T')[0];
 
-        const startTime = dateToTimeString(startDate);
+        const startDateToUtcDate = toUTCDate(startDate, event.timezone);
+        const startDateConverted = toTimezoneDate(startDateToUtcDate, userData?.timezone || 'Asia/Kathmandu');
+        const startTime = dateToTimeString(startDateConverted);
 
         const endDate = new Date(event.end_at);
-        const endTime = dateToTimeString(endDate)
+        const endDateToUtcDate = toUTCDate(endDate, event.timezone);
+        const endDateConverted = toTimezoneDate(endDateToUtcDate, userData?.timezone || 'Asia/Kathmandu');
+        const endTime = dateToTimeString(endDateConverted);
 
-        const formattedEvent = {
+        const formattedEvent: any = {
           id: event.id,
           start_at: event.start_at,
           end_at: event.end_at,
@@ -197,25 +205,30 @@ export class EventsController {
           description: event.description,
           is_rescheduled: event.is_rescheduled,
           event_status: event.status,
-
           event_types: event.event_types?.title,
           event_types_description: event.event_types?.description,
           duration_minutes: event.event_types?.duration_minutes,
-
-          contact_name: event.contacts?.name,
-          contact_email: event.contacts?.email,
-          contact_tag: event.contacts?.tag,
         };
 
-        if (!acc[dateKey]) {
-          acc[dateKey] = [];
+        if (event.contacts) {
+          formattedEvent.contact_name = event.contacts?.name || null;
+          formattedEvent.contact_email = event.contacts?.email || null;
+          formattedEvent.contact_tag = event.contacts?.tag || null;
+        } else {
+          if(event.contact_id) {
+            const contactData = await this.contactService.findDeleted(event.contact_id);
+            formattedEvent.contact_name = contactData?.name || null;
+            formattedEvent.contact_email = contactData?.email || null;
+            formattedEvent.contact_tag = contactData?.tag || null;
+          }
         }
 
-        acc[dateKey].push(formattedEvent);
+        if (!groupedResponse[dateKey]) {
+          groupedResponse[dateKey] = [];
+        }
 
-        return acc;
-      }, {} as Record<string, any[]>);
-
+        groupedResponse[dateKey].push(formattedEvent);
+      }
 
       const response = paginateData(groupedResponse, total, current_page, size)
       return response;

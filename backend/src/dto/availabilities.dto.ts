@@ -13,9 +13,6 @@ export class CreateAvailabilityDto {
 
   @IsString()
   end_time: string;
-
-  @IsString()
-  timezone: string;
 }
 
 export class UpdateAvailabilityDto {
@@ -26,8 +23,4 @@ export class UpdateAvailabilityDto {
   @IsOptional()
   @IsString()
   end_time?: string;
-
-  @IsOptional()
-  @IsString()
-  timezone?: string;
 }

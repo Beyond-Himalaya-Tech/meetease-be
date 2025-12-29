@@ -22,6 +22,7 @@ export class ContactsService {
         name: data.name,
         phone: data.phone,
         tag: data.tag,
+        deleted_at: null
       },
       create: data,
     });
@@ -53,5 +54,9 @@ export class ContactsService {
 
   async remove(id: number) {
     return await this.prisma.contacts.delete({ where: { id } });
+  }
+
+  async findDeleted(id: number) {
+    return await this.prisma.contacts.findUnique({ where: { id, deleted_at: { not: null} } });
   }
 }

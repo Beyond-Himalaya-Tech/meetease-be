@@ -95,7 +95,7 @@ export class EventTypesController {
       });
       const availableSlots = filteredSlots.map(msToHour);
 
-      if(userAvailabilities[0].timezone !== timezone) {
+      if(userAvailabilities[0].users.timezone !== timezone) {
         const zoneWiseSlot = availableSlots.map((slot) => {
           const [startHourStr, startMinuteStr] = slot.split(":");
   
@@ -103,7 +103,7 @@ export class EventTypesController {
           const startMinute = Number(startMinuteStr);
           startTime = new Date(givenDate);
           startTime.setHours(startHour, startMinute, 0, 0);
-          const toUtcDate = toUTCDate(startTime, userAvailabilities[0].timezone ?? 'Asia/Kathmandu')
+          const toUtcDate = toUTCDate(startTime, userAvailabilities[0].users.timezone ?? 'Asia/Kathmandu')
           const convertedDate = toTimezoneDate(toUtcDate, timezone)
           return getDateTime(convertedDate);
         })

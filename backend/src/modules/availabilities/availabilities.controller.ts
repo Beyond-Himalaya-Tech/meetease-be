@@ -44,7 +44,7 @@ export class AvailabilitiesController {
           end_time: dateToTimeString(availabilities.end_time)
         }
       })
-      return {...responseFormatter(formattedAvailabilities), timezone: userAvailabilities[0].timezone};
+      return {...responseFormatter(formattedAvailabilities), timezone: userAvailabilities[0].users.timezone};
     } catch (err) {
       throw responseFormatter(err, "error");
     }
@@ -67,15 +67,6 @@ export class AvailabilitiesController {
   async findOne(@Param('id') id: number) {
     try {
       return responseFormatter(await this.availabilitiesService.findOne(id));
-    } catch (err) {
-      throw responseFormatter(err, "error");
-    }
-  }
-
-  @Patch('user/:user_id')
-  async bulkUpdate(@Param('user_id') user_id: number, @Body() dto: UpdateAvailabilityDto) {
-    try {
-      return responseFormatter(await this.availabilitiesService.bulkUpdate(user_id, dto));
     } catch (err) {
       throw responseFormatter(err, "error");
     }

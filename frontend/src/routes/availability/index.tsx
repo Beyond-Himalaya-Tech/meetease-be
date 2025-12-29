@@ -13,7 +13,7 @@ import {
   useUpdateAvailability,
   useCreateAvailability,
   useUser,
-  useBulkUpdateAvailability
+  useUpdateUser
 } from "../../lib/queries";
 import type { Availability } from "../../lib/api";
 
@@ -57,7 +57,7 @@ function AvailabilityRoute() {
   const deleteAvailabilityMutation = useDeleteAvailability();
   const updateAvailabilityMutation = useUpdateAvailability();
   const createAvailabilityMutation = useCreateAvailability();
-  const bulkUpdateAvailabilityMutation = useBulkUpdateAvailability();
+  const updateUserMutation = useUpdateUser();
 
   const [activeTab, setActiveTab] = useState<"schedules" | "calendar">(
     "schedules",
@@ -121,7 +121,7 @@ function AvailabilityRoute() {
 
       if (row.unavailable || !row.from || !row.to) {
         // Delete if unavailable or times are missing
-        if (existingAvailability) {
+        if (existingAvailability && row.unavailable) {
           deleteAvailabilityMutation.mutate(existingAvailability.id);
         }
       } else {
@@ -174,8 +174,8 @@ function AvailabilityRoute() {
 
   const handleTimezoneChange = (newTz: string) => {
     setTimezone(newTz);
-    bulkUpdateAvailabilityMutation.mutate({
-      user_id: user?.id,
+    updateUserMutation.mutate({
+      userId: user?.id,
       data: {
         timezone: newTz
       }
