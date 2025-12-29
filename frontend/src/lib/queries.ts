@@ -20,6 +20,7 @@ import {
   rescheduleEvent,
   cancelEvent,
   updateUser,
+  bulkUpdateAvailability,
   type User,
   type Contact,
   type EventType,
@@ -34,6 +35,7 @@ import {
   type RescheduleEventData,
   type UpdateUserData,
   type EventFilterType,
+  type UpdateAvailabilityTimezone,
 } from "./api";
 
 // Re-export types for convenience
@@ -232,6 +234,22 @@ export function useUpdateAvailability() {
     },
     onError: (error: Error) => {
       toast.error(error.message || "Failed to update availability");
+    },
+  });
+}
+
+export function useBulkUpdateAvailability() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ user_id, data }: { user_id: number; data: UpdateAvailabilityTimezone }) =>
+      bulkUpdateAvailability(user_id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.availabilities });
+      toast.success("Timezone updated successfully!");
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Failed to update timezone");
     },
   });
 }

@@ -140,11 +140,16 @@ export type CreateAvailabilityData = {
   day_of_week: number;
   start_time: string;
   end_time: string;
+  timezone: string;
 };
 
 export type UpdateAvailabilityData = {
   start_time?: string;
   end_time?: string;
+};
+
+export type UpdateAvailabilityTimezone = {
+  timezone: string;
 };
 
 export async function getUser(): Promise<User> {
@@ -385,6 +390,24 @@ export async function updateAvailability(
   updateData: UpdateAvailabilityData
 ): Promise<Availability> {
   const response = await fetchWithAuth(`${API_BASE_URL}/availabilities/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify(updateData),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.message || "Failed to update availability");
+  }
+
+  const data = await response.json();
+  return data.data;
+}
+
+export async function bulkUpdateAvailability(
+  user_id: number,
+  updateData: UpdateAvailabilityTimezone
+): Promise<Availability> {
+  const response = await fetchWithAuth(`${API_BASE_URL}/availabilities/user/${user_id}`, {
     method: "PATCH",
     body: JSON.stringify(updateData),
   });

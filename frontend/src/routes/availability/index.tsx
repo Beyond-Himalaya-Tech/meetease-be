@@ -13,6 +13,7 @@ import {
   useUpdateAvailability,
   useCreateAvailability,
   useUser,
+  useBulkUpdateAvailability
 } from "../../lib/queries";
 import type { Availability } from "../../lib/api";
 
@@ -56,6 +57,7 @@ function AvailabilityRoute() {
   const deleteAvailabilityMutation = useDeleteAvailability();
   const updateAvailabilityMutation = useUpdateAvailability();
   const createAvailabilityMutation = useCreateAvailability();
+  const bulkUpdateAvailabilityMutation = useBulkUpdateAvailability();
 
   const [activeTab, setActiveTab] = useState<"schedules" | "calendar">(
     "schedules",
@@ -128,6 +130,7 @@ function AvailabilityRoute() {
           day_of_week: dayIndex,
           start_time: formatTimeForBackend(row.from),
           end_time: formatTimeForBackend(row.to),
+          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
         };
 
         if (existingAvailability) {
@@ -169,6 +172,16 @@ function AvailabilityRoute() {
     [weeklyRows, handleSaveAvailability]
   );
 
+  const handleTimezoneChange = (newTz: string) => {
+    setTimezone(newTz);
+    bulkUpdateAvailabilityMutation.mutate({
+      user_id: user?.id,
+      data: {
+        timezone: newTz
+      }
+    });
+  };
+
   return (
     <DefaultLayout>
       <section className="max-w-6xl mx-auto w-full pt-2 pb-4 sm:pt-3 sm:pb-6 px-4 sm:px-0">
@@ -188,7 +201,7 @@ function AvailabilityRoute() {
                 rows={weeklyRows}
                 onChange={handleWeeklyRowsChange}
                 timezone={timezone}
-                onTimezoneChange={setTimezone}
+                onTimezoneChange={handleTimezoneChange}
               />
             )}
 

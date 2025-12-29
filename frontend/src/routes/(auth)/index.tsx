@@ -45,7 +45,7 @@ function LoginRoute() {
         <button
           type="button"
           onClick={handleGoogleSignIn}
-          className="w-full border border-gray-300 rounded-md py-2.5 flex items-center justify-center gap-2 text-sm font-medium hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          className="w-full border border-gray-300 rounded-md py-2.5 flex items-center justify-center gap-2 text-sm font-medium cursor-pointer hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
         >
           <img
             src="https://www.svgrepo.com/show/475656/google-color.svg"

@@ -39,6 +39,7 @@ export class AvailabilitiesService {
         day_of_week: data.day_of_week,
         start_time: timeStringToDate(data.start_time),
         end_time: timeStringToDate(data.end_time),
+        timezone: data.timezone,
       },
     });
   }
@@ -77,8 +78,8 @@ export class AvailabilitiesService {
     });
   }
 
-  async bulkUpdate(user_id: number, data) {
-    await this.prisma.availabilities.updateMany({
+  async bulkUpdate(user_id: number, data: UpdateAvailabilityDto) {
+    return await this.prisma.availabilities.updateMany({
       where: { user_id },
       data
     });

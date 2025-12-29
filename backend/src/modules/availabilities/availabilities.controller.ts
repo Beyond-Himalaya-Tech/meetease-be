@@ -75,7 +75,7 @@ export class AvailabilitiesController {
   @Patch('user/:user_id')
   async bulkUpdate(@Param('user_id') user_id: number, @Body() dto: UpdateAvailabilityDto) {
     try {
-      return responseFormatter(await this.availabilitiesService.bulkUpdate(user_id, { dto }));
+      return responseFormatter(await this.availabilitiesService.bulkUpdate(user_id, dto));
     } catch (err) {
       throw responseFormatter(err, "error");
     }
