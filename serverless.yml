@@ -1,175 +1,3 @@
-# service: meetease-be
-
-# frameworkVersion: '3'
-# useDotenv: true
-
-# provider:
-#   name: aws
-#   runtime: nodejs20.x
-#   region: ${opt:region, 'ap-southeast-2'}
-#   stage: ${opt:stage, 'dev'}
-#   memorySize: 512
-#   timeout: 30
-#   environment:
-#     DATABASE_URL: ${env:DATABASE_URL}
-#     JWT_SECRET: ${env:JWT_SECRET}
-#     CLIENT_ID: ${env:CLIENT_ID}
-#     CLIENT_SECRET: ${env:CLIENT_SECRET}
-#     REDIRECT_URL: ${env:REDIRECT_URL}
-#     FRONTEND_URL: ${env:FRONTEND_URL}
-#     SMTP_HOST: ${env:SMTP_HOST}
-#     SMTP_PORT: ${env:SMTP_PORT}
-#     SMTP_USER: ${env:SMTP_USER}
-#     SMTP_PASS: ${env:SMTP_PASS}
-#     SMTP_FROM: ${env:SMTP_FROM}
-#     SMTP_FROM_NAME: ${env:SMTP_FROM_NAME}
-#   iam:
-#     role:
-#       statements:
-#         - Effect: Allow
-#           Action:
-#             - logs:CreateLogGroup
-#             - logs:CreateLogStream
-#             - logs:PutLogEvents
-#           Resource: '*'
-
-# functions:
-#   api:
-#     handler: src/lambda.handler
-#     events:
-#       - http:
-#           path: /{proxy+}
-#           method: ANY
-#           cors:
-#             origin: '*'
-#             headers:
-#               - Content-Type
-#               - X-Amz-Date
-#               - Authorization
-#               - X-Api-Key
-#               - X-Amz-Security-Token
-#             allowCredentials: true
-#       - http:
-#           path: /
-#           method: ANY
-#           cors:
-#             origin: '*'
-#             headers:
-#               - Content-Type
-#               - X-Amz-Date
-#               - Authorization
-#               - X-Api-Key
-#               - X-Amz-Security-Token
-#             allowCredentials: true
-
-# plugins:
-#   - serverless-dotenv-plugin
-#   - serverless-esbuild
-#   - serverless-offline
-
-# custom:
-#   serverless-offline:
-#     httpPort: 3000
-#     noPrependStageInUrl: true
-#   esbuild:
-#     bundle: true
-#     minify: false
-#     sourcemap: false
-#     format: 'cjs'
-#     exclude:
-#       - '@prisma/client'
-#       - '.prisma/client'
-#       - '@prisma/adapter-pg'
-#       - 'pg'
-#       - 'pg-native'
-#       - 'date-fns'
-#       - 'date-fns-tz'
-#       - '@nestjs/websockets'
-#       - '@nestjs/microservices'
-#       - 'class-transformer'
-#       - '@css-inline'
-#     target: 'node20'
-#     platform: 'node'
-#     concurrency: 10
-#     packager: npm
-#     keepNames: true
-#     define:
-#       'process.env.NODE_ENV': '"production"'
-#     packagerOptions:
-#       scripts: []
-#     installExtraArgs: ['--production']
-#     external:
-#       - '@prisma/client'
-#       - '.prisma/client'
-#       - '@prisma/adapter-pg'
-#       - 'pg'
-#       - 'pg-native'
-#       - 'date-fns'
-#       - 'date-fns/*'
-#       - 'date-fns-tz'
-#       - '@nestjs/websockets'
-#       - '@nestjs/websockets/*'
-#       - '@nestjs/microservices'
-#       - '@nestjs/microservices/*'
-#       - 'class-transformer'
-#       - 'class-transformer/*'
-#       - '@css-inline'
-#       - '@css-inline/*'
-
-# package:
-#   individually: false
-#   patterns:
-#     # Include package.json
-#     - 'package.json'
-#     # Include external dependencies (can't be bundled)
-#     - 'node_modules/.prisma/**'
-#     - 'node_modules/@prisma/client/**'
-#     - 'node_modules/@prisma/adapter-pg/**'
-#     - 'node_modules/pg/**'
-#     - 'node_modules/pg-native/**'
-#     - 'node_modules/date-fns/**'
-#     - 'node_modules/date-fns-tz/**'
-#     - 'node_modules/@nestjs/websockets/**'
-#     - 'node_modules/@nestjs/microservices/**'
-#     - 'node_modules/class-transformer/**'
-#     - 'node_modules/@css-inline/**'
-#     # Exclude source files
-#     - '!src/**'
-#     - '!test/**'
-#     - '!*.md'
-#     - '!*.yml'
-#     - '!*.yaml'
-#     - '!package-lock.json'
-#     - '!*.ts'
-#     - '!tsconfig*.json'
-#     - '!eslint.config.*'
-#     - '!prisma/migrations/**'
-#     - '!prisma/schema.prisma'
-#     - '!.git/**'
-#     - '!.github/**'
-#     - '!.env*'
-#     - '!dev.env'
-#     - '!scripts/**'
-#     - '!.serverlessignore'
-#     - '!.DS_Store'
-#     - '!dist/**'
-#     # Exclude all other node_modules (esbuild bundles them)
-#     - '!node_modules/**'
-#     # Re-include external dependencies
-#     - 'node_modules/.prisma/**'
-#     - 'node_modules/@prisma/client/**'
-#     - 'node_modules/@prisma/adapter-pg/**'
-#     - 'node_modules/pg/**'
-#     - 'node_modules/pg-native/**'
-#     - 'node_modules/date-fns/**'
-#     - 'node_modules/date-fns-tz/**'
-#     - 'node_modules/@nestjs/websockets/**'
-#     - 'node_modules/@nestjs/microservices/**'
-#     - 'node_modules/class-transformer/**'
-#     - 'node_modules/@css-inline/**'
-
-
-
 service: meetease-be
 
 frameworkVersion: '3'
@@ -195,19 +23,44 @@ provider:
     SMTP_PASS: ${env:SMTP_PASS}
     SMTP_FROM: ${env:SMTP_FROM}
     SMTP_FROM_NAME: ${env:SMTP_FROM_NAME}
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - logs:CreateLogGroup
+            - logs:CreateLogStream
+            - logs:PutLogEvents
+          Resource: '*'
 
 functions:
   api:
     handler: src/lambda.handler
     events:
       - http:
-          path: /
-          method: ANY
-          cors: true
-      - http:
           path: /{proxy+}
           method: ANY
-          cors: true
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+            allowCredentials: true
+      - http:
+          path: /
+          method: ANY
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+            allowCredentials: true
 
 plugins:
   - serverless-dotenv-plugin
@@ -218,71 +71,100 @@ custom:
   serverless-offline:
     httpPort: 3000
     noPrependStageInUrl: true
-
   esbuild:
     bundle: true
-    format: cjs
-    platform: node
-    target: node20
     minify: false
     sourcemap: false
-    keepNames: true
-    packager: npm
-
-    external:
-      # prisma
+    format: 'cjs'
+    exclude:
       - '@prisma/client'
       - '.prisma/client'
-
-      # nest optional modules
-      - '@nestjs/microservices'
-      - '@nestjs/microservices/*'
+      - '@prisma/adapter-pg'
+      - 'pg'
+      - 'pg-native'
+      - 'date-fns'
+      - 'date-fns-tz'
       - '@nestjs/websockets'
-      - '@nestjs/websockets/*'
-
-      # deep imports
+      - '@nestjs/microservices'
       - 'class-transformer'
-      - 'class-transformer/*'
-
-      # date utils
+      - '@css-inline'
+    target: 'node20'
+    platform: 'node'
+    concurrency: 10
+    packager: npm
+    keepNames: true
+    define:
+      'process.env.NODE_ENV': '"production"'
+    packagerOptions:
+      scripts: []
+    installExtraArgs: ['--production']
+    external:
+      - '@prisma/client'
+      - '.prisma/client'
+      - '@prisma/adapter-pg'
+      - 'pg'
+      - 'pg-native'
       - 'date-fns'
       - 'date-fns/*'
       - 'date-fns-tz'
-      - 'date-fns-tz/*'
-
-      # native binaries
+      - '@nestjs/websockets'
+      - '@nestjs/websockets/*'
+      - '@nestjs/microservices'
+      - '@nestjs/microservices/*'
+      - 'class-transformer'
+      - 'class-transformer/*'
       - '@css-inline'
       - '@css-inline/*'
 
 package:
+  individually: false
   patterns:
-    # app
-    - 'src/**'
-    - 'prisma/**'
-
-    # prisma runtime (REQUIRED)
-    - 'node_modules/@prisma/**'
+    # Include package.json
+    - 'package.json'
+    # Include external dependencies (can't be bundled)
     - 'node_modules/.prisma/**'
-
-    # required externals
-    - 'node_modules/@nestjs/microservices/**'
-    - 'node_modules/@nestjs/websockets/**'
-    - 'node_modules/class-transformer/**'
+    - 'node_modules/@prisma/client/**'
+    - 'node_modules/@prisma/adapter-pg/**'
+    - 'node_modules/pg/**'
+    - 'node_modules/pg-native/**'
     - 'node_modules/date-fns/**'
     - 'node_modules/date-fns-tz/**'
+    - 'node_modules/@nestjs/websockets/**'
+    - 'node_modules/@nestjs/microservices/**'
+    - 'node_modules/class-transformer/**'
     - 'node_modules/@css-inline/**'
-
-    # remove non-linux prisma engines (shrink zip + avoid confusion)
-    - '!node_modules/.prisma/client/libquery_engine-darwin-*'
-    - '!node_modules/.prisma/client/libquery_engine-windows-*'
-    - '!node_modules/@prisma/engines/libquery_engine-darwin-*'
-    - '!node_modules/@prisma/engines/libquery_engine-windows-*'
-
-    # safe exclusions
-    - '!node_modules/.cache/**'
-    - '!**/*.map'
+    # Exclude source files
+    - '!src/**'
     - '!test/**'
     - '!*.md'
+    - '!*.yml'
+    - '!*.yaml'
+    - '!package-lock.json'
+    - '!*.ts'
+    - '!tsconfig*.json'
+    - '!eslint.config.*'
+    - '!prisma/migrations/**'
+    - '!prisma/schema.prisma'
     - '!.git/**'
     - '!.github/**'
     - '!.env*'
+    - '!dev.env'
+    - '!scripts/**'
+    - '!.serverlessignore'
+    - '!.DS_Store'
+    - '!dist/**'
+    # Exclude all other node_modules (esbuild bundles them)
+    - '!node_modules/**'
+    # Re-include external dependencies
+    - 'node_modules/.prisma/**'
+    - 'node_modules/@prisma/client/**'
+    - 'node_modules/@prisma/adapter-pg/**'
+    - 'node_modules/pg/**'
+    - 'node_modules/pg-native/**'
+    - 'node_modules/date-fns/**'
+    - 'node_modules/date-fns-tz/**'
+    - 'node_modules/@nestjs/websockets/**'
+    - 'node_modules/@nestjs/microservices/**'
+    - 'node_modules/class-transformer/**'
+    - 'node_modules/@css-inline/**'
+
