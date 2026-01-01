@@ -30,9 +30,6 @@ jobs:
       - name: Build application
         run: npm run build
 
-      - name: Remove dev dependencies
-        run: npm prune --production
-
       - name: Install Serverless Framework
         run: npm install -g serverless@3
 
