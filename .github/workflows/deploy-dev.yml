@@ -19,7 +19,7 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install dependencies
+      - name: Install all dependencies
         run: npm ci
 
       - name: Generate Prisma Client
@@ -29,6 +29,9 @@ jobs:
 
       - name: Build application
         run: npm run build
+
+      - name: Remove dev dependencies
+        run: npm prune --production
 
       - name: Install Serverless Framework
         run: npm install -g serverless@3
