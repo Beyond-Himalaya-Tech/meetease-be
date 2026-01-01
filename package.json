@@ -71,6 +71,7 @@
     "prettier": "^3.4.2",
     "serverless": "^3.38.0",
     "serverless-dotenv-plugin": "^6.0.0",
+    "serverless-esbuild": "^1.55.0",
     "serverless-offline": "^13.3.3",
     "serverless-plugin-typescript": "^2.1.5",
     "source-map-support": "^0.5.21",

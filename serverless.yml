@@ -35,7 +35,7 @@ provider:
 
 functions:
   api:
-    handler: dist/lambda.handler
+    handler: src/lambda.handler
     events:
       - http:
           path: /{proxy+}
@@ -64,46 +64,38 @@ functions:
 
 plugins:
   - serverless-dotenv-plugin
+  - serverless-esbuild
   - serverless-offline
 
 custom:
   serverless-offline:
     httpPort: 3000
     noPrependStageInUrl: true
+  esbuild:
+    bundle: true
+    minify: true
+    sourcemap: false
+    exclude:
+      - '@prisma/client'
+      - '.prisma/client'
+      - '@prisma/adapter-pg'
+      - 'pg'
+      - 'pg-native'
+    target: node20
+    platform: node
+    concurrency: 10
+    packager: npm
+    keepNames: true
+    external:
+      - '@prisma/client'
+      - '.prisma/client'
+      - '@prisma/adapter-pg'
+      - 'pg'
+      - 'pg-native'
 
 package:
-  excludeDevDependencies: true
+  # esbuild handles bundling, we just need to exclude source files
   patterns:
-    # Include compiled code
-    - 'dist/**'
-    - '!dist/**/*.map'
-    - 'package.json'
-    # Include only production node_modules (excludeDevDependencies handles most)
-    - 'node_modules/**'
-    # Exclude unnecessary files from node_modules to reduce size
-    - '!node_modules/**/*.md'
-    - '!node_modules/**/*.txt'
-    - '!node_modules/**/*.yml'
-    - '!node_modules/**/*.yaml'
-    - '!node_modules/**/LICENSE*'
-    - '!node_modules/**/CHANGELOG*'
-    - '!node_modules/**/README*'
-    - '!node_modules/**/test/**'
-    - '!node_modules/**/tests/**'
-    - '!node_modules/**/__tests__/**'
-    - '!node_modules/**/*.test.js'
-    - '!node_modules/**/*.test.ts'
-    - '!node_modules/**/*.spec.js'
-    - '!node_modules/**/*.spec.ts'
-    - '!node_modules/**/.github/**'
-    - '!node_modules/**/.git/**'
-    - '!node_modules/**/examples/**'
-    - '!node_modules/**/example/**'
-    - '!node_modules/**/docs/**'
-    - '!node_modules/**/doc/**'
-    - '!node_modules/**/benchmark/**'
-    - '!node_modules/**/benchmarks/**'
-    # Exclude source files and dev files
     - '!src/**'
     - '!test/**'
     - '!*.md'
@@ -122,29 +114,5 @@ package:
     - '!scripts/**'
     - '!.serverlessignore'
     - '!.DS_Store'
-    # Exclude dev dependencies explicitly
-    - '!node_modules/@types/**'
-    - '!node_modules/typescript/**'
-    - '!node_modules/ts-node/**'
-    - '!node_modules/jest/**'
-    - '!node_modules/@jest/**'
-    - '!node_modules/eslint/**'
-    - '!node_modules/prettier/**'
-    - '!node_modules/serverless/**'
-    - '!node_modules/serverless-offline/**'
-    - '!node_modules/serverless-dotenv-plugin/**'
-    - '!node_modules/serverless-plugin-typescript/**'
-    - '!node_modules/supertest/**'
-    - '!node_modules/ts-jest/**'
-    - '!node_modules/ts-loader/**'
-    - '!node_modules/tsconfig-paths/**'
-    - '!node_modules/typescript-eslint/**'
-    - '!node_modules/globals/**'
-    - '!node_modules/eslint-config-prettier/**'
-    - '!node_modules/eslint-plugin-prettier/**'
-    - '!node_modules/@eslint/**'
-    - '!node_modules/@nestjs/cli/**'
-    - '!node_modules/@nestjs/schematics/**'
-    - '!node_modules/@nestjs/testing/**'
-    - '!node_modules/source-map-support/**'
+    - '!dist/**'
 
