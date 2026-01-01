@@ -117,9 +117,10 @@ custom:
       - '@css-inline/*'
 
 package:
-  # Include external dependencies that esbuild marked as external
   patterns:
+    # Include package.json (needed for module resolution)
     - 'package.json'
+    # Include external dependencies (marked as external in esbuild)
     - 'node_modules/.prisma/**'
     - 'node_modules/@prisma/**'
     - 'node_modules/pg/**'
@@ -127,7 +128,7 @@ package:
     - 'node_modules/date-fns-tz/**'
     - 'node_modules/class-transformer/**'
     - 'node_modules/class-validator/**'
-    # Exclude source files
+    # Exclude source files and unnecessary files
     - '!src/**'
     - '!test/**'
     - '!*.md'
@@ -149,6 +150,7 @@ package:
     - '!dist/**'
     # Exclude all other node_modules (esbuild bundles them)
     - '!node_modules/**'
+    # Re-include external dependencies (after exclusion)
     - 'node_modules/.prisma/**'
     - 'node_modules/@prisma/**'
     - 'node_modules/pg/**'
