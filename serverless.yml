@@ -82,6 +82,12 @@ custom:
       - '@prisma/adapter-pg'
       - 'pg'
       - 'pg-native'
+      - 'date-fns'
+      - 'date-fns-tz'
+      - '@nestjs/websockets'
+      - '@nestjs/microservices'
+      - 'class-transformer'
+      - '@css-inline'
     target: 'node20'
     platform: 'node'
     concurrency: 10
@@ -98,26 +104,35 @@ custom:
       - '@prisma/adapter-pg'
       - 'pg'
       - 'pg-native'
+      - 'date-fns'
+      - 'date-fns/*'
+      - 'date-fns-tz'
+      - '@nestjs/websockets'
+      - '@nestjs/websockets/*'
+      - '@nestjs/microservices'
+      - '@nestjs/microservices/*'
+      - 'class-transformer'
+      - 'class-transformer/*'
+      - '@css-inline'
+      - '@css-inline/*'
 
 package:
   individually: false
   patterns:
-    # Include only what's needed
+    # Include package.json
     - 'package.json'
-    # Include ONLY external dependencies that can't be bundled
+    # Include external dependencies (can't be bundled)
     - 'node_modules/.prisma/**'
     - 'node_modules/@prisma/client/**'
     - 'node_modules/@prisma/adapter-pg/**'
     - 'node_modules/pg/**'
     - 'node_modules/pg-native/**'
-    # Exclude everything else
-    - '!**'
-    - 'package.json'
-    - 'node_modules/.prisma/**'
-    - 'node_modules/@prisma/client/**'
-    - 'node_modules/@prisma/adapter-pg/**'
-    - 'node_modules/pg/**'
-    - 'node_modules/pg-native/**'
+    - 'node_modules/date-fns/**'
+    - 'node_modules/date-fns-tz/**'
+    - 'node_modules/@nestjs/websockets/**'
+    - 'node_modules/@nestjs/microservices/**'
+    - 'node_modules/class-transformer/**'
+    - 'node_modules/@css-inline/**'
     # Exclude source files
     - '!src/**'
     - '!test/**'
@@ -140,8 +155,15 @@ package:
     - '!dist/**'
     # Exclude all other node_modules (esbuild bundles them)
     - '!node_modules/**'
+    # Re-include external dependencies
     - 'node_modules/.prisma/**'
     - 'node_modules/@prisma/client/**'
     - 'node_modules/@prisma/adapter-pg/**'
     - 'node_modules/pg/**'
     - 'node_modules/pg-native/**'
+    - 'node_modules/date-fns/**'
+    - 'node_modules/date-fns-tz/**'
+    - 'node_modules/@nestjs/websockets/**'
+    - 'node_modules/@nestjs/microservices/**'
+    - 'node_modules/class-transformer/**'
+    - 'node_modules/@css-inline/**'
