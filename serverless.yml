@@ -201,11 +201,11 @@ functions:
     handler: src/lambda.handler
     events:
       - http:
-          path: /{proxy+}
+          path: /
           method: ANY
           cors: true
       - http:
-          path: /
+          path: /{proxy+}
           method: ANY
           cors: true
 
@@ -228,19 +228,55 @@ custom:
     sourcemap: false
     keepNames: true
     packager: npm
+
     external:
+      # prisma
       - '@prisma/client'
       - '.prisma/client'
 
+      # nest optional modules
+      - '@nestjs/microservices'
+      - '@nestjs/microservices/*'
+      - '@nestjs/websockets'
+      - '@nestjs/websockets/*'
+
+      # deep imports
+      - 'class-transformer'
+      - 'class-transformer/*'
+
+      # date utils
+      - 'date-fns'
+      - 'date-fns/*'
+      - 'date-fns-tz'
+      - 'date-fns-tz/*'
+
+      # native binaries
+      - '@css-inline'
+      - '@css-inline/*'
+
 package:
   patterns:
-    # application
+    # app
     - 'src/**'
     - 'prisma/**'
 
     # prisma runtime (REQUIRED)
     - 'node_modules/@prisma/**'
     - 'node_modules/.prisma/**'
+
+    # required externals
+    - 'node_modules/@nestjs/microservices/**'
+    - 'node_modules/@nestjs/websockets/**'
+    - 'node_modules/class-transformer/**'
+    - 'node_modules/date-fns/**'
+    - 'node_modules/date-fns-tz/**'
+    - 'node_modules/@css-inline/**'
+
+    # remove non-linux prisma engines (shrink zip + avoid confusion)
+    - '!node_modules/.prisma/client/libquery_engine-darwin-*'
+    - '!node_modules/.prisma/client/libquery_engine-windows-*'
+    - '!node_modules/@prisma/engines/libquery_engine-darwin-*'
+    - '!node_modules/@prisma/engines/libquery_engine-windows-*'
 
     # safe exclusions
     - '!node_modules/.cache/**'
