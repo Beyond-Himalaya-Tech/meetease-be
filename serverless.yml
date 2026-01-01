@@ -99,53 +99,49 @@ custom:
       - 'pg'
       - 'pg-native'
 
-# package:
-#   individually: false
-#   patterns:
-#     # Include only what's needed
-#     - 'package.json'
-#     # Include ONLY external dependencies that can't be bundled
-#     - 'node_modules/.prisma/**'
-#     - 'node_modules/@prisma/client/**'
-#     - 'node_modules/@prisma/adapter-pg/**'
-#     - 'node_modules/pg/**'
-#     - 'node_modules/pg-native/**'
-#     # Exclude everything else
-#     - '!**'
-#     - 'package.json'
-#     - 'node_modules/.prisma/**'
-#     - 'node_modules/@prisma/client/**'
-#     - 'node_modules/@prisma/adapter-pg/**'
-#     - 'node_modules/pg/**'
-#     - 'node_modules/pg-native/**'
-#     # Exclude source files
-#     - '!src/**'
-#     - '!test/**'
-#     - '!*.md'
-#     - '!*.yml'
-#     - '!*.yaml'
-#     - '!package-lock.json'
-#     - '!*.ts'
-#     - '!tsconfig*.json'
-#     - '!eslint.config.*'
-#     - '!prisma/migrations/**'
-#     - '!prisma/schema.prisma'
-#     - '!.git/**'
-#     - '!.github/**'
-#     - '!.env*'
-#     - '!dev.env'
-#     - '!scripts/**'
-#     - '!.serverlessignore'
-#     - '!.DS_Store'
-#     - '!dist/**'
-#     # Exclude all other node_modules (esbuild bundles them)
-#     - '!node_modules/**'
-#     - 'node_modules/.prisma/**'
-#     - 'node_modules/@prisma/client/**'
-#     - 'node_modules/@prisma/adapter-pg/**'
-#     - 'node_modules/pg/**'
-#     - 'node_modules/pg-native/**'
-
 package:
-  exclude:
-    - "node_modules/.npm/**"
+  individually: false
+  patterns:
+    # Include only what's needed
+    - 'package.json'
+    # Include ONLY external dependencies that can't be bundled
+    - 'node_modules/.prisma/**'
+    - 'node_modules/@prisma/client/**'
+    - 'node_modules/@prisma/adapter-pg/**'
+    - 'node_modules/pg/**'
+    - 'node_modules/pg-native/**'
+    # Exclude everything else
+    - '!**'
+    - 'package.json'
+    - 'node_modules/.prisma/**'
+    - 'node_modules/@prisma/client/**'
+    - 'node_modules/@prisma/adapter-pg/**'
+    - 'node_modules/pg/**'
+    - 'node_modules/pg-native/**'
+    # Exclude source files
+    - '!src/**'
+    - '!test/**'
+    - '!*.md'
+    - '!*.yml'
+    - '!*.yaml'
+    - '!package-lock.json'
+    - '!*.ts'
+    - '!tsconfig*.json'
+    - '!eslint.config.*'
+    - '!prisma/migrations/**'
+    - '!prisma/schema.prisma'
+    - '!.git/**'
+    - '!.github/**'
+    - '!.env*'
+    - '!dev.env'
+    - '!scripts/**'
+    - '!.serverlessignore'
+    - '!.DS_Store'
+    - '!dist/**'
+    # Exclude all other node_modules (esbuild bundles them)
+    - '!node_modules/**'
+    - 'node_modules/.prisma/**'
+    - 'node_modules/@prisma/client/**'
+    - 'node_modules/@prisma/adapter-pg/**'
+    - 'node_modules/pg/**'
+    - 'node_modules/pg-native/**'
