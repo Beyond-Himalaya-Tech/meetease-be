@@ -1,0 +1,94 @@
+service: meetease-be
+
+frameworkVersion: '3'
+useDotenv: true
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  region: ${opt:region, 'ap-southeast-2'}
+  stage: ${opt:stage, 'dev'}
+  memorySize: 512
+  timeout: 30
+  environment:
+    DATABASE_URL: ${env:DATABASE_URL}
+    JWT_SECRET: ${env:JWT_SECRET}
+    CLIENT_ID: ${env:CLIENT_ID}
+    CLIENT_SECRET: ${env:CLIENT_SECRET}
+    REDIRECT_URL: ${env:REDIRECT_URL}
+    FRONTEND_URL: ${env:FRONTEND_URL}
+    SMTP_HOST: ${env:SMTP_HOST}
+    SMTP_PORT: ${env:SMTP_PORT}
+    SMTP_USER: ${env:SMTP_USER}
+    SMTP_PASS: ${env:SMTP_PASS}
+    SMTP_FROM: ${env:SMTP_FROM}
+    SMTP_FROM_NAME: ${env:SMTP_FROM_NAME}
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - logs:CreateLogGroup
+            - logs:CreateLogStream
+            - logs:PutLogEvents
+          Resource: '*'
+
+functions:
+  api:
+    handler: dist/lambda.handler
+    events:
+      - http:
+          path: /{proxy+}
+          method: ANY
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+            allowCredentials: true
+      - http:
+          path: /
+          method: ANY
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+            allowCredentials: true
+
+plugins:
+  - serverless-dotenv-plugin
+  - serverless-offline
+
+custom:
+  serverless-offline:
+    httpPort: 3000
+    noPrependStageInUrl: true
+
+package:
+  patterns:
+    - '!node_modules/**'
+    - '!src/**'
+    - '!test/**'
+    - '!*.md'
+    - '!*.yml'
+    - '!*.yaml'
+    - '!*.json'
+    - '!*.ts'
+    - '!tsconfig*.json'
+    - '!eslint.config.*'
+    - '!prisma/migrations/**'
+    - '!prisma/schema.prisma'
+    - 'dist/**'
+    - 'node_modules/.prisma/**'
+    - 'node_modules/@prisma/**'
+    - 'node_modules/@vendia/**'
+    - 'node_modules/@nestjs/**'
+    - 'node_modules/**'
+
