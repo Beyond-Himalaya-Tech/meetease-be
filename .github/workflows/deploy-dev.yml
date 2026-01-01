@@ -20,21 +20,17 @@ jobs:
           node-version: '20'
 
       - name: Install dependencies
-        working-directory: ./meetease-be
         run: npm ci
 
       - name: Generate Prisma Client
-        working-directory: ./meetease-be
         run: npx prisma generate
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
       - name: Build application
-        working-directory: ./meetease-be
         run: npm run build
 
       - name: Install Serverless Framework
-        working-directory: ./meetease-be
         run: npm install -g serverless@3
 
       - name: Configure AWS credentials
@@ -45,7 +41,6 @@ jobs:
           aws-region: ap-southeast-2
 
       - name: Deploy to AWS Lambda
-        working-directory: ./meetease-be
         run: |
           export DATABASE_URL="${{ secrets.DATABASE_URL }}"
           export JWT_SECRET="${{ secrets.JWT_SECRET }}"
