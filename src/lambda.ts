@@ -61,24 +61,43 @@ export const handler = async (
 ) => {
   try {
     if (!cachedServer) {
+      console.log('=== Lambda Handler Starting ===');
       console.log('Initializing NestJS application...');
       console.log('Environment variables check:', {
         hasDatabaseUrl: !!process.env.DATABASE_URL,
         hasJwtSecret: !!process.env.JWT_SECRET,
         nodeEnv: process.env.NODE_ENV,
       });
-      const expressApp = await bootstrap();
-      cachedServer = serverlessExpress({ app: expressApp });
-      console.log('NestJS application initialized successfully');
+      console.log('Node version:', process.version);
+      console.log('Current working directory:', process.cwd());
+      console.log('__dirname:', __dirname);
+      
+      try {
+        const expressApp = await bootstrap();
+        console.log('Bootstrap completed successfully');
+        cachedServer = serverlessExpress({ app: expressApp });
+        console.log('Serverless Express wrapper created');
+        console.log('=== Lambda Handler Ready ===');
+      } catch (bootstrapError) {
+        console.error('Bootstrap error:', bootstrapError);
+        console.error('Error stack:', bootstrapError instanceof Error ? bootstrapError.stack : 'No stack');
+        throw bootstrapError;
+      }
     }
     return cachedServer(event, context, callback);
   } catch (error) {
-    console.error('Lambda handler error:', error);
+    console.error('=== Lambda Handler Error ===');
+    console.error('Error type:', error?.constructor?.name);
+    console.error('Error message:', error instanceof Error ? error.message : String(error));
+    console.error('Error stack:', error instanceof Error ? error.stack : 'No stack');
+    console.error('Full error object:', JSON.stringify(error, Object.getOwnPropertyNames(error)));
+    
     return {
       statusCode: 500,
       body: JSON.stringify({
         message: 'Internal server error',
         error: error instanceof Error ? error.message : String(error),
+        type: error?.constructor?.name || 'Unknown',
       }),
       headers: {
         'Content-Type': 'application/json',

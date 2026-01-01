@@ -75,6 +75,7 @@ custom:
     bundle: true
     minify: false
     sourcemap: false
+    format: 'cjs'
     exclude:
       - '@prisma/client'
       - '.prisma/client'
@@ -93,6 +94,8 @@ custom:
     concurrency: 10
     packager: npm
     keepNames: true
+    define:
+      'process.env.NODE_ENV': '"production"'
     external:
       - '@prisma/client'
       - '.prisma/client'
@@ -114,8 +117,17 @@ custom:
       - '@css-inline/*'
 
 package:
-  # esbuild handles bundling, we just need to exclude source files
+  # Include external dependencies that esbuild marked as external
   patterns:
+    - 'package.json'
+    - 'node_modules/.prisma/**'
+    - 'node_modules/@prisma/**'
+    - 'node_modules/pg/**'
+    - 'node_modules/date-fns/**'
+    - 'node_modules/date-fns-tz/**'
+    - 'node_modules/class-transformer/**'
+    - 'node_modules/class-validator/**'
+    # Exclude source files
     - '!src/**'
     - '!test/**'
     - '!*.md'
@@ -135,4 +147,13 @@ package:
     - '!.serverlessignore'
     - '!.DS_Store'
     - '!dist/**'
+    # Exclude all other node_modules (esbuild bundles them)
+    - '!node_modules/**'
+    - 'node_modules/.prisma/**'
+    - 'node_modules/@prisma/**'
+    - 'node_modules/pg/**'
+    - 'node_modules/date-fns/**'
+    - 'node_modules/date-fns-tz/**'
+    - 'node_modules/class-transformer/**'
+    - 'node_modules/class-validator/**'
 
