@@ -73,7 +73,7 @@ custom:
     noPrependStageInUrl: true
   esbuild:
     bundle: true
-    minify: true
+    minify: false
     sourcemap: false
     exclude:
       - '@prisma/client'

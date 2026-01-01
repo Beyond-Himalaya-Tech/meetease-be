@@ -1,4 +1,4 @@
-import 'dotenv/config';
+// dotenv not needed in Lambda - environment variables are already available
 import { NestFactory } from '@nestjs/core';
 import { ExpressAdapter } from '@nestjs/platform-express';
 import { AppModule } from './app.module';
@@ -59,10 +59,31 @@ export const handler = async (
   context: Context,
   callback: Callback,
 ) => {
-  if (!cachedServer) {
-    const expressApp = await bootstrap();
-    cachedServer = serverlessExpress({ app: expressApp });
+  try {
+    if (!cachedServer) {
+      console.log('Initializing NestJS application...');
+      console.log('Environment variables check:', {
+        hasDatabaseUrl: !!process.env.DATABASE_URL,
+        hasJwtSecret: !!process.env.JWT_SECRET,
+        nodeEnv: process.env.NODE_ENV,
+      });
+      const expressApp = await bootstrap();
+      cachedServer = serverlessExpress({ app: expressApp });
+      console.log('NestJS application initialized successfully');
+    }
+    return cachedServer(event, context, callback);
+  } catch (error) {
+    console.error('Lambda handler error:', error);
+    return {
+      statusCode: 500,
+      body: JSON.stringify({
+        message: 'Internal server error',
+        error: error instanceof Error ? error.message : String(error),
+      }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    };
   }
-  return cachedServer(event, context, callback);
 };
 
