@@ -81,8 +81,8 @@ custom:
       - '@prisma/adapter-pg'
       - 'pg'
       - 'pg-native'
-    target: node20
-    platform: node
+    target: 'node20'
+    platform: 'node'
     concurrency: 10
     packager: npm
     keepNames: true
