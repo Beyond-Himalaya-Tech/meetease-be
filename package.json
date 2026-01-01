@@ -20,7 +20,8 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "setup:env": "node scripts/setup-env.js",
     "serverless:offline": "serverless offline",
-    "serverless:deploy": "serverless deploy"
+    "serverless:deploy": "serverless deploy",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@nestjs-modules/mailer": "^2.0.2",
