@@ -167,8 +167,81 @@
 
 
 
-service: meetease-be
+# service: meetease-be
 
+# frameworkVersion: '3'
+# useDotenv: true
+
+# provider:
+#   name: aws
+#   runtime: nodejs20.x
+#   region: ${opt:region, 'ap-southeast-2'}
+#   stage: ${opt:stage, 'dev'}
+#   memorySize: 512
+#   timeout: 30
+#   environment:
+#     DATABASE_URL: ${env:DATABASE_URL}
+#     JWT_SECRET: ${env:JWT_SECRET}
+#     CLIENT_ID: ${env:CLIENT_ID}
+#     CLIENT_SECRET: ${env:CLIENT_SECRET}
+#     REDIRECT_URL: ${env:REDIRECT_URL}
+#     FRONTEND_URL: ${env:FRONTEND_URL}
+#     SMTP_HOST: ${env:SMTP_HOST}
+#     SMTP_PORT: ${env:SMTP_PORT}
+#     SMTP_USER: ${env:SMTP_USER}
+#     SMTP_PASS: ${env:SMTP_PASS}
+#     SMTP_FROM: ${env:SMTP_FROM}
+#     SMTP_FROM_NAME: ${env:SMTP_FROM_NAME}
+
+# functions:
+#   api:
+#     handler: src/lambda.handler
+#     events:
+#       - http:
+#           path: /
+#           method: ANY
+#           cors: true
+#       - http:
+#           path: /{proxy+}
+#           method: ANY
+#           cors: true
+
+# plugins:
+#   - serverless-dotenv-plugin
+#   - serverless-esbuild
+#   - serverless-offline
+
+# custom:
+#   serverless-offline:
+#     httpPort: 3000
+#     noPrependStageInUrl: true
+
+#   esbuild:
+#     bundle: true
+#     format: cjs
+#     platform: node
+#     target: node20
+#     minify: false
+#     sourcemap: false
+#     keepNames: true
+
+#     # ⬇️ VERY IMPORTANT
+#     external:
+#       # NestJS optional modules (not installed)
+#       - '@nestjs/microservices'
+#       - '@nestjs/microservices/*'
+#       - '@nestjs/websockets'
+#       - '@nestjs/websockets/*'
+
+#       # class-transformer deep import
+#       - 'class-transformer/storage'
+
+#       # native binaries (esbuild cannot bundle .node)
+#       - '@css-inline'
+#       - '@css-inline/*'
+
+
+service: meetease-be
 frameworkVersion: '3'
 useDotenv: true
 
@@ -198,11 +271,11 @@ functions:
     handler: src/lambda.handler
     events:
       - http:
-          path: /
+          path: /{proxy+}
           method: ANY
           cors: true
       - http:
-          path: /{proxy+}
+          path: /
           method: ANY
           cors: true
 
@@ -218,24 +291,47 @@ custom:
 
   esbuild:
     bundle: true
-    format: cjs
     platform: node
     target: node20
+    format: cjs
     minify: false
     sourcemap: false
     keepNames: true
+    packager: npm
 
-    # ⬇️ VERY IMPORTANT
     external:
-      # NestJS optional modules (not installed)
+      - '@prisma/client'
+      - '.prisma/client'
+
       - '@nestjs/microservices'
       - '@nestjs/microservices/*'
       - '@nestjs/websockets'
       - '@nestjs/websockets/*'
 
-      # class-transformer deep import
       - 'class-transformer/storage'
+      - 'class-transformer/*'
 
-      # native binaries (esbuild cannot bundle .node)
-      - '@css-inline'
+      - '@css-inline/css-inline'
       - '@css-inline/*'
+
+package:
+  patterns:
+    - 'src/**'
+    - 'prisma/**'
+
+    - 'node_modules/@prisma/**'
+    - 'node_modules/.prisma/**'
+
+    - 'node_modules/class-transformer/**'
+
+    - 'node_modules/@css-inline/**'
+    - 'node_modules/@napi-rs/**'
+    - 'node_modules/@emnapi/**'
+
+    - '!node_modules/.cache/**'
+    - '!**/*.map'
+    - '!test/**'
+    - '!*.md'
+    - '!.git/**'
+    - '!.github/**'
+    - '!.env*'
