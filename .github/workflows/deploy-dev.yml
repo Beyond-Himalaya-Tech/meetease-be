@@ -1,3 +1,66 @@
+# name: Deploy to AWS Lambda (Dev)
+
+# on:
+#   push:
+#     branches:
+#       - main
+
+# jobs:
+#   deploy:
+#     name: Deploy
+#     runs-on: ubuntu-latest
+    
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v4
+
+#       - name: Setup Node.js
+#         uses: actions/setup-node@v4
+#         with:
+#           node-version: '20'
+
+#       - name: Install all dependencies
+#         run: npm install --legacy-peer-deps
+
+#       - name: Generate Prisma Client
+#         run: npx prisma generate
+#         env:
+#           DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+#       - name: Build application
+#         run: npm run build
+
+#       - name: Install Serverless Framework
+#         run: npm install -g serverless@3
+
+#       - name: Configure AWS credentials
+#         uses: aws-actions/configure-aws-credentials@v4
+#         with:
+#           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#           aws-region: ap-southeast-2
+
+#       - name: Deploy to AWS Lambda
+#         run: |
+#           export DATABASE_URL="${{ secrets.DATABASE_URL }}"
+#           export JWT_SECRET="${{ secrets.JWT_SECRET }}"
+#           export CLIENT_ID="${{ secrets.CLIENT_ID }}"
+#           export CLIENT_SECRET="${{ secrets.CLIENT_SECRET }}"
+#           export REDIRECT_URL="${{ secrets.REDIRECT_URL }}"
+#           export FRONTEND_URL="${{ secrets.FRONTEND_URL }}"
+#           export SMTP_HOST="${{ secrets.SMTP_HOST }}"
+#           export SMTP_PORT="${{ secrets.SMTP_PORT }}"
+#           export SMTP_USER="${{ secrets.SMTP_USER }}"
+#           export SMTP_PASS="${{ secrets.SMTP_PASS }}"
+#           export SMTP_FROM="${{ secrets.SMTP_FROM }}"
+#           export SMTP_FROM_NAME="${{ secrets.SMTP_FROM_NAME }}"
+#           serverless deploy --stage dev --verbose
+
+#       - name: Output API endpoint
+#         run: |
+#           echo "🚀 Deployment successful!"
+#           echo "API endpoint will be available at the URL shown in the deployment output above"
+
 name: Deploy to AWS Lambda (Dev)
 
 on:
@@ -9,7 +72,7 @@ jobs:
   deploy:
     name: Deploy
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -18,9 +81,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'npm'
 
-      - name: Install all dependencies
-        run: npm install --legacy-peer-deps
+      - name: Install dependencies (locked)
+        run: npm ci
 
       - name: Generate Prisma Client
         run: npx prisma generate
@@ -30,9 +94,6 @@ jobs:
       - name: Build application
         run: npm run build
 
-      - name: Install Serverless Framework
-        run: npm install -g serverless@3
-
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -41,23 +102,21 @@ jobs:
           aws-region: ap-southeast-2
 
       - name: Deploy to AWS Lambda
-        run: |
-          export DATABASE_URL="${{ secrets.DATABASE_URL }}"
-          export JWT_SECRET="${{ secrets.JWT_SECRET }}"
-          export CLIENT_ID="${{ secrets.CLIENT_ID }}"
-          export CLIENT_SECRET="${{ secrets.CLIENT_SECRET }}"
-          export REDIRECT_URL="${{ secrets.REDIRECT_URL }}"
-          export FRONTEND_URL="${{ secrets.FRONTEND_URL }}"
-          export SMTP_HOST="${{ secrets.SMTP_HOST }}"
-          export SMTP_PORT="${{ secrets.SMTP_PORT }}"
-          export SMTP_USER="${{ secrets.SMTP_USER }}"
-          export SMTP_PASS="${{ secrets.SMTP_PASS }}"
-          export SMTP_FROM="${{ secrets.SMTP_FROM }}"
-          export SMTP_FROM_NAME="${{ secrets.SMTP_FROM_NAME }}"
-          serverless deploy --stage dev --verbose
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          CLIENT_ID: ${{ secrets.CLIENT_ID }}
+          CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+          REDIRECT_URL: ${{ secrets.REDIRECT_URL }}
+          FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+          SMTP_FROM: ${{ secrets.SMTP_FROM }}
+          SMTP_FROM_NAME: ${{ secrets.SMTP_FROM_NAME }}
+        run: npx serverless deploy --stage dev --verbose
 
       - name: Output API endpoint
         run: |
-          echo "🚀 Deployment successful!"
-          echo "API endpoint will be available at the URL shown in the deployment output above"
-
+          echo "🚀 Deployment finished. Check the deploy output above for the endpoint."
