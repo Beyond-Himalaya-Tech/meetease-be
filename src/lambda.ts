@@ -31,8 +31,8 @@ async function bootstrap(): Promise<Express> {
       'http://localhost:5173',
       'https://hoppscotch.io',
       process.env.FRONTEND_URL || 'http://localhost:5173',
-      // S3 website endpoint (HTTP)
-      'http://meetease-fe-dev.s3-website-ap-southeast-2.amazonaws.com',
+      // CloudFront URL (HTTPS)
+      'https://d1l709and745tm.cloudfront.net',
     ],
     credentials: true,
   });
