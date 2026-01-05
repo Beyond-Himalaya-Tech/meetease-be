@@ -1,0 +1,21 @@
+FROM public.ecr.aws/lambda/nodejs:20
+
+# Copy package files
+COPY package*.json ${LAMBDA_TASK_ROOT}/
+COPY prisma ${LAMBDA_TASK_ROOT}/prisma/
+
+# Install ALL dependencies (needed for Prisma generation)
+RUN npm ci
+
+# Generate Prisma Client.
+RUN npx prisma generate
+
+# Remove dev dependencies to reduce size
+RUN npm prune --production
+
+# Copy built application (dist folder is built in GitHub Actions before Docker build)
+COPY dist ${LAMBDA_TASK_ROOT}/
+
+# Set the CMD to your handler
+CMD [ "lambda.handler" ]
+

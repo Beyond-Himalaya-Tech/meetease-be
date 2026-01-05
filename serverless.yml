@@ -247,11 +247,23 @@ useDotenv: true
 
 provider:
   name: aws
-  runtime: nodejs20.x
   region: ${opt:region, 'ap-southeast-2'}
   stage: ${opt:stage, 'dev'}
   memorySize: 512
   timeout: 30
+  ecr:
+    images:
+      appimage:
+        uri: ${aws:accountId}.dkr.ecr.${aws:region}.amazonaws.com/${self:service}-${self:provider.stage}:latest
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - logs:CreateLogGroup
+            - logs:CreateLogStream
+            - logs:PutLogEvents
+          Resource: '*'
   environment:
     DATABASE_URL: ${env:DATABASE_URL}
     JWT_SECRET: ${env:JWT_SECRET}
@@ -268,7 +280,8 @@ provider:
 
 functions:
   api:
-    handler: src/lambda.handler
+    image:
+      uri: ${self:provider.ecr.images.appimage.uri}
     events:
       - http:
           path: /{proxy+}
@@ -281,57 +294,9 @@ functions:
 
 plugins:
   - serverless-dotenv-plugin
-  - serverless-esbuild
   - serverless-offline
 
 custom:
   serverless-offline:
     httpPort: 3000
     noPrependStageInUrl: true
-
-  esbuild:
-    bundle: true
-    platform: node
-    target: node20
-    format: cjs
-    minify: false
-    sourcemap: false
-    keepNames: true
-    packager: npm
-
-    external:
-      - '@prisma/client'
-      - '.prisma/client'
-
-      - '@nestjs/microservices'
-      - '@nestjs/microservices/*'
-      - '@nestjs/websockets'
-      - '@nestjs/websockets/*'
-
-      - 'class-transformer/storage'
-      - 'class-transformer/*'
-
-      - '@css-inline/css-inline'
-      - '@css-inline/*'
-
-package:
-  patterns:
-    - 'src/**'
-    - 'prisma/**'
-
-    - 'node_modules/@prisma/**'
-    - 'node_modules/.prisma/**'
-
-    - 'node_modules/class-transformer/**'
-
-    - 'node_modules/@css-inline/**'
-    - 'node_modules/@napi-rs/**'
-    - 'node_modules/@emnapi/**'
-
-    - '!node_modules/.cache/**'
-    - '!**/*.map'
-    - '!test/**'
-    - '!*.md'
-    - '!.git/**'
-    - '!.github/**'
-    - '!.env*'
