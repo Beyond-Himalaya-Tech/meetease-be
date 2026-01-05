@@ -115,27 +115,37 @@ jobs:
       - name: Set ECR repository policy for Lambda
         env:
           ECR_REPOSITORY: meetease-be-dev
-          AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID || '247376100012' }}
         run: |
-          aws ecr set-repository-policy \
+          # Create policy JSON file
+          cat > /tmp/ecr-policy.json << 'EOF'
+          {
+            "Version": "2012-10-17",
+            "Statement": [
+              {
+                "Sid": "LambdaECRImageRetrievalPolicy",
+                "Effect": "Allow",
+                "Principal": {
+                  "Service": "lambda.amazonaws.com"
+                },
+                "Action": [
+                  "ecr:BatchGetImage",
+                  "ecr:GetDownloadUrlForLayer"
+                ]
+              }
+            ]
+          }
+          EOF
+          
+          # Try to set the repository policy
+          # If it fails, Lambda may auto-add it during function creation
+          if aws ecr set-repository-policy \
             --repository-name $ECR_REPOSITORY \
             --region ap-southeast-2 \
-            --policy-text '{
-              "Version": "2012-10-17",
-              "Statement": [
-                {
-                  "Sid": "LambdaECRImageRetrievalPolicy",
-                  "Effect": "Allow",
-                  "Principal": {
-                    "Service": "lambda.amazonaws.com"
-                  },
-                  "Action": [
-                    "ecr:BatchGetImage",
-                    "ecr:GetDownloadUrlForLayer"
-                  ]
-                }
-              ]
-            }' || echo "Policy already set or failed (Lambda may auto-add it)"
+            --policy-text file:///tmp/ecr-policy.json 2>&1; then
+            echo "✅ ECR repository policy set successfully"
+          else
+            echo "⚠️  Could not set ECR policy (Lambda may auto-add it during deployment)"
+          fi
 
       - name: Build, tag, and push image to Amazon ECR
         env:
