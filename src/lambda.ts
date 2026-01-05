@@ -66,6 +66,9 @@ export const handler = async (
       console.log('Environment variables check:', {
         hasDatabaseUrl: !!process.env.DATABASE_URL,
         hasJwtSecret: !!process.env.JWT_SECRET,
+        hasClientId: !!process.env.CLIENT_ID,
+        hasClientSecret: !!process.env.CLIENT_SECRET,
+        hasRedirectUrl: !!process.env.REDIRECT_URL,
         nodeEnv: process.env.NODE_ENV,
       });
       console.log('Node version:', process.version);
