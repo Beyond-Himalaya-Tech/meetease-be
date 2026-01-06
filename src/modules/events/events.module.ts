@@ -1,6 +1,7 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { PrismaModule } from 'src/prisma/prisma.module';
 import { EventsController } from './events.controller';
+import { PublicEventsController } from './public-events.controller';
 import { EventsService } from './events.service';
 import { AuthModule } from '../auth/auth.module';
 import { UsersModule } from '../users/users.module';
@@ -19,7 +20,7 @@ import { MailModule } from '../mail/mail.module';
         GoogleOauthModule,
         MailModule
     ],
-    controllers: [EventsController],
+    controllers: [EventsController, PublicEventsController],
     providers: [EventsService]
 })
 export class EventsModule {}

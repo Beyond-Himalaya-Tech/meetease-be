@@ -1,6 +1,7 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { PrismaModule } from 'src/prisma/prisma.module';
 import { EventTypesController } from './event-types.controller';
+import { PublicEventTypesController } from './public-event-types.controller';
 import { EventTypesService } from './event-types.service';
 import { UsersModule } from '../users/users.module';
 import { AuthModule } from '../auth/auth.module';
@@ -15,7 +16,7 @@ import { GoogleOauthModule } from '../google-oauth/google-oauth.module';
     AvailabilitiesModule,
     GoogleOauthModule
   ],
-  controllers: [EventTypesController],
+  controllers: [EventTypesController, PublicEventTypesController],
   providers: [EventTypesService],
   exports: [EventTypesService]
 })
