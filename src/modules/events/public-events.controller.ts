@@ -10,11 +10,6 @@ import { toUTCDate } from 'src/helpers/time.helper';
 import { MailService } from '../mail/mail.service';
 import { UsersService } from '../users/users.service';
 
-/**
- * Public controller for booking pages (like Calendly)
- * Allows unauthenticated users to book events
- * Events are created on behalf of the event type's organizer
- */
 @Controller('public/events')
 export class PublicEventsController {
   constructor(
@@ -29,23 +24,20 @@ export class PublicEventsController {
   @Post()
   async create(@Body() dto: CreateEventDto) {
     try {
-      // Get event type to find the organizer
       const eventType = await this.eventTypeService.findOne(dto.event_type_id);
       
       if (!eventType || !eventType.is_active) {
         throw new BadRequestException('Event type not found or inactive');
       }
 
-      // Get organizer's user record (needed for Google Calendar and contact association)
       const organizer = await this.userService.findOne(eventType.user_id);
       
       if (!organizer) {
         throw new BadRequestException('Organizer not found');
       }
 
-      // Create or update contact associated with the organizer
       const contactData: CreateContactDto = {
-        user_id: organizer.id, // Associate contact with organizer
+        user_id: organizer.id,
         email: dto.email,
         name: dto.name,
         timezone: dto.timezone || undefined
@@ -60,14 +52,11 @@ export class PublicEventsController {
 
       const contact = await this.contactService.upsert(contactData);
       
-      // Calculate start and end times
       const start_at = new Date(dto.start_at);
       const end_at = dto?.end_at
         ? new Date(dto.end_at)
         : new Date(start_at.getTime() + ((eventType?.duration_minutes ?? 30) * 60000));
 
-      // Create Google Calendar event using organizer's credentials
-      // Note: organizer must have Google OAuth connected
       const calendarEvent = await this.oAuthService.createGoogleCalendarEvent(organizer, {
         summary: `Meeting by ${organizer.name || organizer.email} with ${dto.name}`,
         description: dto.description,
@@ -88,9 +77,8 @@ export class PublicEventsController {
         },
       });
       
-      // Create event data
       const eventData: CreateEventDataDto = {
-        user_id: organizer.id, // Event belongs to organizer
+        user_id: organizer.id,
         event_type_id: dto.event_type_id,
         start_at: start_at,
         end_at: end_at,
@@ -102,7 +90,6 @@ export class PublicEventsController {
         description: dto.description ? dto.description : '',
       };
 
-      // Send confirmation emails
       const templateData = {
         hostName: organizer.name || organizer.email,
         name: dto.name,
@@ -114,7 +101,6 @@ export class PublicEventsController {
         description: eventData.description
       };
       
-      // Send email to organizer
       this.mailService.sendEmail({
         subject: 'New Meeting Scheduled',
         template: 'new-meet-set',
@@ -122,7 +108,6 @@ export class PublicEventsController {
         emailsList: organizer.email
       });
       
-      // Send email to attendee
       this.mailService.sendEmail({
         subject: 'New Meeting Scheduled',
         template: 'new-meet-set',

@@ -120,7 +120,7 @@ export class EventsController {
         user_id: req.user.id,
       };
 
-      const now = new Date();
+      const now = toTimezoneDate((new Date()), req.user.timezone ?? 'Asia/Kathmandu')
 
       switch (event) {
         case 'upcoming':
