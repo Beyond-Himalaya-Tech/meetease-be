@@ -3,6 +3,8 @@ import { EventTypesService } from './event-types.service';
 import { AvailabilitiesService } from '../availabilities/availabilities.service';
 import { responseFormatter } from 'src/helpers/response.helper';
 import { dateToTimeString, getDateTime, msToHour, timeStringToDate, toTimezoneDate, toUTCDate } from 'src/helpers/time.helper';
+import { GoogleOAuthService } from '../google-oauth/google-oauth.service';
+import { UsersService } from '../users/users.service';
 
 /**
  * Public controller for booking pages (like Calendly)
@@ -11,6 +13,8 @@ import { dateToTimeString, getDateTime, msToHour, timeStringToDate, toTimezoneDa
 @Controller('public/event-types')
 export class PublicEventTypesController {
   constructor(
+    private readonly userService: UsersService,
+    private readonly oauthService: GoogleOAuthService,
     private readonly eventTypeService: EventTypesService,
     private readonly availabilitiesService: AvailabilitiesService
   ) {}
@@ -78,6 +82,18 @@ export class PublicEventTypesController {
       
       const allSlots: number[] = [];
       
+      const userData = await this.userService.findOne(eventType.user_id);
+
+      const availableEvents = await this.oauthService.getGoogleCalendarEvent(userData, givenDate, startTime.getTime(), endTime.getTime());
+      const eventTimes = availableEvents.map((events) => {
+        const start = events?.start?.dateTime && timezone ? toTimezoneDate(new Date(events?.start?.dateTime), timezone) : new Date(givenDate);
+        const end = events?.end?.dateTime && timezone ? toTimezoneDate(new Date(events?.end?.dateTime), timezone) : new Date(givenDate);
+        return {
+          start: timeStringToDate(dateToTimeString(start)).getTime(),
+          end: timeStringToDate(dateToTimeString(end)).getTime()
+        }
+      })
+
       // Calculate current time in the requested timezone
       const timeNow = timeStringToDate(dateToTimeString(toTimezoneDate(new Date(), timezone))).getTime();
       
@@ -93,8 +109,10 @@ export class PublicEventTypesController {
           allSlots.push(currentTime);
         }
       }
-
-      const availableSlots = allSlots.map(msToHour);
+      const filteredSlots = allSlots.filter(time => {
+        return !eventTimes.some(event => time >= event.start && time < event.end);
+      });
+      const availableSlots = filteredSlots.map(msToHour);
 
       // Convert timezone if needed
       const userTimezone = userAvailabilities[0].users?.timezone ?? 'Asia/Kathmandu';
