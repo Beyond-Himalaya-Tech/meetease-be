@@ -33,6 +33,7 @@ async function bootstrap(): Promise<Express> {
       process.env.FRONTEND_URL || 'http://localhost:5173',
       // CloudFront URL (HTTPS)
       'https://d1l709and745tm.cloudfront.net',
+      'https://meetease.beyondhimalayatech.com.au',
     ],
     credentials: true,
   });
