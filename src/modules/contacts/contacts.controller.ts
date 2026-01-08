@@ -75,9 +75,10 @@ export class ContactsController {
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: number) {
+  async findOne(@Param('id') id: number, @Request() req) {
     try {
-     return responseFormatter(await this.contactsService.findOne(id));
+      const contact = await this.contactsService.findOneWithEvents(id, req.user.id);
+      return responseFormatter(contact);
     } catch (err) {
       throw responseFormatter(err, "error");
     }

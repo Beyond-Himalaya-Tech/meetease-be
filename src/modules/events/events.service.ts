@@ -18,6 +18,7 @@ export class EventsService {
         event_type_id: dto.event_type_id,
         user_id: dto.user_id,
         contact_id: dto.contact_id,
+        description: dto.description ?? null,
       },
     });
   }

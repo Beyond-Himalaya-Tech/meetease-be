@@ -87,7 +87,7 @@ export class PublicEventsController {
         status: dto.status ?? EventStatus.CREATED,
         calendar_event_id: calendarEvent.id ?? '',
         contact_id: contact.id,
-        description: dto.description ? dto.description : '',
+        description: dto.description || undefined,
       };
 
       const templateData = {

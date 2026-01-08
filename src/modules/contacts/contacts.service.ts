@@ -39,6 +39,28 @@ export class ContactsService {
     return await this.prisma.contacts.findUnique({ where: { id } });
   }
 
+  async findOneWithEvents(id: number, user_id: number) {
+    const contact = await this.prisma.contacts.findFirst({ 
+      where: { id, user_id },
+      include: {
+        events: {
+          orderBy: { start_at: 'desc' },
+          include: {
+            event_types: {
+              select: {
+                id: true,
+                title: true,
+                duration_minutes: true,
+                description: true,
+              }
+            }
+          }
+        }
+      }
+    });
+    return contact;
+  }
+
   async update(id: number, dto: UpdateContactDto) {
     return await this.prisma.contacts.update({
       where: { id },
