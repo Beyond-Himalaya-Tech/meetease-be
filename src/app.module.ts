@@ -6,6 +6,7 @@ import { AvailabilitiesService } from './modules/availabilities/availabilities.s
 import { AvailabilitiesModule } from './modules/availabilities/availabilities.module';
 import { ContactsService } from './modules/contacts/contacts.service';
 import { ContactsModule } from './modules/contacts/contacts.module';
+import { SalesNotesModule } from './modules/sales-notes/sales-notes.module';
 import { EventTypesService } from './modules/event-types/event-types.service';
 import { EventTypesModule } from './modules/event-types/event-types.module';
 import { EventsService } from './modules/events/events.service';
@@ -27,7 +28,8 @@ import { MailModule } from './modules/mail/mail.module';
     EventsModule,
     AuthModule,
     GoogleOauthModule,
-    MailModule
+    MailModule,
+    SalesNotesModule
   ],
   providers: [PrismaService, AvailabilitiesService, ContactsService, EventTypesService, EventsService, AuthService],
 })
