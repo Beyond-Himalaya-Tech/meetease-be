@@ -24,6 +24,7 @@ model users {
   availabilities  availabilities[]
   contacts        contacts[]
   events          events[]
+  sales_notes     sales_notes[]
 }
 
 model event_types {
@@ -70,6 +71,7 @@ model contacts {
 
   users      users    @relation(fields: [user_id], references: [id])
   events     events[]
+  sales_notes sales_notes[]
   @@unique([user_id, email], name: "contacts_user_id_email_unique")
 }
 
@@ -92,4 +94,19 @@ model events {
   users        users        @relation(fields: [user_id], references: [id])
   event_types  event_types  @relation(fields: [event_type_id], references: [id])
   contacts     contacts?    @relation(fields: [contact_id], references: [id])
+  notes        sales_notes[]
+}
+
+model sales_notes {
+  id         Int       @id @default(autoincrement())
+  contact_id Int
+  user_id    Int
+  event_id   Int?      // If null = sales note, if set = meeting note
+  content    String    @db.Text
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+
+  contacts   contacts  @relation(fields: [contact_id], references: [id], onDelete: Cascade)
+  users      users     @relation(fields: [user_id], references: [id])
+  events     events?   @relation(fields: [event_id], references: [id], onDelete: Cascade)
 }
