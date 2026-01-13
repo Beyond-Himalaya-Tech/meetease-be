@@ -30,7 +30,18 @@ export class PublicEventTypesController {
       if (!eventType || !eventType.is_active) {
         throw new Error('Event type not found or inactive');
       }
-      return responseFormatter(eventType);
+      
+      // Fetch organizer/user information
+      const organizer = await this.userService.findOne(eventType.user_id);
+      
+      // Return event type with organizer info
+      return responseFormatter({
+        ...eventType,
+        organizer: organizer ? {
+          name: organizer.name,
+          email: organizer.email,
+        } : null,
+      });
     } catch (err) {
       throw responseFormatter(err, "error");
     }
