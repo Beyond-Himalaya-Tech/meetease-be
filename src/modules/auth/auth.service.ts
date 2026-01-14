@@ -80,7 +80,7 @@ export class AuthService {
 
     // Long-lived refresh token (used only from HttpOnly cookie)
     const refresh_token = await this.jwtService.signAsync(payload, {
-      expiresIn: '30d',
+      expiresIn: '7d',
     });
 
     return { access_token, refresh_token };
@@ -88,10 +88,13 @@ export class AuthService {
 
   async refreshAccessToken(refreshToken: string) {
     try {
+      // Verify refresh token with clock tolerance
       const decoded = await this.jwtService.verifyAsync<{
         sub: number;
         email: string;
-      }>(refreshToken);
+      }>(refreshToken, {
+        clockTolerance: 60,
+      });
 
       const user = await this.usersService.findOne(decoded.sub);
       if (!user) {
