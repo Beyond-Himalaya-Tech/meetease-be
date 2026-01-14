@@ -27,10 +27,10 @@ export class AuthGuard implements CanActivate {
     }
 
     try {
-      // Verify and decode JWT token
-      const decoded = await this.jwtService.verifyAsync(token);
+      const decoded = await this.jwtService.verifyAsync(token, {
+        clockTolerance: 60,
+      });
 
-      // Load user from DB
       const user = await this.usersService.findOne(decoded.sub);
       if (!user) {
         throw new UnauthorizedException('User not found');
