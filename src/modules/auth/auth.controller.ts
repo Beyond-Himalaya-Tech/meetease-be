@@ -22,10 +22,13 @@ export class AuthController {
         await this.authService.handleCallback(code, timezone);
 
       // HttpOnly refresh token cookie
+      const isProduction = process.env.NODE_ENV === 'production';
+      const isDevWithHTTPS = !isProduction && process.env.FRONTEND_URL?.startsWith('https://');
+      
       res.cookie('refresh_token', refresh_token, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
+        secure: isProduction || isDevWithHTTPS, // true for HTTPS (prod or dev)
+        sameSite: (isProduction || isDevWithHTTPS) ? 'none' : 'lax', // 'none' for cross-domain
         path: '/',
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       });
@@ -64,10 +67,13 @@ export class AuthController {
   @Post('logout')
   async logout(@Res() res: Response) {
     // Clear refresh_token cookie
+    const isProduction = process.env.NODE_ENV === 'production';
+    const isDevWithHTTPS = !isProduction && process.env.FRONTEND_URL?.startsWith('https://');
+    
     res.cookie('refresh_token', '', {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      secure: isProduction || isDevWithHTTPS,
+      sameSite: (isProduction || isDevWithHTTPS) ? 'none' : 'lax',
       path: '/',
       maxAge: 0,
     });
