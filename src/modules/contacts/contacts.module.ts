@@ -5,6 +5,7 @@ import { ContactsService } from './contacts.service';
 import { AuthModule } from '../auth/auth.module';
 import { UsersModule } from '../users/users.module';
 import { EventTypesModule } from '../event-types/event-types.module';
+import { PublicContactsController } from './public-contacts.controller';
 
 @Module({
   imports: [
@@ -13,7 +14,7 @@ import { EventTypesModule } from '../event-types/event-types.module';
     UsersModule,
     EventTypesModule
   ],
-  controllers: [ContactsController],
+  controllers: [ContactsController, PublicContactsController],
   providers: [ContactsService],
   exports: [ContactsService]
 })

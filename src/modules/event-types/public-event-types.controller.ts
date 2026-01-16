@@ -86,6 +86,7 @@ export class PublicEventTypesController {
 
       let startTime = new Date(userAvailabilities[0].start_time);
       let endTime = new Date(userAvailabilities[0].end_time);
+      let availabilityTimezone =userAvailabilities[0].users.timezone;
 
       const intervalMs = eventType?.duration_minutes 
         ? eventType.duration_minutes * 60 * 1000 
@@ -97,8 +98,8 @@ export class PublicEventTypesController {
 
       const availableEvents = await this.oauthService.getGoogleCalendarEvent(userData, givenDate, startTime.getTime(), endTime.getTime());
       const eventTimes = availableEvents.map((events) => {
-        const start = events?.start?.dateTime && timezone ? toTimezoneDate(new Date(events?.start?.dateTime), timezone) : new Date(givenDate);
-        const end = events?.end?.dateTime && timezone ? toTimezoneDate(new Date(events?.end?.dateTime), timezone) : new Date(givenDate);
+        const start = events?.start?.dateTime && availabilityTimezone ? toTimezoneDate(new Date(events?.start?.dateTime), availabilityTimezone) : new Date(givenDate);
+        const end = events?.end?.dateTime && availabilityTimezone ? toTimezoneDate(new Date(events?.end?.dateTime), availabilityTimezone) : new Date(givenDate);
         return {
           start: timeStringToDate(dateToTimeString(start)).getTime(),
           end: timeStringToDate(dateToTimeString(end)).getTime()
