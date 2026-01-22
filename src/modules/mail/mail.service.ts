@@ -6,6 +6,7 @@ export class MailService {
     private readonly logger = new Logger(MailService.name);
 
     constructor(private readonly mailerService: MailerService) {}
+    
 
     async sendEmail(params: {
         subject: string;
