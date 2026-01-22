@@ -297,15 +297,16 @@ functions:
     memorySize: 512
     events:
       - schedule:
-          # TESTING: Runs every 5 minutes
+          # Runs every day at 9:00 AM Nepal Time (3:15 AM UTC)
+          # Nepal Time = UTC+5:45, so 9:00 AM Nepal = 3:15 AM UTC
           # AWS EventBridge cron format: cron(minute hour day-of-month month day-of-week year)
           # Note: Use ? for day-of-month OR day-of-week when using * in the other
-          # '*/5 * * * ? *' = Every 5 minutes
+          # '15 3 * * ? *' = Every day at 3:15 AM UTC (9:00 AM Nepal)
           # '15 10 * * ? *' = Every day at 10:15 AM UTC (4 PM Nepal)
-          # '0 9 ? * MON *' = Every Monday at 9 AM UTC (original - for production)
-          rate: cron(*/5 * * * ? *)
+          # '0 9 ? * MON *' = Every Monday at 9 AM UTC (alternative)
+          rate: cron(15 3 * * ? *)
           enabled: true
-          description: TESTING - Send tech news digest every 5 minutes
+          description: Send tech news digest every day at 9:00 AM Nepal Time (3:15 AM UTC)
 
 plugins:
   - serverless-dotenv-plugin
