@@ -43,4 +43,62 @@ export class MailService {
             console.log(error);
         }
     }
+
+    async sendTechDigest(email: string, articles: Array<{
+        title: string;
+        link: string;
+        pubDate: string;
+        contentSnippet?: string;
+        source: string;
+    }>, recipientName?: string): Promise<void> {
+        try {
+            // Validate email
+            if (!email || !email.trim()) {
+                throw new Error('Email address is required');
+            }
+
+            // Validate SMTP configuration
+            if (!process.env.SMTP_FROM) {
+                throw new Error('SMTP_FROM environment variable is not set');
+            }
+
+            this.logger.log(`Preparing to send tech digest to ${email}...`);
+
+            const currentYear = new Date().getFullYear();
+            const formattedArticles = articles.map(article => ({
+                ...article,
+                pubDateFormatted: new Date(article.pubDate).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                })
+            }));
+
+            const mailOptions = {
+                to: email.trim(),
+                from: `${process.env.SMTP_FROM_NAME || 'MeetEase'} <${process.env.SMTP_FROM}>`,
+                subject: `📰 Weekly Tech News Digest - Top ${articles.length} Stories`,
+                template: 'tech-news-digest',
+                context: {
+                    name: recipientName || 'there',
+                    articles: formattedArticles,
+                    articleCount: articles.length,
+                    currentYear,
+                },
+            };
+
+            this.logger.log(`Sending mail with options: ${JSON.stringify({ to: mailOptions.to, subject: mailOptions.subject })}`);
+
+            const result = await this.mailerService.sendMail(mailOptions);
+
+            this.logger.log(`Tech news digest sent successfully to ${email}. Result: ${JSON.stringify(result)}`);
+        } catch (error) {
+            this.logger.error(`Error sending tech news digest to ${email}:`, error);
+            if (error instanceof Error) {
+                this.logger.error(`Error details: ${error.message}`);
+                this.logger.error(`Error stack: ${error.stack}`);
+            }
+            throw error;
+        }
+    }
 }
