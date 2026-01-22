@@ -8,30 +8,48 @@ import { MailService } from './mail.service';
 @Module({
   imports: [
     MailerModule.forRootAsync({
-      useFactory: () => ({
-        transport: {
-          host: process.env.SMTP_HOST,
-          port: Number(process.env.SMTP_PORT),
-          secure: Number(process.env.SMTP_PORT) === 465,
-          auth: {
-            user: process.env.SMTP_USER,
-            pass: process.env.SMTP_PASS,
+      useFactory: () => {
+        const smtpHost = process.env.SMTP_HOST;
+        const smtpPort = Number(process.env.SMTP_PORT);
+        const smtpUser = process.env.SMTP_USER;
+        const smtpFrom = process.env.SMTP_FROM;
+
+        console.log('=== SMTP Configuration ===');
+        console.log('SMTP_HOST:', smtpHost);
+        console.log('SMTP_PORT:', smtpPort);
+        console.log('SMTP_USER:', smtpUser ? `${smtpUser.substring(0, 5)}...` : 'NOT SET');
+        console.log('SMTP_FROM:', smtpFrom);
+        console.log('==========================');
+
+        if (!smtpHost) {
+          throw new Error('SMTP_HOST environment variable is not set');
+        }
+
+        return {
+          transport: {
+            host: smtpHost,
+            port: smtpPort,
+            secure: smtpPort === 465,
+            auth: {
+              user: smtpUser,
+              pass: process.env.SMTP_PASS,
+            },
+            tls: {
+              rejectUnauthorized: false,
+            },
+          } as SMTPTransport.Options,
+          defaults: {
+            from: `${process.env.SMTP_FROM_NAME || 'MeetEase'} <${smtpFrom}>`,
           },
-          tls: {
-            rejectUnauthorized: false,
+          template: {
+            dir: join(__dirname, '..', '..', 'templates'),
+            adapter: new PugAdapter(),
+            options: {
+              strict: true,
+            },
           },
-        } as SMTPTransport.Options,
-        defaults: {
-          from: `${process.env.SMTP_FROM_NAME || 'MeetEase'} <${process.env.SMTP_FROM}>`,
-        },
-        template: {
-          dir: join(__dirname, '..', '..', 'templates'),
-          adapter: new PugAdapter(),
-          options: {
-            strict: true,
-          },
-        },
-      }),
+        };
+      },
     }),
   ],
   providers: [MailService],

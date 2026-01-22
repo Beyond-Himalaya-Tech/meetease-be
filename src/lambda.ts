@@ -8,6 +8,7 @@ import { Handler, Context, Callback } from 'aws-lambda';
 import { Express } from 'express';
 import serverlessExpress from '@vendia/serverless-express';
 import express from 'express';
+import { NewsDigestService } from './modules/news/news-digest.service';
 
 let cachedServer: Handler;
 
@@ -57,12 +58,49 @@ async function bootstrap(): Promise<Express> {
   return expressApp;
 }
 
+/**
+ * Check if event is from EventBridge (scheduled event)
+ */
+function isScheduledEvent(event: any): boolean {
+  return (
+    event.source === 'aws.events' ||
+    event['detail-type'] === 'Scheduled Event' ||
+    (event.requestContext === undefined && event.httpMethod === undefined)
+  );
+}
+
 export const handler = async (
   event: any,
   context: Context,
   callback: Callback,
 ) => {
   try {
+    // Handle EventBridge scheduled events (weekly news digest)
+    if (isScheduledEvent(event)) {
+      console.log('=== EventBridge Scheduled Event Detected ===');
+      console.log('Event:', JSON.stringify(event, null, 2));
+
+      const app = await NestFactory.createApplicationContext(AppModule, {
+        logger: ['error', 'warn', 'log'],
+      });
+
+      const newsDigestService = app.get(NewsDigestService);
+      await newsDigestService.sendWeeklyTechDigest();
+
+      await app.close();
+
+      console.log('=== Weekly News Digest Completed Successfully ===');
+
+      return {
+        statusCode: 200,
+        body: JSON.stringify({
+          message: 'Weekly tech news digest sent successfully',
+          timestamp: new Date().toISOString(),
+        }),
+      };
+    }
+
+    // Handle HTTP requests (normal API)
     if (!cachedServer) {
       console.log('=== Lambda Handler Starting ===');
       console.log('Initializing NestJS application...');

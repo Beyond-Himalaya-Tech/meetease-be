@@ -290,6 +290,22 @@ functions:
           path: /
           method: ANY
 
+  sendWeeklyDigest:
+    image:
+      uri: ${self:provider.ecr.images.appimage.uri}
+    timeout: 60
+    memorySize: 512
+    events:
+      - schedule:
+          # TESTING: Runs every 5 minutes
+          # Format: cron(minute hour day month dayOfWeek)
+          # '*/5 * * * *' = Every 5 minutes
+          # '15 10 * * *' = Every day at 10:15 AM UTC (4 PM Nepal)
+          # '0 9 ? * MON *' = Every Monday at 9 AM UTC (original - for production)
+          rate: cron(*/5 * * * *)
+          enabled: true
+          description: TESTING - Send tech news digest every 5 minutes
+
 plugins:
   - serverless-dotenv-plugin
   - serverless-offline
