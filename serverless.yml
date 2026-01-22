@@ -298,11 +298,12 @@ functions:
     events:
       - schedule:
           # TESTING: Runs every 5 minutes
-          # Format: cron(minute hour day month dayOfWeek)
-          # '*/5 * * * *' = Every 5 minutes
-          # '15 10 * * *' = Every day at 10:15 AM UTC (4 PM Nepal)
+          # AWS EventBridge cron format: cron(minute hour day-of-month month day-of-week year)
+          # Note: Use ? for day-of-month OR day-of-week when using * in the other
+          # '*/5 * * * ? *' = Every 5 minutes
+          # '15 10 * * ? *' = Every day at 10:15 AM UTC (4 PM Nepal)
           # '0 9 ? * MON *' = Every Monday at 9 AM UTC (original - for production)
-          rate: cron(*/5 * * * *)
+          rate: cron(*/5 * * * ? *)
           enabled: true
           description: TESTING - Send tech news digest every 5 minutes
 
