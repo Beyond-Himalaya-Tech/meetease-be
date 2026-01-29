@@ -35,6 +35,7 @@ async function bootstrap(): Promise<Express> {
       // CloudFront URL (HTTPS)
       'https://d1l709and745tm.cloudfront.net',
       'https://meetease.beyondhimalayatech.com.au',
+      'https://www.rosterly.au'
     ],
     credentials: true,
   });
